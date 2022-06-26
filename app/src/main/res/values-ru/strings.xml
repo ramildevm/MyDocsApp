@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">MyDocsApp</string>
+    <string name="login">Логин:</string>
+    <string name="my_docs">My docs</string>
+    <string name="password">Пароль:</string>
+    <string name="log_in">Войти</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="welcome">Добро пожаловать,</string>
+    <string name="go_guest_mode">Продолжить как гость</string>
+    <string name="go_back">Выйти</string>
+    <string name="error_not_all_fields_filled">Не все поля заполнены!</string>
+    <string name="error_passwords_are_not_same">Пароли не совпадают!</string>
+    <string name="error_user_doesnt_exists">Пользователь с таким логином не найден!</string>
+    <string name="extra_guest">гость</string>
+</resources>
