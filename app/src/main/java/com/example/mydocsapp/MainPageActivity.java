@@ -24,7 +24,7 @@ public class MainPageActivity extends AppCompatActivity {
 
     public void switchLangClick(View view) {
         Locale locale = null;
-        if (((TextView)findViewById(R.id.email_txt)).getText().equals("Логин:"))
+        if (((TextView)findViewById(R.id.goback_btn)).getText().equals("Выйти"))
             locale = new Locale("en");
         else
             locale = new Locale("ru");

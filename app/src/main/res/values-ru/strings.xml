@@ -4,7 +4,7 @@
     <string name="my_docs">My docs</string>
     <string name="password">Пароль:</string>
     <string name="log_in">Войти</string>
-    <string name="register">Зарегистрироваться</string>
+    <string name="sign_up">Зарегистрироваться</string>
     <string name="welcome">Добро пожаловать,</string>
     <string name="go_guest_mode">Продолжить как гость</string>
     <string name="go_back">Выйти</string>
@@ -12,4 +12,9 @@
     <string name="error_passwords_are_not_same">Пароли не совпадают!</string>
     <string name="error_user_doesnt_exists">Пользователь с таким логином не найден!</string>
     <string name="extra_guest">гость</string>
+    <string name="confirm_password">Подтвердите пароль:</string>
+    <string name="cancel">Отмена</string>
+    <string name="error_adding_error">Ошибка добавления!</string>
+    <string name="result_successful_user_adding">Новый пользователь успешно добавлен</string>
+    <string name="error_dont_match_passwords">Пароли не соотвествуют друг другу!</string>
 </resources>

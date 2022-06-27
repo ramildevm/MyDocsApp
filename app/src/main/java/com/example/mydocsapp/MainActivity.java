@@ -4,20 +4,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.Gravity;
+import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.api.UserGetCallback;
-
-import java.util.Locale;
+import com.example.mydocsapp.api.UserPostCallback;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
-    private void changeButtonBack(View view, int backSetId, boolean loginModeCheck, int duration){
+    private void changeButtonBack(View view, int backSetId, int duration){
         view.setBackground(ContextCompat.getDrawable(this,backSetId));
         TransitionDrawable transition = (TransitionDrawable) view.getBackground();
         transition.startTransition(duration);
@@ -36,8 +36,8 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 transition.startTransition(duration);
                 transition.reverseTransition(duration);
-                if(loginModeCheck)
-                    loginMethod();
+                loginMethod();
+
             }
         }, duration);
     }
@@ -74,10 +74,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loginBtnClick(View view) {
-        changeButtonBack(view, R.drawable.main_button_click_set,true, 200);
+        changeButtonBack(view, R.drawable.main_button_click_set, 200);
     }
     public void reginBtnClick(View view) {
-        changeButtonBack(view, R.drawable.main_button_click_set,false, 200);
+        Bundle bundle = null;
+        Pair<View, String> pair1 = Pair.create(findViewById(R.id.sign_up_btn), findViewById(R.id.sign_up_btn).getTransitionName());
+        Pair<View, String> pair2 = Pair.create(findViewById(R.id.email_txt), findViewById(R.id.email_txt).getTransitionName());
+        Pair<View, String> pair3 = Pair.create(findViewById(R.id.editTextLogin), findViewById(R.id.editTextLogin).getTransitionName());
+        Pair<View, String> pair4 = Pair.create(findViewById(R.id.password_txt), findViewById(R.id.password_txt).getTransitionName());
+        Pair<View, String> pair5 = Pair.create(findViewById(R.id.editTextPassword), findViewById(R.id.editTextPassword).getTransitionName());
+        Pair<View, String> pair6 = Pair.create(findViewById(R.id.cancel_btn), findViewById(R.id.cancel_btn).getTransitionName());
+        Pair<View, String> pair7 = Pair.create(findViewById(R.id.without_login), findViewById(R.id.without_login).getTransitionName());
+
+        ActivityOptions options;
+        options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, pair1,pair2,pair3,pair4,pair5,pair6,pair7);
+        bundle = options.toBundle();
+        Intent intent = new Intent(this,SignInActivity.class);
+        startActivity(intent, bundle);
     }
 
     public void goGuestModeClick(View view) {

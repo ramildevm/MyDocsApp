@@ -4,7 +4,7 @@
     <string name="my_docs">My docs</string>
     <string name="password">Password:</string>
     <string name="log_in">Log in</string>
-    <string name="register">Sign up</string>
+    <string name="sign_up">Sign up</string>
     <string name="welcome">Welcome,</string>
     <string name="go_guest_mode">Continue as a guest</string>
     <string name="go_back">Log out</string>
@@ -12,4 +12,9 @@
     <string name="error_passwords_are_not_same">Passwords are not same!</string>
     <string name="error_user_doesnt_exists">User with this login doesn\'t exists!</string>
     <string name="extra_guest">quest</string>
+    <string name="confirm_password">Confirm password:</string>
+    <string name="cancel">Cancel</string>
+    <string name="error_adding_error">Adding error!</string>
+    <string name="result_successful_user_adding">New user was successfully added</string>
+    <string name="error_dont_match_passwords">Passwords don\'t match!</string>
 </resources>

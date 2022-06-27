@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    tools:context=".SignInActivity"
     android:background="#2C2C2C">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -43,8 +43,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/data_panel"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/login_btn"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_max="310dp"
+        app:layout_constraintBottom_toTopOf="@+id/sign_up_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:padding="10dp"
@@ -68,14 +69,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:textSize="26dp"
-            android:textColor="#000"
-            android:ems="10"
             android:background="@drawable/rounded_border_white"
+            android:ems="10"
+            android:textColor="#000"
+            android:textSize="26dp"
+            app:layout_constraintBottom_toTopOf="@id/password_txt"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/password_txt"
             app:layout_constraintTop_toBottomOf="@+id/email_txt" />
+
         <TextView
             android:id="@+id/password_txt"
             android:transitionName="@string/password"
@@ -92,22 +94,23 @@
 
         <EditText
             android:id="@+id/editTextPassword"
-            android:transitionName="@string/password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:textSize="26dp"
-            android:textColor="#000"
-            android:ems="10"
             android:background="@drawable/rounded_border_white"
+            android:ems="10"
             android:inputType="textPassword"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:textColor="#000"
+            android:textSize="26dp"
+            android:transitionName="@string/password"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/password_txt" />
+
         <TextView
             android:id="@+id/passwordConfirm_txt"
-            android:alpha="0"
+            android:alpha="1"
             android:transitionName="@string/confirm_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -116,13 +119,13 @@
             android:textColor="#FFC700"
             android:layout_marginTop="20dp"
             android:textSize="24dp"
-            app:layout_constraintBottom_toTopOf="@id/editTextPassword"
+            app:layout_constraintBottom_toTopOf="@id/editTextPasswordConfirm"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextLogin" />
+            app:layout_constraintTop_toBottomOf="@+id/editTextPassword" />
 
         <EditText
             android:id="@+id/editTextPasswordConfirm"
-            android:alpha="0"
+            android:alpha="1"
             android:transitionName="etpc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -135,55 +138,40 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/password_txt" />
+            app:layout_constraintTop_toBottomOf="@+id/passwordConfirm_txt" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-    <Button
-        android:id="@+id/login_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="14"
-        android:textSize="20dp"
-        android:onClick="loginBtnClick"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/rounded_border_gray"
-        android:text="@string/log_in"
-        android:textAllCaps="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/sign_up_btn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/data_panel"/>
-
     <Button
         android:id="@+id/sign_up_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="14"
-        android:transitionName="@string/sign_up"
         android:textSize="20dp"
+        android:onClick="signupBtnClick"
+        android:layout_marginTop="20dp"
         android:background="@drawable/rounded_border_gray"
+        android:transitionName="@string/sign_up"
         android:text="@string/sign_up"
-        android:onClick="reginBtnClick"
         android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/without_login"
+        app:layout_constraintBottom_toTopOf="@id/cancel_btn"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_btn"/>
+        app:layout_constraintTop_toBottomOf="@+id/data_panel"/>
+
     <Button
         android:id="@+id/cancel_btn"
-        android:alpha="0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="14"
-        android:transitionName="@string/cancel"
         android:textSize="20dp"
+        android:transitionName="@string/cancel"
         android:background="@drawable/rounded_border_gray"
-        android:text="@string/sign_up"
-        android:onClick="reginBtnClick"
+        android:text="@string/cancel"
+        android:onClick="cancelBtnClick"
         android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/without_login"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_btn"/>
+        app:layout_constraintTop_toBottomOf="@+id/sign_up_btn"/>
     <TextView
         android:id="@+id/without_login"
         android:transitionName="@string/go_guest_mode"
@@ -192,14 +180,14 @@
         android:layout_marginBottom="30dp"
         android:ems="14"
         android:textSize="20dp"
+        android:alpha="0"
         android:textColor="#FFC700"
         android:clickable="true"
-        android:onClick="goGuestModeClick"
+        android:layout_marginTop="120dp"
         android:textAlignment="center"
         android:text="@string/go_guest_mode"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sign_up_btn"/>
+        app:layout_constraintTop_toBottomOf="@id/sign_up_btn"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
