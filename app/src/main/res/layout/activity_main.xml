@@ -40,7 +40,8 @@
         app:layout_constraintStart_toEndOf="@id/main_icon"
         app:layout_constraintTop_toTopOf="@+id/main_icon" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:id="@+id/data_panel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -51,16 +52,13 @@
         app:layout_constraintTop_toBottomOf="@+id/main_icon">
         <TextView
             android:id="@+id/email_txt"
-            android:transitionName="@string/log_in"
+            android:transitionName="etxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/stardos_stencil_regular"
             android:text="@string/login"
             android:textColor="#FFC700"
-            android:textSize="24dp"
-            app:layout_constraintBottom_toTopOf="@id/editTextLogin"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textSize="24dp" />
 
         <EditText
             android:id="@+id/editTextLogin"
@@ -71,24 +69,17 @@
             android:textSize="26dp"
             android:textColor="#000"
             android:ems="10"
-            android:background="@drawable/rounded_border_white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/password_txt"
-            app:layout_constraintTop_toBottomOf="@+id/email_txt" />
+            android:background="@drawable/rounded_border_white" />
         <TextView
             android:id="@+id/password_txt"
-            android:transitionName="@string/password"
+            android:transitionName="ptxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/stardos_stencil_regular"
             android:text="@string/password"
             android:textColor="#FFC700"
             android:layout_marginTop="20dp"
-            android:textSize="24dp"
-            app:layout_constraintBottom_toTopOf="@id/editTextPassword"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextLogin" />
+            android:textSize="24dp" />
 
         <EditText
             android:id="@+id/editTextPassword"
@@ -100,43 +91,9 @@
             android:textColor="#000"
             android:ems="10"
             android:background="@drawable/rounded_border_white"
-            android:inputType="textPassword"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/password_txt" />
-        <TextView
-            android:id="@+id/passwordConfirm_txt"
-            android:alpha="0"
-            android:transitionName="@string/confirm_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/stardos_stencil_regular"
-            android:text="@string/confirm_password"
-            android:textColor="#FFC700"
-            android:layout_marginTop="20dp"
-            android:textSize="24dp"
-            app:layout_constraintBottom_toTopOf="@id/editTextPassword"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextLogin" />
+            android:inputType="textPassword" />
 
-        <EditText
-            android:id="@+id/editTextPasswordConfirm"
-            android:alpha="0"
-            android:transitionName="etpc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textSize="26dp"
-            android:textColor="#000"
-            android:ems="10"
-            android:background="@drawable/rounded_border_white"
-            android:inputType="textPassword"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/password_txt" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
     <Button
         android:id="@+id/login_btn"
         android:layout_width="wrap_content"
@@ -144,6 +101,7 @@
         android:ems="14"
         android:textSize="20dp"
         android:onClick="loginBtnClick"
+        android:transitionName="@string/cancel"
         android:layout_marginTop="20dp"
         android:background="@drawable/rounded_border_gray"
         android:text="@string/log_in"
@@ -159,22 +117,6 @@
         android:layout_height="wrap_content"
         android:ems="14"
         android:transitionName="@string/sign_up"
-        android:textSize="20dp"
-        android:background="@drawable/rounded_border_gray"
-        android:text="@string/sign_up"
-        android:onClick="reginBtnClick"
-        android:textAllCaps="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/without_login"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_btn"/>
-    <Button
-        android:id="@+id/cancel_btn"
-        android:alpha="0"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="14"
-        android:transitionName="@string/cancel"
         android:textSize="20dp"
         android:background="@drawable/rounded_border_gray"
         android:text="@string/sign_up"

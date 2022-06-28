@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast msg = Toast.makeText(MainActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
                         msg.show();
                     } else
-                        startActivity(new Intent(MainActivity.this, MainPageActivity.class).putExtra("Login", login));
+                        startActivity(new Intent(MainActivity.this, MainContentActivity.class).putExtra("Login", login));
                 }
                 else{
                     Toast msg = Toast.makeText(MainActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT);
@@ -82,19 +82,18 @@ public class MainActivity extends AppCompatActivity {
         Pair<View, String> pair2 = Pair.create(findViewById(R.id.email_txt), findViewById(R.id.email_txt).getTransitionName());
         Pair<View, String> pair3 = Pair.create(findViewById(R.id.editTextLogin), findViewById(R.id.editTextLogin).getTransitionName());
         Pair<View, String> pair4 = Pair.create(findViewById(R.id.password_txt), findViewById(R.id.password_txt).getTransitionName());
-        Pair<View, String> pair5 = Pair.create(findViewById(R.id.editTextPassword), findViewById(R.id.editTextPassword).getTransitionName());
         Pair<View, String> pair6 = Pair.create(findViewById(R.id.cancel_btn), findViewById(R.id.cancel_btn).getTransitionName());
         Pair<View, String> pair7 = Pair.create(findViewById(R.id.without_login), findViewById(R.id.without_login).getTransitionName());
 
         ActivityOptions options;
-        options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, pair1,pair2,pair3,pair4,pair5,pair6,pair7);
+        options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, pair1,pair2,pair3,pair4,pair6,pair7);
         bundle = options.toBundle();
         Intent intent = new Intent(this,SignInActivity.class);
         startActivity(intent, bundle);
     }
 
     public void goGuestModeClick(View view) {
-        startActivity(new Intent(MainActivity.this, MainPageActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+        startActivity(new Intent(MainActivity.this, MainContentActivity.class).putExtra("Login", getString(R.string.extra_guest)));
     }
 
 }

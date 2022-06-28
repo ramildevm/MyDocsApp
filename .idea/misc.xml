@@ -3,16 +3,22 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/gradient_black_to_transparent.xml" value="0.1905" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/gradient_white_to_black_back.xml" value="0.203" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/ic_baseline_translate_24.xml" value="0.203" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/item_layout_bg.xml" value="0.2595" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/item_layout_bottom_bg.xml" value="0.1515" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/main_button_click_set.xml" value="0.147" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_border.xml" value="0.203" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_border_gray.xml" value="0.147" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_border_white.xml" value="0.203" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_border_whitegray.xml" value="0.147" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_button.xml" value="0.2185" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_main_content.xml" value="0.1" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_main_page.xml" value="0.264" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_sign_in.xml" value="0.4" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/list_item.xml" value="0.6883468834688347" />
       </map>
     </option>
   </component>
