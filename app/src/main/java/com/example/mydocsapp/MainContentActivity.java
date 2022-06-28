@@ -111,6 +111,14 @@ public class MainContentActivity extends AppCompatActivity {
 //        contentPanel.addView(l1);
     }
 
+    public void goAccountClick(View view) {
+        startActivity(new Intent(MainContentActivity.this, AccountActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+    }
+
+    public void goPatternClick(View view) {
+        startActivity(new Intent(MainContentActivity.this, MainPassportPatternActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+    }
+
     public void openSortMenuClick(View view) {
         setViewsTagOff();
         MotionLayout ml = findViewById(R.id.motion_layout);

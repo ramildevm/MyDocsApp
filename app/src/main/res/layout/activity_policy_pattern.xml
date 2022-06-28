@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PolicyPatternActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/top_panel"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#757575"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/menubar_Back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="11dp"
+            android:src="@drawable/left_arrow"
+            android:onClick="goBackMainPageClick"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/policy_txt"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/policy_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:text="Policy"
+            android:textColor="#FFC700"
+            android:textIsSelectable="false"
+            android:textSize="26dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/menubar_options"
+            app:layout_constraintStart_toEndOf="@+id/menubar_Back"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/menubar_options"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_margin="7dp"
+            android:src="@drawable/safe_change"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/policy_txt"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_panel"
+        android:layout_marginTop="60dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#2C2C2C"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/first_policy_photo"
+            android:layout_width="140dp"
+            android:layout_height="180dp"
+            android:background="#C4C4C4"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="30dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/second_policy_photo"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <ImageView
+            android:id="@+id/second_policy_photo"
+            android:layout_width="140dp"
+            android:layout_height="180dp"
+            android:background="#C4C4C4"
+            android:layout_marginLeft="35dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="35dp"
+            app:layout_constraintStart_toEndOf="@id/first_policy_photo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/f_n"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="220dp"
+            android:layout_marginLeft="45dp"
+            android:text="Full name"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <EditText
+            android:id="@+id/editTextFullName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#C4C4C4"
+            android:ems="10"
+            android:layout_marginTop="245dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="25dp"
+            android:textColor="#000"
+            android:textSize="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/p_b"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="270dp"
+            android:layout_marginLeft="45dp"
+            android:text="Place of birth"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <EditText
+            android:id="@+id/editTextPlaceBirth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#C4C4C4"
+            android:ems="10"
+            android:layout_marginTop="295dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="25dp"
+            android:textColor="#000"
+            android:textSize="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/d_b"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="320dp"
+            android:text="Date of birth"
+            android:layout_marginRight="20dp"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            app:layout_constraintEnd_toStartOf="@id/v_u"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <EditText
+            android:id="@+id/editTextDateBirth"
+            android:layout_width="163dp"
+            android:layout_height="wrap_content"
+            android:background="#C4C4C4"
+            android:ems="10"
+            android:layout_marginTop="345dp"
+            android:layout_marginLeft="35dp"
+            android:textColor="#000"
+            android:textSize="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/v_u"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="320dp"
+            android:layout_marginLeft="20dp"
+            android:text="Valid until"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            app:layout_constraintStart_toEndOf="@+id/d_b"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <EditText
+            android:id="@+id/editTextDateRegistrationINN"
+            android:layout_width="162dp"
+            android:layout_height="wrap_content"
+            android:background="#C4C4C4"
+            android:ems="10"
+            android:layout_marginTop="345dp"
+            android:textColor="#000"
+            android:textSize="16dp"
+            app:layout_constraintStart_toEndOf="@id/editTextDateBirth"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/gender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="380dp"
+            android:layout_marginLeft="50dp"
+            android:text="Gender"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <RadioButton
+            android:id="@+id/maleCheck"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="375dp"
+            android:layout_marginLeft="10dp"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            android:text="M"
+            android:layout_marginRight="10dp"
+            app:layout_constraintStart_toEndOf="@+id/gender"
+            app:layout_constraintEnd_toStartOf="@+id/femaleCheck"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <RadioButton
+            android:id="@+id/femaleCheck"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="375dp"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            android:text="F"
+            android:layout_marginRight="220dp"
+            app:layout_constraintStart_toEndOf="@+id/maleCheck"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

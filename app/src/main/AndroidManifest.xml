@@ -13,9 +13,27 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".PolicyPatternActivity"
+            android:exported="false" />
+        <activity
+            android:name=".INNPatternActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SecondPassportPatternActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainPassportPatternActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainContentActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".AccountActivity"
+            android:exported="false" />
         <activity
             android:name=".SignInActivity"
             android:exported="false"

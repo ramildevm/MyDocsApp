@@ -81,7 +81,9 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="#757575"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/menubar_main_list"
@@ -89,6 +91,7 @@
             android:layout_height="50dp"
             android:layout_margin="11dp"
             android:src="@drawable/bulleted_list"
+            android:onClick="goAccountClick"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toLeftOf="@id/login_txt"
             app:layout_constraintStart_toStartOf="parent"
@@ -181,6 +184,7 @@
         android:id="@+id/flow_doc_add_btn"
         android:layout_width="55dp"
         android:layout_height="55dp"
+        android:onClick="goPatternClick"
         app:layout_constraintEnd_toEndOf="@id/flow_button"
         app:layout_constraintBottom_toBottomOf="@id/flow_button"
         app:layout_constraintStart_toStartOf="@id/flow_button"
