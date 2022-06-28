@@ -63,4 +63,8 @@ public class MainContentActivity extends AppCompatActivity {
     public void goAccountClick(View view) {
         startActivity(new Intent(MainContentActivity.this, AccountActivity.class).putExtra("Login", getString(R.string.extra_guest)));
     }
+
+    public void goPatternClick(View view) {
+        startActivity(new Intent(MainContentActivity.this, MainPassportPatternActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+    }
 }
