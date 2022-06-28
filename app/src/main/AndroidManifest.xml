@@ -13,7 +13,13 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainContentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AccountActivity"
             android:exported="false" />
         <activity
             android:name=".SignInActivity"

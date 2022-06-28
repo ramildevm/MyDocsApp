@@ -59,4 +59,8 @@ public class MainContentActivity extends AppCompatActivity {
 //        l1.setBackgroundColor(getResources().getColor(R.color.black));
 //        contentPanel.addView(l1);
     }
+
+    public void goAccountClick(View view) {
+        startActivity(new Intent(MainContentActivity.this, AccountActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+    }
 }

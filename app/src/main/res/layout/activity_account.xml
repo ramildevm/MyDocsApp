@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AccountActivity"
+    android:background="#2C2C2C">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="@drawable/gradient_white_to_black_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+
+        <ImageView
+            android:id="@+id/menubar_main_list"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="11dp"
+            android:layout_marginTop="5dp"
+            android:onClick="goAccountClickBack"
+            android:src="@drawable/bulleted_list"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/stardos_stencil_regular"
+            android:text="@string/my_docs"
+            android:textColor="@color/white"
+            android:textSize="34dp"
+            android:layout_marginRight="50dp"
+            app:layout_constraintBottom_toBottomOf="@+id/menubar_main_list"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/menubar_main_list"
+            app:layout_constraintTop_toTopOf="@+id/menubar_main_list" />
+
+        <ImageView
+            android:id="@+id/account_photo_image"
+            android:layout_width="110dp"
+            android:layout_height="110dp"
+            android:layout_marginTop="97dp"
+            android:layout_marginLeft="66dp"
+            android:src="@drawable/profile_photo_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/login_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="#FFC700"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="30dp"
+            android:textStyle="bold"
+            android:textSize="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/account_photo_image"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="200dp" />
+
+        <TextView
+            android:id="@+id/change_account_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="152dp"
+            android:layout_marginTop="74dp"
+            android:text="Change account"
+            android:textStyle="bold"
+            android:onClick="goMainActivityClick"
+            android:textColor="@color/white"
+            android:textSize="16dp"
+            app:layout_constraintStart_toEndOf="@id/account_photo_image"
+            app:layout_constraintStart_toStartOf="@id/account_photo_image"
+            app:layout_constraintTop_toTopOf="@id/account_photo_image" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <RelativeLayout
+        android:id="@+id/constraintLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="250dp"
+        android:background="#2C2C2C"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+
+        <TextView
+            android:id="@+id/settings_account_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="156dp"
+            android:layout_marginTop="36dp"
+            android:gravity="center"
+            android:text="Account settings"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/settings_account_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="106dp"
+            android:layout_marginTop="28dp"
+            android:src="@drawable/admin_settings_male" />
+
+        <TextView
+            android:id="@+id/syncing_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="156dp"
+            android:textStyle="bold"
+            android:layout_marginTop="96dp"
+            android:text="Syncing"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
+
+        <ImageView
+            android:id="@+id/syncing_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="106dp"
+            android:layout_marginTop="88dp"
+            android:src="@drawable/cloud_sync" />
+
+        <TextView
+            android:id="@+id/hidden_files_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="156dp"
+            android:layout_marginTop="156dp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:text="Hidden files"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
+
+        <ImageView
+            android:id="@+id/hidden_files_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="106dp"
+            android:layout_marginTop="148dp"
+            android:src="@drawable/hidden_file" />
+
+        <TextView
+            android:id="@+id/my_templates_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="156dp"
+            android:layout_marginTop="216dp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:text="My templates"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
+
+        <ImageView
+            android:id="@+id/my_templates_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="106dp"
+            android:layout_marginTop="208dp"
+            android:src="@drawable/my_templates" />
+
+        <TextView
+            android:id="@+id/premium_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="156dp"
+            android:layout_marginTop="276dp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:text="Premium"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
+
+        <ImageView
+            android:id="@+id/premium_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="106dp"
+            android:layout_marginTop="268dp"
+            android:src="@drawable/premium" />
+
+        <ImageView
+            android:id="@+id/settings_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="5dp"
+            android:onClick="goSettingsClick"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/settings" />
+
+        <TextView
+            android:id="@+id/settings_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="center"
+            android:layout_marginStart="54dp"
+            android:layout_marginBottom="21dp"
+            android:gravity="center"
+            android:text="Settings"
+            android:onClick="goSettingsClick"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/change_topic_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/moon_symbol" />
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
