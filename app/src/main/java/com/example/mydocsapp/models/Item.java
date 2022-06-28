@@ -1,30 +1,24 @@
 package com.example.mydocsapp.models;
 public class Item {
-    private int Id;
-    private String Title;
-    private int Image;
-    private boolean hasImage;
-    private String Type;
-    public Item(int id, String title, int image, boolean hasImage, String type) {
-        Id = id;
+    //public int Id;
+    public String Title;
+    public String Type;
+    public byte[] Image;
+    public int Priority;
+    public int isHiden;
+    public int FolderId;
+    public int ObjectId;
+    public int isSelected;
+
+    public Item(String title, String type, byte[] image, int priority, int isHiden, int folderId, int objectId, int isSelected) {
+        //Id = id;
         Title = title;
-        Image = image;
-        hasImage = hasImage;
         Type = type;
-    }
-    public int getId() {
-        return Id;
-    }
-    public String getTitle() {
-        return Title;
-    }
-    public int getImage() {
-        return Image;
-    }
-    public String getType() {
-        return Type;
-    }
-    public boolean isHasImage() {
-        return hasImage;
+        Image = image;
+        Priority = priority;
+        this.isHiden = isHiden;
+        FolderId = folderId;
+        ObjectId = objectId;
+        this.isSelected = isSelected;
     }
 }

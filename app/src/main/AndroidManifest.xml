@@ -14,13 +14,10 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainContentActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".SignInActivity"
-            android:exported="false"
-            android:parentActivityName=".MainActivity" />
-        <activity
-            android:name=".MainPageActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
         <activity

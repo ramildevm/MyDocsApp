@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +19,8 @@ import android.widget.Toast;
 import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.api.UserGetCallback;
 import com.example.mydocsapp.api.UserPostCallback;
+
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -82,11 +85,10 @@ public class MainActivity extends AppCompatActivity {
         Pair<View, String> pair2 = Pair.create(findViewById(R.id.email_txt), findViewById(R.id.email_txt).getTransitionName());
         Pair<View, String> pair3 = Pair.create(findViewById(R.id.editTextLogin), findViewById(R.id.editTextLogin).getTransitionName());
         Pair<View, String> pair4 = Pair.create(findViewById(R.id.password_txt), findViewById(R.id.password_txt).getTransitionName());
-        Pair<View, String> pair6 = Pair.create(findViewById(R.id.cancel_btn), findViewById(R.id.cancel_btn).getTransitionName());
         Pair<View, String> pair7 = Pair.create(findViewById(R.id.without_login), findViewById(R.id.without_login).getTransitionName());
 
         ActivityOptions options;
-        options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, pair1,pair2,pair3,pair4,pair6,pair7);
+        options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, pair1,pair2,pair3,pair4,pair7);
         bundle = options.toBundle();
         Intent intent = new Intent(this,SignInActivity.class);
         startActivity(intent, bundle);
@@ -95,5 +97,20 @@ public class MainActivity extends AppCompatActivity {
     public void goGuestModeClick(View view) {
         startActivity(new Intent(MainActivity.this, MainContentActivity.class).putExtra("Login", getString(R.string.extra_guest)));
     }
-
+    public void switchLangClick(View view) {
+        Locale locale = null;
+        if (((TextView)findViewById(R.id.login_btn)).getText().equals("Выйти"))
+            locale = new Locale("en");
+        else
+            locale = new Locale("ru");
+        Locale.setDefault(locale);
+        Configuration configuration = new Configuration();
+        configuration.locale = locale;
+        getBaseContext().getResources().updateConfiguration(configuration, null);
+        //
+        finish();
+        overridePendingTransition(0, 0);
+        startActivity(getIntent());
+        overridePendingTransition(0, 0);
+    }
 }
