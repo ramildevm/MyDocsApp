@@ -32,18 +32,12 @@ public class DBHelper extends SQLiteOpenHelper {
         this.myContext = context;
         DB_PATH = context.getFilesDir().getPath() +"/"+ DB_NAME;
     }
-    public static void setDbName(String dbName) {
-        DB_NAME = dbName;
-    }
-    public static void setDbPath(String dbPath) {
-        DB_PATH = dbPath;
-    }
     @Override
     public void onCreate(SQLiteDatabase db) { }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion,  int newVersion) { }
 
-    void create_db() throws IOException{
+    public void create_db() throws IOException{
         File file = new File(DB_PATH);
         if (!file.exists()) {
             //получаем локальную бд как поток
@@ -79,24 +73,35 @@ public class DBHelper extends SQLiteOpenHelper {
         return checkDB != null ? true : false;
     }
     //*********************************************************************************************
-    //UserSettings
-    public Boolean insertUserSettings(int id, String maincolor, String backcolor){
+    //Item table
+    public Boolean insertItem( Item item){
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("id",id);
-        cv.put("maincolor",maincolor);
-        cv.put("backcolor",backcolor);
-        long result = db.insert("UserSettings",null,cv);
+        cv.put("Title",item.Title);
+        cv.put("Type",item.Type);
+        cv.put("Image",item.Image);
+        cv.put("Priority",item.Priority);
+        cv.put("isHiden",item.isHiden);
+        cv.put("FolderId",item.FolderId);
+        cv.put("ObjectId",item.ObjectId);
+        cv.put("isSelected",item.isSelected);
+        long result = db.insert("Item",null,cv);
         if (result ==-1)
             return false;
         else
             return true;
     }
-    public Boolean updateUserSettings(int id, String maincolor, String backcolor){
+    public Boolean updateItem(int id, Item item){
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("maincolor",maincolor);
-        cv.put("backcolor",backcolor);
+        cv.put("Title",item.Title);
+        cv.put("Type",item.Type);
+        cv.put("Image",item.Image);
+        cv.put("Priority",item.Priority);
+        cv.put("isHiden",item.isHiden);
+        cv.put("FolderId",item.FolderId);
+        cv.put("ObjectId",item.ObjectId);
+        cv.put("isSelected",item.isSelected);
         long result = db.update("UserSettings",cv,"id=?", new String[]{""+id});
         if (result <=0)
             return false;
@@ -104,11 +109,12 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         }
     }
-    public Cursor getUserSettings(){
+    public Cursor getItems(){
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from UserSettings where id=1",null);
+        Cursor cursor = db.rawQuery("select * from Item order by Priority desc",null);
         return cursor;
     }
+
     //*********************************************************************************************
     //UserData Contex
     public Boolean insertUserStat(int id, int lvlcount, int fails, int hardlvl){

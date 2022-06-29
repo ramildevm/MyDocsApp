@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@+id/checkTranitionState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="parent"
+            android:alpha="0" />
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
@@ -54,32 +60,93 @@
             android:id="@+id/content_panel"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:paddingTop="60dp"
+            android:layout_height="fill_parent"
             app:layout_constraintTop_toBottomOf="@id/top_panel"
             app:layout_constraintStart_toStartOf="parent"
             android:alpha="0.5" />
         <Constraint
-            android:id="@+id/content_panel"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_width="match_parent"
+            android:id="@+id/checkTranitionState"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/top_panel"
-            app:layout_constraintStart_toStartOf="parent"
-            android:alpha="0.5" />
+            app:layout_constraintBottom_toTopOf="parent"
+            android:alpha="1" />
     </ConstraintSet>
 
     <Transition
+        android:id="@+id/trans1"
         app:constraintSetEnd="@id/end"
+        app:constraintSetStart="@+id/start"
+        app:duration="350">
+    </Transition>
+    <Transition
+        android:id="@+id/trans2"
+        app:constraintSetStart="@+id/end"
+        app:constraintSetEnd="@+id/start" >
+    </Transition>
+
+    <ConstraintSet android:id="@+id/end2">
+        <Constraint
+            android:id="@+id/sort_menu"
+            app:layout_constraintStart_toEndOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/top_panel"
+            android:translationX="-90dp" />
+        <Constraint
+            android:id="@+id/content_panel"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="match_parent"
+            android:paddingTop="60dp"
+            android:layout_height="fill_parent"
+            app:layout_constraintTop_toBottomOf="@id/top_panel"
+            app:layout_constraintStart_toStartOf="parent"
+            android:alpha="0.5" />
+        <Constraint
+            android:id="@+id/checkTranitionState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="parent"
+            android:alpha="1" />
+    </ConstraintSet>
+
+    <Transition
+        android:id="@+id/trans3"
+        app:constraintSetEnd="@id/end2"
         app:constraintSetStart="@+id/start"
         app:autoTransition="none"
         app:duration="350">
-        <OnClick app:targetId="@id/flow_button"
-            app:clickAction="transitionToEnd" />
     </Transition>
     <Transition
-        app:constraintSetStart="@+id/end"
-        app:constraintSetEnd="@+id/start" >
-        <OnClick app:targetId="@id/flow_button"
-            app:clickAction="transitionToEnd" />
+        android:id="@+id/trans4"
+        app:constraintSetStart="@+id/end2"
+        app:constraintSetEnd="@+id/start"
+        app:autoTransition="none"
+        app:duration="350">
     </Transition>
+    <ConstraintSet android:id="@+id/end3" >
+        <Constraint
+            android:id="@+id/makeFolderPanel"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="280dp" />
+        <Constraint
+            android:id="@+id/checkTranitionState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="parent"
+            android:alpha="1" />
+    </ConstraintSet>
+    <Transition
+        app:constraintSetStart="@+id/start"
+        app:constraintSetEnd="@+id/end3"
+        android:id="@+id/trans5" />
+    <Transition
+        app:constraintSetStart="@+id/end3"
+        app:constraintSetEnd="@+id/start"
+        android:id="@+id/trans6" />
 </MotionScene>

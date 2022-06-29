@@ -10,7 +10,10 @@
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_border_gray.xml" value="0.147" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_border_white.xml" value="0.203" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_border_whitegray.xml" value="0.147" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_border_yellow.xml" value="0.2125" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_button.xml" value="0.2185" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_main_content.xml" value="0.264" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_main_page.xml" value="0.264" />
         <entry key="..\:/Users/sasha/StudioProjects/MyDocsApp/app/src/main/res/drawable/gradient_black_to_transparent.xml" value="0.196" />
         <entry key="..\:/Users/sasha/StudioProjects/MyDocsApp/app/src/main/res/drawable/gradient_white_to_black_back.xml" value="0.196" />
@@ -26,6 +29,9 @@
         <entry key="..\:/Users/sasha/StudioProjects/MyDocsApp/app/src/main/res/layout/activity_settings.xml" value="0.25" />
         <entry key="..\:/Users/sasha/StudioProjects/MyDocsApp/app/src/main/res/layout/activity_sign_in.xml" value="0.18802083333333333" />
         <entry key="..\:/Users/sasha/StudioProjects/MyDocsApp/app/src/main/res/layout/list_item.xml" value="0.18802083333333333" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_sign_in.xml" value="0.4" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/list_item.xml" value="0.6824104234527687" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/xml/activity_main_content_options_scene.xml" value="0.18802083333333333" />
       </map>
     </option>
   </component>
