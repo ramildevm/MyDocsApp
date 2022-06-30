@@ -16,6 +16,12 @@
             android:name=".FolderAddItemActivity"
             android:exported="false" />
         <activity
+            android:name=".CardPatternActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SnilsPatternActivity"
+            android:exported="false" />
+        <activity
             android:name=".PolicyPatternActivity"
             android:exported="false" />
         <activity

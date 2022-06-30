@@ -90,7 +90,7 @@
 
         <EditText
             android:id="@+id/editTextSeriesNUmber"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:background="#C4C4C4"
             android:ems="10"
@@ -115,7 +115,7 @@
 
         <EditText
             android:id="@+id/editTextDivisionCode"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:background="#C4C4C4"
             android:ems="10"
@@ -140,7 +140,7 @@
 
         <EditText
             android:id="@+id/editTextDateIssue"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:background="#C4C4C4"
             android:ems="10"
@@ -223,7 +223,6 @@
             android:ems="10"
             android:layout_marginTop="365dp"
             android:layout_marginLeft="35dp"
-            android:layout_marginRight="25dp"
             android:textColor="#000"
             android:textSize="16dp"
             app:layout_constraintStart_toStartOf="parent"
@@ -234,7 +233,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="365dp"
-            android:layout_marginLeft="30dp"
             android:text="Gender"
             android:textColor="@color/white"
             android:textSize="14dp"
