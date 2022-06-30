@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PolicyPatternActivity">
+    tools:context=".SnilsPatternActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_panel"
@@ -23,17 +23,17 @@
             android:src="@drawable/left_arrow"
             android:onClick="goBackMainPageClick"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/policy_txt"
+            app:layout_constraintRight_toLeftOf="@id/snils_txt"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/policy_txt"
+            android:id="@+id/snils_txt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="5dp"
-            android:text="Policy"
+            android:text="Snils"
             android:textColor="#FFC700"
             android:textIsSelectable="false"
             android:textSize="26dp"
@@ -51,7 +51,7 @@
             android:src="@drawable/safe_change"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintLeft_toLeftOf="@id/policy_txt"
+            app:layout_constraintLeft_toLeftOf="@id/snils_txt"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -67,25 +67,12 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/first_policy_photo"
-            android:layout_width="140dp"
+            android:id="@+id/snils_photo"
+            android:layout_width="340dp"
             android:layout_height="180dp"
             android:background="#C4C4C4"
-            android:layout_marginLeft="40dp"
             android:layout_marginTop="30dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/second_policy_photo"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <ImageView
-            android:id="@+id/second_policy_photo"
-            android:layout_width="140dp"
-            android:layout_height="180dp"
-            android:background="#C4C4C4"
-            android:layout_marginLeft="35dp"
-            android:layout_marginTop="30dp"
-            android:layout_marginRight="35dp"
-            app:layout_constraintStart_toEndOf="@id/first_policy_photo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
@@ -116,19 +103,19 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
-            android:id="@+id/p_n"
+            android:id="@+id/p_b"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="270dp"
             android:layout_marginLeft="45dp"
-            android:text="Policy number"
+            android:text="Place of birth"
             android:textColor="@color/white"
             android:textSize="14dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <EditText
-            android:id="@+id/editTextPolicyNumber"
+            android:id="@+id/editTextPlaceBirth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#C4C4C4"
@@ -150,7 +137,7 @@
             android:layout_marginRight="20dp"
             android:textColor="@color/white"
             android:textSize="14dp"
-            app:layout_constraintEnd_toStartOf="@id/v_u"
+            app:layout_constraintEnd_toStartOf="@id/r_d"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
@@ -168,12 +155,12 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/v_u"
+            android:id="@+id/r_d"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="320dp"
             android:layout_marginLeft="20dp"
-            android:text="Valid until"
+            android:text="Registration date"
             android:textColor="@color/white"
             android:textSize="14dp"
             app:layout_constraintStart_toEndOf="@+id/d_b"
@@ -181,7 +168,7 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <EditText
-            android:id="@+id/editTextValidUntil"
+            android:id="@+id/editTextDateRegistrationSnils"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:background="#C4C4C4"
@@ -228,7 +215,7 @@
             android:textSize="14dp"
             android:text="F"
             app:layout_constraintStart_toEndOf="@+id/maleCheck"
-            app:layout_constraintEnd_toStartOf="@+id/editTextDateRegistrationINN"
+            app:layout_constraintEnd_toStartOf="@+id/editTextDateRegistrationSnils"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
