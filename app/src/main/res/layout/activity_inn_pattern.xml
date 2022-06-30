@@ -90,7 +90,7 @@
 
         <EditText
             android:id="@+id/editTextDateBirth"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:background="#C4C4C4"
             android:ems="10"
@@ -115,7 +115,7 @@
 
         <EditText
             android:id="@+id/editTextDateRegistrationINN"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:background="#C4C4C4"
             android:ems="10"

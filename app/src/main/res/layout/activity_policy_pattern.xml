@@ -156,7 +156,7 @@
 
         <EditText
             android:id="@+id/editTextDateBirth"
-            android:layout_width="163dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:background="#C4C4C4"
             android:ems="10"
@@ -182,7 +182,7 @@
 
         <EditText
             android:id="@+id/editTextDateRegistrationINN"
-            android:layout_width="162dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:background="#C4C4C4"
             android:ems="10"
@@ -227,9 +227,8 @@
             android:textColor="@color/white"
             android:textSize="14dp"
             android:text="F"
-            android:layout_marginRight="220dp"
             app:layout_constraintStart_toEndOf="@+id/maleCheck"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/editTextDateRegistrationINN"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

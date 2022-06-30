@@ -205,10 +205,10 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
             android:layout_marginStart="5dp"
-            android:onClick="goSettingsClick"
             android:layout_marginTop="5dp"
             android:layout_marginEnd="5dp"
             android:layout_marginBottom="5dp"
+            android:onClick="goSettingsClick"
             android:src="@drawable/settings" />
 
         <TextView
@@ -231,10 +231,10 @@
             android:id="@+id/change_topic_image"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginBottom="5dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
             android:src="@drawable/moon_symbol" />
     </RelativeLayout>
 
