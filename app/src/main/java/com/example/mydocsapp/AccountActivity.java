@@ -1,27 +1,22 @@
 package com.example.mydocsapp;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.mydocsapp.models.Item;
-import com.example.mydocsapp.models.ItemAdapter;
-
-import java.util.ArrayList;
+import com.example.mydocsapp.models.SystemContext;
 
 public class AccountActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
-        Intent intent = getIntent();
+
         TextView gtxt = findViewById(R.id.login_txt);
-        gtxt.setText(intent.getStringExtra("Login"));
+        gtxt.setText(SystemContext.CurrentUser.login);
     }
 
     public void goAccountClickBack(View view) {

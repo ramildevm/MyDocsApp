@@ -102,7 +102,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("FolderId",item.FolderId);
         cv.put("ObjectId",item.ObjectId);
         cv.put("isSelected",item.isSelected);
-        long result = db.update("UserSettings",cv,"id=?", new String[]{""+id});
+        long result = db.update("Item",cv,"id=?", new String[]{""+id});
         if (result <=0)
             return false;
         else {
@@ -111,156 +111,33 @@ public class DBHelper extends SQLiteOpenHelper {
     }
     public Cursor getItems(){
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item order by Priority desc",null);
+        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 order by Priority desc, id asc",null);
         return cursor;
     }
-
-    //*********************************************************************************************
-    //UserData Contex
-    public Boolean insertUserStat(int id, int lvlcount, int fails, int hardlvl){
+    public Cursor getItemsByFolder(int id){
         SQLiteDatabase db = open();
-        ContentValues cv = new ContentValues();
-        cv.put("id",id);
-        cv.put("lvlcount",lvlcount);
-        cv.put("fails",fails);
-        cv.put("hardlvl",hardlvl);
-        long result = db.insert("UserStat",null,cv);
-        if (result ==-1)
-            return false;
-        else
-            return true;
+        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=? order by Priority desc, id asc",new String[]{""+id});
+        return cursor;
     }
-    public Boolean updateUserStat(int id, int lvlcount, int fails, int hardlvl){
+    public Cursor getItemsByFolder0(){
         SQLiteDatabase db = open();
-        ContentValues cv = new ContentValues();
-        cv.put("lvlcount",lvlcount);
-        cv.put("fails",fails);
-        cv.put("hardlvl",hardlvl);
-        long result = db.update("UserStat",cv,"id=?", new String[]{""+id});
+        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=0 order by Priority desc, id asc", null);
+        return cursor;
+    }
+    public int getItemFolderItemsCount(int id){
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Item where FolderId=? order by Priority desc, id asc", new String[]{""+id});
+        return cursor.getCount();
+    }
+    public Boolean deleteItem(int id){
+        SQLiteDatabase db = open();
+        long result = db.delete("Item","id=?", new String[]{""+id});
         if (result <=0)
             return false;
         else {
             return true;
         }
     }
-    public Cursor getUserStat(){
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from UserStat where id=1",null);
-        return cursor;
-    }
-    //*********************************************************************************************
-    //Levels Context
-    public Boolean insertLevel(int num, int fails, int scenes, String difficulty){
-        SQLiteDatabase db = open();
-        ContentValues cv = new ContentValues();
-        cv.put("num",num);
-        cv.put("fails",fails);
-        cv.put("scenes",scenes);
-        cv.put("difficulty",difficulty);
-        long result = db.insert("Levels",null,cv);
-        if (result <=0)
-            return false;
-        else
-            return true;
-    }
-    public Boolean updateLevel(int num, int fails){
-        SQLiteDatabase db = open();
-        Cursor res = db.rawQuery("select * from Levels where num=?",new String[]{""+num});
-        res.moveToNext();
 
-        ContentValues cv = new ContentValues();
-        cv.put("num",num);
-        cv.put("fails",fails);
-        cv.put("scenes",res.getInt(2));
-        cv.put("difficulty",res.getString(3));
-        long result = db.update("Levels",cv,"num=?", new String[]{""+num});
-        if (result ==-1)
-            return false;
-        else
-            return true;
-    }
-    public Cursor getLevel(int id){
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Levels where num=?",new String[]{""+id});
-        return cursor;
-    }
-    public Cursor getMaxLevel() {
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Levels order by fails desc",null);
-        return cursor;
-    }
-    //*********************************************************************************************
-    //Scenes Context
-    public Boolean insertScene(int id, int layout, int transition, int correctMS, int secondMS,
-                               int thirdMS, String correct, String second, String third, int idML){
-        SQLiteDatabase db = open();
-        ContentValues cv = new ContentValues();
-        cv.put("id",id);
-        cv.put("layout",layout);
-        cv.put("transition",transition);
-        cv.put("correctMS",correctMS);
-        cv.put("secondMS",secondMS);
-        cv.put("thirdMS",thirdMS);
-        cv.put("correct",correct);
-        cv.put("second",second);
-        cv.put("third",third);
-        cv.put("idML",idML);
-        long result = db.insert("Scenes",null,cv);
-        if (result ==-1)
-            return false;
-        else
-            return true;
-    }
-    public Boolean updateScene(int id, int layout, int transition, int correctMS, int secondMS,
-                               int thirdMS, String correct, String second, String third, int idML){
-        SQLiteDatabase db = open();
-        ContentValues cv = new ContentValues();
-        cv.put("id",id);
-        cv.put("layout",layout);
-        cv.put("transition",transition);
-        cv.put("correctMS",correctMS);
-        cv.put("secondMS",secondMS);
-        cv.put("thirdMS",thirdMS);
-        cv.put("correct",correct);
-        cv.put("second",second);
-        cv.put("third",third);
-        cv.put("idML",idML);;
-        long result = db.update("Scenes",cv,"id=?", new String[]{""+id});
-        if (result ==-1)
-            return false;
-        else
-            return true;
-    }
-    public Cursor getScenes(){
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Scenes",null);
-        return cursor;
-    }
-    public Cursor getScene(int id) {
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Scenes where id=?", new String[]{"" + id});
-        return cursor;
-    }
-    //*********************************************************************************************
-    //LevelScene Context
-    public Boolean insertLevelScene(int id, int lvlid, int sceneid, int priority){
-        SQLiteDatabase db = open();
-        ContentValues cv = new ContentValues();
-        cv.put("id",id);
-        cv.put("idlvl",lvlid);
-        cv.put("idscene",sceneid);
-        cv.put("priority",priority);
-        long result = db.insert("LevelScene",null,cv);
-        if (result ==-1)
-            return false;
-        else
-            return true;
-    }
-    public Cursor getLevelScene(int lvlid){
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from LevelScene where idlvl=? order by priority",
-                new String[]{""+lvlid});
-        return cursor;
-    }
 }
 

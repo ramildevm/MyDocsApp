@@ -10,7 +10,6 @@ import android.content.res.Configuration;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
@@ -18,7 +17,7 @@ import android.widget.Toast;
 
 import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.api.UserGetCallback;
-import com.example.mydocsapp.api.UserPostCallback;
+import com.example.mydocsapp.models.SystemContext;
 
 import java.util.Locale;
 
@@ -60,8 +59,10 @@ public class MainActivity extends AppCompatActivity {
                     if (!password.equals(user.password.replaceAll(" ", ""))) {
                         Toast msg = Toast.makeText(MainActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
                         msg.show();
-                    } else
-                        startActivity(new Intent(MainActivity.this, MainContentActivity.class).putExtra("Login", login));
+                    } else {
+                        SystemContext.CurrentUser = user;
+                        startActivity(new Intent(MainActivity.this, MainContentActivity.class));
+                    }
                 }
                 else{
                     Toast msg = Toast.makeText(MainActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT);
@@ -95,7 +96,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goGuestModeClick(View view) {
-        startActivity(new Intent(MainActivity.this, MainContentActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+        SystemContext.CurrentUser = new User(getString(R.string.extra_guest),"");
+        startActivity(new Intent(MainActivity.this, MainContentActivity.class));
     }
     public void switchLangClick(View view) {
         Locale locale = null;

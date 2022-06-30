@@ -15,7 +15,7 @@ public class MainPassportPatternActivity extends AppCompatActivity {
     }
 
     public void goBackMainPageClick(View view) {
-        startActivity(new Intent(MainPassportPatternActivity.this, MainContentActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+        startActivity(new Intent(MainPassportPatternActivity.this, MainContentActivity.class));
     }
 
     public void goSecondPagePassportPatternClick(View view) {

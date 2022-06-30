@@ -1,6 +1,6 @@
 package com.example.mydocsapp.models;
 public class Item {
-    //public int Id;
+    public int Id;
     public String Title;
     public String Type;
     public byte[] Image;
@@ -10,8 +10,8 @@ public class Item {
     public int ObjectId;
     public int isSelected;
 
-    public Item(String title, String type, byte[] image, int priority, int isHiden, int folderId, int objectId, int isSelected) {
-        //Id = id;
+    public Item(int id,String title, String type, byte[] image, int priority, int isHiden, int folderId, int objectId, int isSelected) {
+        Id = id;
         Title = title;
         Type = type;
         Image = image;

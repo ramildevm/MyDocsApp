@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/folder_content_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="504dp"
+        android:maxHeight="600dp"
+        android:background="@drawable/item_layout_bg"
+        android:padding="5dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/folder_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"/>
+    </androidx.core.widget.NestedScrollView>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/folder_bottom_panel"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/item_layout_bottom_bg"
+        app:layout_constraintBottom_toBottomOf="@id/folder_content_panel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:alpha="0.85"
+        />
+    <TextView
+        android:id="@+id/title_folder_txt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textColor="#fff"
+        android:textSize="16dp"
+        app:layout_constraintBottom_toBottomOf="@id/folder_content_panel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/folder_bottom_panel" />
+    <Button
+        android:id="@+id/flow_folder_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_margin="10dp"
+        android:tag="off"
+        android:translationZ="5dp"
+        android:background="@drawable/add"
+        app:layout_constraintBottom_toTopOf="@id/folder_bottom_panel"
+        app:layout_constraintEnd_toEndOf="@id/folder_content_panel" />
+    <Button
+        android:id="@+id/hide_folder_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/ic_hide_folder_btn"
+        app:layout_constraintEnd_toEndOf="@+id/folder_content_panel"
+        app:layout_constraintStart_toStartOf="@id/folder_content_panel"
+        app:layout_constraintTop_toBottomOf="@id/folder_content_panel" />
+</androidx.constraintlayout.widget.ConstraintLayout>
