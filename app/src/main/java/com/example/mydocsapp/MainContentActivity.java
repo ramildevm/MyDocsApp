@@ -58,6 +58,8 @@ public class MainContentActivity extends AppCompatActivity {
                 reFillContentPanel(recyclerView, items);
             }
         });
+        SystemContext.CurrentItem = null;
+        SystemContext.CurrentFolderItemsSet = null;
 
         TextView gtxt = findViewById(R.id.login_txt);
         gtxt.setText(SystemContext.CurrentUser.login);
@@ -90,7 +92,6 @@ public class MainContentActivity extends AppCompatActivity {
                         Item item = (Item) view.getTag();
                         if(isSelectMode) {
                             int newItemId = SystemContext.CurrentItemsSet.indexOf(item);
-
                             Log.e("select", item.isSelected + "");
                             if (item.isSelected == 0) {
                                 item.isSelected = 1;
@@ -164,6 +165,9 @@ public class MainContentActivity extends AppCompatActivity {
 
                                 //now that the dialog is set up, it's time to show it
                                 dialog.show();
+                            }
+                            else if(item.Type.equals("Паспорт")){
+                                goPatternClick(view);
                             }
                         }
                     }
@@ -252,7 +256,7 @@ public class MainContentActivity extends AppCompatActivity {
     }
 
     public void goPatternClick(View view) {
-        startActivity(new Intent(MainContentActivity.this, INNPatternActivity.class));
+        startActivity(new Intent(MainContentActivity.this, MainPassportPatternActivity.class));
     }
 
     public void openSortMenuClick(View view) {
@@ -377,6 +381,10 @@ public class MainContentActivity extends AppCompatActivity {
             if(x.isSelected == 1){
                 db.deleteItem(x.Id);
                 selectedItemsNum--;
+                if(x.ObjectId!=0){
+                    if(x.Type.equals("Паспорт"))
+                        db.deletePassport(x.ObjectId);
+                }
             }
         }
         setInitialData();

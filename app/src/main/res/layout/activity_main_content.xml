@@ -100,6 +100,7 @@
 
         <TextView
             android:id="@+id/login_txt"
+            android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -125,23 +126,24 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_select_panel"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="#757575"
         android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="parent">
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
             android:id="@+id/top_select_go_back_btn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="11dp"
+            android:onClick="topSelectBackClick"
             android:rotation="180"
             android:src="@drawable/ic_baseline_arrow_right_alt_24"
-            android:onClick="topSelectBackClick"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toLeftOf="@id/top_select_picked_txt"
             app:layout_constraintStart_toStartOf="parent"
@@ -154,6 +156,7 @@
             android:layout_gravity="center"
             android:textColor="#FFC700"
             android:textSize="16dp"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/top_select_all_btn"
             app:layout_constraintStart_toEndOf="@+id/top_select_go_back_btn"
@@ -165,9 +168,9 @@
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:layout_margin="7dp"
-            android:tag="off"
             android:onClick="topSelectAllClick"
             android:src="@drawable/ic_baseline_library_add_check_24"
+            android:tag="off"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/top_select_picked_txt"
@@ -185,7 +188,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:text="Сортировать"/>
+            android:textStyle="bold"
+            android:text="Sort by"/>
         <Button
             android:id="@+id/flow_sort_doc_btn"
             android:layout_width="50dp"
@@ -219,8 +223,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
-            android:onClick="sortCancelClick"
-            android:background="@drawable/ic_baseline_cancel_24"/>
+            android:onClick="sortCancelClick"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/top_shadow"

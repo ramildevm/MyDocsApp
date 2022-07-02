@@ -1,60 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/motion_layout"
+    app:layoutDescription="@xml/activity_passport_scene"
     tools:context=".MainPassportPatternActivity">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/top_panel"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="#757575"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/menubar_Back"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="11dp"
-            android:src="@drawable/left_arrow"
-            android:onClick="goBackMainPageClick"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/passport_txt"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/passport_txt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="5dp"
-            android:text="Passport"
-            android:textColor="#FFC700"
-            android:textIsSelectable="false"
-            android:textSize="26dp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/menubar_options"
-            app:layout_constraintStart_toEndOf="@+id/menubar_Back"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/menubar_options"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:layout_margin="7dp"
-            android:src="@drawable/safe_change"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintLeft_toLeftOf="@id/passport_txt"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main_panel"
@@ -89,7 +41,7 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <EditText
-            android:id="@+id/editTextSeriesNUmber"
+            android:id="@+id/editTextSeriesNumber"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:background="#C4C4C4"
@@ -237,36 +189,43 @@
             android:textColor="@color/white"
             android:textSize="14dp"
             app:layout_constraintStart_toEndOf="@id/editTextDateBirth"
-            app:layout_constraintEnd_toStartOf="@+id/maleCheck"
+            app:layout_constraintEnd_toStartOf="@+id/rgroup"
             app:layout_constraintTop_toTopOf="parent"/>
 
-        <RadioButton
-            android:id="@+id/maleCheck"
+        <RadioGroup
+            android:id="@+id/rgroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_marginTop="360dp"
-            android:layout_marginLeft="10dp"
-            android:textColor="@color/white"
-            android:textSize="14dp"
-            android:text="M"
-            android:layout_marginRight="10dp"
             app:layout_constraintStart_toEndOf="@+id/gender"
-            app:layout_constraintEnd_toStartOf="@+id/femaleCheck"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <RadioButton
-            android:id="@+id/femaleCheck"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="360dp"
-            android:textColor="@color/white"
-            android:textSize="14dp"
-            android:text="F"
-            android:layout_marginRight="60dp"
-            app:layout_constraintStart_toEndOf="@+id/maleCheck"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <RadioButton
+                android:id="@+id/maleCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:text="M"
+                android:checked="true"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                app:layout_constraintEnd_toStartOf="@+id/femaleCheck"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
+            <RadioButton
+                android:id="@+id/femaleCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="F"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/maleCheck"
+                app:layout_constraintTop_toTopOf="parent" />
+        </RadioGroup>
         <TextView
             android:id="@+id/p_b"
             android:layout_width="wrap_content"
@@ -346,5 +305,105 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <LinearLayout
+        android:id="@+id/pattern_container"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_border_gray_85"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="parent">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="System:"
+            android:textSize="21dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="3dp"
+            android:text="@string/file_add_passport"
+            android:textColor="#FFC700"
+            android:textSize="24dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/file_add_inn"
+            android:onClick="goInnClick"
+            android:textColor="#FFC700"
+            android:textSize="24dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/file_add_policy"
+            android:onClick="goPolicyClick"
+            android:textColor="#FFC700"
+            android:textSize="24dp"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/top_panel"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#757575"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/menubar_Back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="11dp"
+            android:src="@drawable/left_arrow"
+            android:onClick="goBackMainPageClick"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/passport_txt"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/passport_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:text="Passport"
+            android:tag="off"
+            android:textColor="#FFC700"
+            android:textIsSelectable="false"
+            android:textSize="26dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/menubar_options"
+            app:layout_constraintStart_toEndOf="@+id/menubar_Back"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/menubar_options"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_margin="7dp"
+            android:src="@drawable/safe_change"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/passport_txt"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.motion.widget.MotionLayout>

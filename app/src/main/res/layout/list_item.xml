@@ -37,6 +37,7 @@
     <ImageView
         android:id="@+id/recycler_blur_panel"
         android:src="@drawable/blur_panel"
+        android:visibility="invisible"
         app:layout_constraintTop_toTopOf="@id/folder_content_back"
         app:layout_constraintStart_toStartOf="@id/folder_content_back"
         app:layout_constraintBottom_toBottomOf="@id/bottom_panel"

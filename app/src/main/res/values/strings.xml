@@ -17,4 +17,7 @@
     <string name="error_adding_error">Adding error!</string>
     <string name="result_successful_user_adding">New user was successfully added</string>
     <string name="error_dont_match_passwords">Passwords don\'t match!</string>
+    <string name="file_add_passport">Passport</string>
+    <string name="file_add_inn">INN</string>
+    <string name="file_add_policy">Policy</string>
 </resources>

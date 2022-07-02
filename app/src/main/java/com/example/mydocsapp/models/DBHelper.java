@@ -1,5 +1,6 @@
 package com.example.mydocsapp.models;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -138,6 +139,67 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         }
     }
-
+    //*********************************************************************************************
+    //Passport table
+    public Cursor getPassportById(int objectId) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Passport where Id=?", new String[]{""+objectId});
+        return cursor;
+    }
+    public Boolean deletePassport(int id){
+        SQLiteDatabase db = open();
+        long result = db.delete("Passport","id=?", new String[]{""+id});
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
+    public Boolean updatePassport(int id, Passport passport){
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("SeriaNomer",passport.SeriaNomer);
+        cv.put("DivisionCode",passport.DivisionCode);
+        cv.put("GiveDate",passport.GiveDate);
+        cv.put("ByWhom",passport.ByWhom);
+        cv.put("FIO",passport.FIO);
+        cv.put("BirthDate",passport.BirthDate);
+        cv.put("Gender",passport.Gender);
+        cv.put("BirthPlace",passport.BirthPlace);
+        cv.put("ResidencePlace",passport.ResidencePlace);
+        long result = db.update("Passport",cv,"id=?", new String[]{""+id});
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
+    public Boolean insertPassport(Passport passport){
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("SeriaNomer",passport.SeriaNomer);
+        cv.put("DivisionCode",passport.DivisionCode);
+        cv.put("GiveDate",passport.GiveDate);
+        cv.put("ByWhom",passport.ByWhom);
+        cv.put("FIO",passport.FIO);
+        cv.put("BirthDate",passport.BirthDate);
+        cv.put("Gender",passport.Gender);
+        cv.put("BirthPlace",passport.BirthPlace);
+        cv.put("ResidencePlace",passport.ResidencePlace);
+        long result = db.insert("Passport",null,cv);
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
+@SuppressLint("Range")
+public String selectLastId(){
+        SQLiteDatabase db = open();
+        Cursor cur = db.rawQuery("SELECT * FROM SQLITE_SEQUENCE where name=?",new String[]{"Passport"});
+        cur.moveToFirst();
+        String id = cur.getString(cur.getColumnIndex("seq"));
+        return id;
+}
 }
 

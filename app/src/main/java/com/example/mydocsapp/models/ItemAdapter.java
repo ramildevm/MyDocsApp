@@ -48,29 +48,31 @@ public class ItemAdapter  extends RecyclerView.Adapter<ItemAdapter.ViewHolder>{
             if (item.Type.equals("Папка")) {
                 if(db.getItemFolderItemsCount(item.Id)>0) {
                     ArrayList<Item> items = new ArrayList<>();
-                        Cursor cur = db.getItemsByFolder(item.Id);
-                        //Cursor cur = db.getItems();
-                        Item _item;
-                        while(cur.moveToNext()) {
-                            _item = new Item(cur.getInt(0),
-                                    cur.getString(1),
-                                    cur.getString(2),
-                                    cur.getBlob(3),
-                                    cur.getInt(4),
-                                    cur.getInt(5),
-                                    cur.getInt(6),
-                                    cur.getInt(7),
-                                    cur.getInt(8));
-                                items.add(_item);
-                        }
-                        holder.recyclerFolder.setLayoutManager(new GridLayoutManager(context, 2));
-                        FolderItemAdapter adapter = new FolderItemAdapter(context, items, false);
-                        holder.recyclerFolder.setAdapter(adapter);
+
+                    Cursor cur = db.getItemsByFolder(item.Id);
+                    //Cursor cur = db.getItems();
+                    Item _item;
+                    while(cur.moveToNext()) {
+                        _item = new Item(cur.getInt(0),
+                                cur.getString(1),
+                                cur.getString(2),
+                                cur.getBlob(3),
+                                cur.getInt(4),
+                                cur.getInt(5),
+                                cur.getInt(6),
+                                cur.getInt(7),
+                                cur.getInt(8));
+                        items.add(_item);
+                    }
+                    holder.recyclerFolder.setLayoutManager(new GridLayoutManager(context, 2));
+                    FolderItemAdapter adapter = new FolderItemAdapter(context, items, false);
+                    holder.recyclerFolder.setAdapter(adapter);
                     Glide.with(context.getApplicationContext())
                             .load(R.drawable.blur_panel)
                             .override(40, 40) // (change according to your wish)
                             .error(R.drawable.blur_panel)
                             .into(holder.recycler_blur_panel);
+                    holder.recycler_blur_panel.setVisibility(View.VISIBLE);
                 }
             }
             else if (item.Type.equals("Паспорт"))
