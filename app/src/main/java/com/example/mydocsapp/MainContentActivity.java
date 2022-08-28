@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
+import androidx.core.app.NavUtils;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,6 +39,7 @@ public class MainContentActivity extends AppCompatActivity {
     String filterOption = "All";
     DBHelper db;
     boolean isSelectMode;
+    boolean isSortMode = false;
     private int selectedItemsNum = 0;
     private ActivityResultLauncher<Intent> registerForAR;
     private RecyclerView recyclerFolderView;
@@ -74,6 +76,7 @@ public class MainContentActivity extends AppCompatActivity {
         }
         isSelectMode = false;
         setInitialData();
+        setSelectedPropertyZero();
         setViewsTagOff();
         recyclerView = findViewById(R.id.container);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
@@ -84,10 +87,18 @@ public class MainContentActivity extends AppCompatActivity {
 
         setOnClickListeners();
     }
+
+    private void setSelectedPropertyZero() {
+        for (Item x: items) {
+            x.isSelected = 0;
+            db.updateItem(x.Id, x);
+        }
+    }
+
     private void setOnClickListeners() {
         recyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(this, recyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.Q)
+            new RecyclerItemClickListener(this, recyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.Q)
                     @Override public void onItemClick(View view, int position) {
                         Item item = (Item) view.getTag();
                         if(isSelectMode) {
@@ -134,21 +145,21 @@ public class MainContentActivity extends AppCompatActivity {
                                 // устанавливаем для списка адаптер
                                 recyclerFolderView.setAdapter(adapter);
                                 recyclerFolderView.addOnItemTouchListener(
-                                        new RecyclerItemClickListener(MainContentActivity.this, recyclerFolderView ,new RecyclerItemClickListener.OnItemClickListener() {
-                                            @RequiresApi(api = Build.VERSION_CODES.Q)
-                                            @Override
-                                            public void onItemClick(View view, int position) {
+                                    new RecyclerItemClickListener(MainContentActivity.this, recyclerFolderView ,new RecyclerItemClickListener.OnItemClickListener() {
+                                        @RequiresApi(api = Build.VERSION_CODES.Q)
+                                        @Override
+                                        public void onItemClick(View view, int position) {
 
-                                            }
-                                            @Override
-                                            public void onLongItemClick(View view, int position) {
-                                                Item folderItem = (Item)view.getTag();
-                                                folderItem.FolderId = 0;
-                                                db.updateItem(folderItem.Id, folderItem);
-                                                SystemContext.CurrentFolderItemsSet = getItemsFromDb(item.Id);
-                                                reFillContentPanel(recyclerFolderView, SystemContext.CurrentFolderItemsSet);
-                                            }
-                                        }));
+                                        }
+                                        @Override
+                                        public void onLongItemClick(View view, int position) {
+                                            Item folderItem = (Item)view.getTag();
+                                            folderItem.FolderId = 0;
+                                            db.updateItem(folderItem.Id, folderItem);
+                                            SystemContext.CurrentFolderItemsSet = getItemsFromDb(item.Id);
+                                            reFillContentPanel(recyclerFolderView, SystemContext.CurrentFolderItemsSet);
+                                        }
+                                    }));
                                 //set buttons
                                 Button flowButton = (Button) dialog.findViewById(R.id.flow_folder_button);
                                 flowButton.setOnClickListener(view1 -> {
@@ -172,6 +183,7 @@ public class MainContentActivity extends AppCompatActivity {
                         }
                     }
                     @Override public void onLongItemClick(View view, int position) {
+                    if(!isSortMode) {
                         MotionLayout ml = findViewById(R.id.motion_layout);
                         ml.setTransition(R.id.transGoSelect);
                         ml.transitionToEnd();
@@ -181,12 +193,13 @@ public class MainContentActivity extends AppCompatActivity {
                         int newItemId = SystemContext.CurrentItemsSet.indexOf(item);
                         item.isSelected = 1;
                         selectedItemsNum = 1;
-                        ((TextView)findViewById(R.id.top_select_picked_txt)).setText("Selected: "+ selectedItemsNum);
+                        ((TextView) findViewById(R.id.top_select_picked_txt)).setText("Selected: " + selectedItemsNum);
 
                         SystemContext.CurrentItemsSet.set(newItemId, item);
                         view.setTag(item);
 
                         reFillContentPanel(recyclerView, SystemContext.CurrentItemsSet);
+                    }
                     }
                 })
         );
@@ -263,12 +276,14 @@ public class MainContentActivity extends AppCompatActivity {
         setViewsTagOff();
         MotionLayout ml = findViewById(R.id.motion_layout);
         if(view.getTag().toString() =="off") {
+            isSortMode = true;
             ml.setTransition(R.id.trans3);
             ml.transitionToEnd();
             view.setTag("on");
             (findViewById(R.id.flow_button)).setEnabled(false);
         }
         else{
+            isSortMode = false;
             ml.setTransition(R.id.trans4);
             ml.transitionToEnd();
             view.setTag("off");
@@ -412,12 +427,21 @@ public class MainContentActivity extends AppCompatActivity {
         ml.setTransition(R.id.transGoSelect);
         ml.transitionToStart();
         isSelectMode = false;
+        setSelectedPropertyZero();
         reFillContentPanel(recyclerView,items);
     }
 @Override
     public void onBackPressed(){
     setInitialData();
+    setSelectedPropertyZero();
     reFillContentPanel(recyclerView, items);
-    super.onBackPressed();
+    if(isSelectMode) {
+        topSelectBackClick(new View(this));
+    }
+    else if(isSortMode){
+        openSortMenuClick(findViewById(R.id.menubar_options));
+    }
+    else
+        NavUtils.navigateUpFromSameTask(this);
 }
 }

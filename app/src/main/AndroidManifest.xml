@@ -39,6 +39,7 @@
         <activity
             android:name=".MainContentActivity"
             android:exported="false"
+            android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".AccountActivity"

@@ -270,14 +270,16 @@
         app:layout_constraintStart_toStartOf="@id/flow_button"
         app:layout_constraintTop_toTopOf="@id/flow_button"
         android:background="@drawable/flow_folder_btn"/>
+
     <Button
         android:id="@+id/flow_button"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_margin="10dp"
-        android:tag="off"
+        android:background="@drawable/ic_add_btn"
+        android:elevation="7dp"
         android:translationZ="5dp"
-        android:background="@drawable/add"
+        android:tag="off"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

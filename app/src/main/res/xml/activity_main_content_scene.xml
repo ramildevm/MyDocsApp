@@ -9,6 +9,17 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toTopOf="parent"
             android:alpha="0" />
+        <Constraint
+            android:id="@+id/flow_button"
+            android:translationZ="5dp"
+            android:elevation="7dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="10dp" />
+            app:layout_constraintBottom_toBottomOf="parent" />
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
@@ -19,6 +30,8 @@
             android:layout_height="60dp"
             app:layout_constraintBottom_toBottomOf="parent"
             android:rotation="-45"
+            android:translationZ="5dp"
+            android:elevation="7dp"
             android:layout_marginBottom="10dp"
             android:layout_marginEnd="10dp" />
         <Constraint
@@ -87,12 +100,22 @@
 
     <ConstraintSet android:id="@+id/end2">
         <Constraint
+            android:id="@+id/flow_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:translationZ="20dp"
+            android:elevation="7dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="10dp" />
+        <Constraint
             android:id="@+id/sort_menu"
             app:layout_constraintStart_toEndOf="parent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/top_panel"
-            android:translationX="-90dp" />
+            android:translationX="-65dp" />
         <Constraint
             android:id="@+id/content_panel"
             app:layout_constraintEnd_toEndOf="parent"
@@ -177,7 +200,8 @@
             android:layout_height="60dp"
             app:layout_constraintBottom_toBottomOf="parent"
             android:visibility="invisible"
-            android:translationZ="5dp" />
+            android:translationZ="5dp"
+            android:elevation="7dp" />
         <Constraint
             android:id="@+id/flow_doc_add_btn"
             app:layout_constraintEnd_toEndOf="@id/flow_button"

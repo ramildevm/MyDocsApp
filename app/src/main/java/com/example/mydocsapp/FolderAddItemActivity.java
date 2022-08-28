@@ -42,40 +42,37 @@ public class FolderAddItemActivity extends AppCompatActivity {
         // устанавливаем для списка адаптер
         recyclerFolderView.setAdapter(adapter);
         recyclerFolderView.addOnItemTouchListener(
-                new RecyclerItemClickListener(this, recyclerFolderView ,new RecyclerItemClickListener.OnItemClickListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.Q)
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        Item item = (Item) view.getTag();
+            new RecyclerItemClickListener(this, recyclerFolderView ,new RecyclerItemClickListener.OnItemClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.Q)
+                @Override
+                public void onItemClick(View view, int position) {
+                    Item item = (Item) view.getTag();
 
-                            int newItemId = items.indexOf(item);
+                        int newItemId = items.indexOf(item);
 
-                            Log.e("select", item.isSelected + "");
-                            if (item.isSelected == 0) {
-                                item.isSelected = 1;
-                                selectedItemsNum++;
-
-                            } else {
-                                item.isSelected = 0;
-                                selectedItemsNum--;
-                            }
-                            view.setTag(item);
-                        items.set(newItemId, item);
-                            ((TextView) findViewById(R.id.top_select_picked_txt)).setText("Selected: " + selectedItemsNum);
-
-                            reFillContentPanel(recyclerFolderView, items);
+                        Log.e("select", item.isSelected + "");
+                        if (item.isSelected == 0) {
+                            item.isSelected = 1;
+                            selectedItemsNum++;
+                        } else {
+                            item.isSelected = 0;
+                            selectedItemsNum--;
+                        }
+                        view.setTag(item);
+                    items.set(newItemId, item);
+                        ((TextView) findViewById(R.id.top_select_picked_txt)).setText("Selected: " + selectedItemsNum);
+                        reFillContentPanel(recyclerFolderView, items);
                     }
+                @Override
+                public void onLongItemClick(View view, int position) {
 
-                    @Override
-                    public void onLongItemClick(View view, int position) {
-
-                    }
+                }
                 }));
     }
 
     private void setInitialData() {
         items.clear();
-        Cursor cur = db.getItemsByFolder0();
+        Cursor cur = db.getItemsByFolderIdForAdding(SystemContext.CurrentItem.Id);
         Item item;
         while(cur.moveToNext()){
             item = new Item(cur.getInt(0),
@@ -87,6 +84,11 @@ public class FolderAddItemActivity extends AppCompatActivity {
                     cur.getInt(6),
                     cur.getInt(7),
                     cur.getInt(8));
+            if(item.FolderId == SystemContext.CurrentItem.Id){
+                item.isSelected = 1;
+                selectedItemsNum++;
+                ((TextView) findViewById(R.id.top_select_picked_txt)).setText("Selected: " + selectedItemsNum);
+            }
             if(!(item.Type.equals("Папка")))
                 items.add(item);
         }
@@ -118,14 +120,16 @@ public class FolderAddItemActivity extends AppCompatActivity {
         _recyclerView.setAdapter(adapter);
     }
     public void saveSelectedClick(View view) {
-        for (Item x:
-                items) {
+        for (Item x: items) {
             if(x.isSelected == 1) {
                 x.FolderId = SystemContext.CurrentItem.Id;
-                x.isSelected = 0;
-                selectedItemsNum--;
-                db.updateItem(x.Id, x);
             }
+            else{
+                x.FolderId = 0;
+            }
+            x.isSelected = 0;
+            selectedItemsNum--;
+            db.updateItem(x.Id, x);
         }
         setInitialData();
         reFillContentPanel(recyclerFolderView,items);

@@ -49,7 +49,7 @@
         android:layout_margin="10dp"
         android:tag="off"
         android:translationZ="5dp"
-        android:background="@drawable/add"
+        android:background="@drawable/ic_add_btn"
         app:layout_constraintBottom_toTopOf="@id/folder_bottom_panel"
         app:layout_constraintEnd_toEndOf="@id/folder_content_panel" />
     <Button

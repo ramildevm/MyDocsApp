@@ -125,6 +125,11 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=0 order by Priority desc, id asc", null);
         return cursor;
     }
+    public Cursor getItemsByFolderIdForAdding(int id){
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=0 or FolderId=? order by Priority desc, id asc",new String[]{""+id});
+        return cursor;
+    }
     public int getItemFolderItemsCount(int id){
         SQLiteDatabase db = open();
         Cursor cursor = db.rawQuery("select * from Item where FolderId=? order by Priority desc, id asc", new String[]{""+id});
