@@ -13,13 +13,15 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.mydocsapp.MainActivity;
 import com.example.mydocsapp.R;
+import com.example.mydocsapp.apputils.ItemMoveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ItemAdapter  extends RecyclerView.Adapter<ItemAdapter.ViewHolder>{
+public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> implements ItemMoveCallback.ItemTouchHelperContract {
 
     private final LayoutInflater inflater;
     private Context context;
@@ -98,6 +100,28 @@ public class ItemAdapter  extends RecyclerView.Adapter<ItemAdapter.ViewHolder>{
         return items.size();
     }
 
+    @Override
+    public void onRowMoved(RecyclerView recyclerView, int fromPosition, int toPosition) {
+
+    }
+
+
+    @Override
+    public void onRowSelected(ViewHolder myViewHolder) {
+        myViewHolder.rowView.setAlpha(0.8f);
+    }
+    @Override
+    public void onRowClear(ViewHolder myViewHolder, int fromPosition, int toPosition) {
+        myViewHolder.rowView.setAlpha(1f);
+        if(fromPosition != -1 && fromPosition!=toPosition) {
+            Item item = items.get(fromPosition);
+            item.FolderId = items.get(toPosition).Id;
+            items.remove(fromPosition);
+            db.updateItem(item.Id,item);
+            notifyItemRemoved(fromPosition);
+        }
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final ImageView imageView;
         final ImageView selectBtn;
@@ -106,8 +130,10 @@ public class ItemAdapter  extends RecyclerView.Adapter<ItemAdapter.ViewHolder>{
         final TextView titleView;
         final ConstraintLayout itemPanel;
         final RecyclerView recyclerFolder;
+        View rowView;
         ViewHolder(View view){
             super(view);
+            rowView = view;
             imageView = view.findViewById(R.id.image_panel);
             recycler_blur_panel = view.findViewById(R.id.recycler_blur_panel);
             titleView = view.findViewById(R.id.title_txt);
