@@ -59,6 +59,7 @@
             android:layout_gravity="center"
             android:textColor="#FFC700"
             android:text="Selected: 0"
+            android:textStyle="bold"
             android:textSize="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/top_select_all_btn"

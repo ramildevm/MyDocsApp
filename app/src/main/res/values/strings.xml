@@ -20,4 +20,15 @@
     <string name="file_add_passport">Passport</string>
     <string name="file_add_inn">INN</string>
     <string name="file_add_policy">Policy</string>
+    <string name="series_and_number">Series and number</string>
+    <string name="division_code">Division code</string>
+    <string name="date_of_issue">Date of issue</string>
+    <string name="issued_by_whom">Issued by whom</string>
+    <string name="full_name">Full name</string>
+    <string name="date_of_birth">Date of birth</string>
+    <string name="gender">Gender</string>
+    <string name="place_of_birth">Place of birth</string>
+    <string name="place_of_residence">Place of residence</string>
+    <string name="female_string">F</string>
+    <string name="date_pattern">__.__.____ y.</string>
 </resources>

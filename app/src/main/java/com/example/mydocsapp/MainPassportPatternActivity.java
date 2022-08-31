@@ -11,11 +11,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.mydocsapp.models.DBHelper;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.SystemContext;
+import com.santalu.maskara.widget.MaskEditText;
 
 public class MainPassportPatternActivity extends AppCompatActivity {
 DBHelper db;
@@ -47,12 +49,12 @@ DBHelper db;
         if(item!= null) {
             Cursor cur = db.getPassportById(item.ObjectId);
             cur.moveToFirst();
-            ((EditText) findViewById(R.id.editTextSeriesNumber)).setText(cur.getString(1));
-            ((EditText) findViewById(R.id.editTextDivisionCode)).setText(cur.getString(2));
-            ((EditText) findViewById(R.id.editTextDateIssue)).setText(cur.getString(3));
+            ((MaskEditText) findViewById(R.id.editTextSeriesNumber)).setText(cur.getString(1));
+            ((MaskEditText) findViewById(R.id.editTextDivisionCode)).setText(cur.getString(2));
+            ((MaskEditText) findViewById(R.id.editTextDateIssue)).setText(cur.getString(3));
             ((EditText) findViewById(R.id.editTextIssuedWhom)).setText(cur.getString(4));
             ((EditText) findViewById(R.id.editTextFullName)).setText(cur.getString(5));
-            ((EditText) findViewById(R.id.editTextDateBirth)).setText(cur.getString(6));
+            ((MaskEditText) findViewById(R.id.editTextDateBirth)).setText(cur.getString(6));
             if(cur.getString(7).equals("M"))
                 ((RadioButton) findViewById(R.id.maleCheck)).setChecked(true);
             else
@@ -63,13 +65,14 @@ DBHelper db;
     }
 
     public void goBackMainPageClick(View view) {
+        MaskEditText editTextSN = findViewById(R.id.editTextSeriesNumber);
         Passport p = new Passport(0,
-                ((EditText) findViewById(R.id.editTextSeriesNumber)).getText().toString(),
-                ((EditText) findViewById(R.id.editTextDivisionCode)).getText().toString(),
-                ((EditText) findViewById(R.id.editTextDateIssue)).getText().toString(),
+                editTextSN.getText().toString(),
+                ((MaskEditText) findViewById(R.id.editTextDivisionCode)).getText().toString(),
+                ((MaskEditText) findViewById(R.id.editTextDateIssue)).getText().toString(),
                 ((EditText) findViewById(R.id.editTextIssuedWhom)).getText().toString(),
                 ((EditText) findViewById(R.id.editTextFullName)).getText().toString(),
-                ((EditText) findViewById(R.id.editTextDateBirth)).getText().toString(),
+                ((MaskEditText) findViewById(R.id.editTextDateBirth)).getText().toString(),
                 "M",
                 ((EditText) findViewById(R.id.editTextPlaceBirth)).getText().toString(),
                 ((EditText) findViewById(R.id.editTextPlaceResidence)).getText().toString(),

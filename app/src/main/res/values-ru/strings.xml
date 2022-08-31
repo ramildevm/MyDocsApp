@@ -17,4 +17,18 @@
     <string name="error_adding_error">Ошибка добавления!</string>
     <string name="result_successful_user_adding">Новый пользователь успешно добавлен</string>
     <string name="error_dont_match_passwords">Пароли не соотвествуют друг другу!</string>
+    <string name="file_add_passport">Паспорт</string>
+    <string name="file_add_inn">ИНН</string>
+    <string name="file_add_policy">Полис</string>
+    <string name="series_and_number">Серия и номер</string>
+    <string name="division_code">Код подразделения</string>
+    <string name="date_of_issue">Дата выдачи</string>
+    <string name="issued_by_whom">Кем выдан</string>
+    <string name="full_name">ФИО</string>
+    <string name="date_of_birth">Дата рождения</string>
+    <string name="gender">Пол</string>
+    <string name="place_of_birth">Место рождения</string>
+    <string name="place_of_residence">Место проживания</string>
+    <string name="female_string">Ж</string>
+    <string name="date_pattern">__.__.____ г.</string>
 </resources>
