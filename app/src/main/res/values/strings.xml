@@ -31,4 +31,16 @@
     <string name="place_of_residence">Place of residence</string>
     <string name="female_string">F</string>
     <string name="date_pattern">__.__.____ y.</string>
+    <string name="create_a_folder">Create</string>
+    <string name="rename_an_item">Rename</string>
+    <string name="cancel_btn">Cancel</string>
+    <string name="pin_string">Pin</string>
+    <string name="hide_string">Hide</string>
+    <string name="delete_string">Delete</string>
+    <string name="document_string">Document</string>
+    <string name="image_string">Image</string>
+    <string name="card_string">Card</string>
+    <string name="folder_string">Folder</string>
+    <string name="selected_string">Selected:</string>
+    <string name="enter_a_name">Enter a name</string>
 </resources>

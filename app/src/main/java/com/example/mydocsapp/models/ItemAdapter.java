@@ -3,6 +3,7 @@ package com.example.mydocsapp.models;
 import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,7 +14,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.mydocsapp.MainActivity;
 import com.example.mydocsapp.R;
 import com.example.mydocsapp.apputils.ItemMoveCallback;
 
@@ -92,6 +92,14 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         if(item.Priority > 0)
             holder.pinBtn.setVisibility(View.VISIBLE);
         holder.titleView.setText(item.Title);
+        holder.titleView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                SystemContext.isTitleClicked = true;
+                return true;
+            }
+        });
+        holder.titleView.setTag(item);
 
     }
 

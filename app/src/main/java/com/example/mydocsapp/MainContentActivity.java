@@ -62,6 +62,7 @@ public class MainContentActivity extends AppCompatActivity {
         });
         SystemContext.CurrentItem = null;
         SystemContext.CurrentFolderItemsSet = null;
+        SystemContext.isTitleClicked = false;
 
         TextView gtxt = findViewById(R.id.login_txt);
         gtxt.setText(SystemContext.CurrentUser.login);
@@ -100,6 +101,8 @@ public class MainContentActivity extends AppCompatActivity {
             new RecyclerItemClickListener(this, recyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
                 @RequiresApi(api = Build.VERSION_CODES.Q)
                     @Override public void onItemClick(View view, int position) {
+                        if (findViewById(R.id.content_panel).getAlpha()==0.5f)
+                            return;
                         Item item = (Item) view.getTag();
                         if(isSelectMode) {
                             int newItemId = SystemContext.CurrentItemsSet.indexOf(item);
@@ -114,76 +117,87 @@ public class MainContentActivity extends AppCompatActivity {
                             }
                             view.setTag(item);
                             SystemContext.CurrentItemsSet.set(newItemId, item);
-                            ((TextView)findViewById(R.id.top_select_picked_txt)).setText("Selected: "+ selectedItemsNum);
+                            ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
 
                             reFillContentPanel(recyclerView, SystemContext.CurrentItemsSet);
                         }
                         else{
                             SystemContext.CurrentItem = item;
-                            if(item.Type.equals("Папка")) {
-                                Dialog dialog = new Dialog(MainContentActivity.this);
-                                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                                dialog.setContentView(R.layout.folder_items_panel_layout);
-                                dialog.setCancelable(true);
-
-                                int width = getResources().getDimensionPixelSize(R.dimen.popup_width);
-                                int height = getResources().getDimensionPixelSize(R.dimen.popup_height);
-                                dialog.getWindow().setLayout(width, height);
-
-                                //set up text
-                                TextView text = (TextView) dialog.findViewById(R.id.title_folder_txt);
-                                text.setText(item.Title);
-
-                                //items set
-                                SystemContext.CurrentFolderItemsSet = getItemsFromDb(item.Id);
-
-                                recyclerFolderView = (RecyclerView) dialog.findViewById(R.id.folder_container);
-
-                                recyclerFolderView.setLayoutManager(new GridLayoutManager(MainContentActivity.this, 2));
-                                // создаем адаптер
-                                ItemAdapter adapter = new ItemAdapter(MainContentActivity.this, SystemContext.CurrentFolderItemsSet, false);
-                                // устанавливаем для списка адаптер
-                                recyclerFolderView.setAdapter(adapter);
-                                recyclerFolderView.addOnItemTouchListener(
-                                    new RecyclerItemClickListener(MainContentActivity.this, recyclerFolderView ,new RecyclerItemClickListener.OnItemClickListener() {
-                                        @RequiresApi(api = Build.VERSION_CODES.Q)
-                                        @Override
-                                        public void onItemClick(View view, int position) {
-
-                                        }
-                                        @Override
-                                        public void onLongItemClick(View view, int position) {
-                                            Item folderItem = (Item)view.getTag();
-                                            folderItem.FolderId = 0;
-                                            db.updateItem(folderItem.Id, folderItem);
-                                            SystemContext.CurrentFolderItemsSet = getItemsFromDb(item.Id);
-                                            reFillContentPanel(recyclerFolderView, SystemContext.CurrentFolderItemsSet);
-                                        }
-                                    }));
-                                //set buttons
-                                Button flowButton = (Button) dialog.findViewById(R.id.flow_folder_button);
-                                flowButton.setOnClickListener(view1 -> {
-                                    Intent i = new Intent(MainContentActivity.this, FolderAddItemActivity.class);
-                                    registerForAR.launch(i);
-                                });
-
-                                Button hideButton = (Button) dialog.findViewById(R.id.hide_folder_btn);
-                                hideButton.setOnClickListener(v -> {
-                                    dialog.cancel();
-                                    setInitialData();
-                                    reFillContentPanel(recyclerView, items);
-                                });
-
-                                //now that the dialog is set up, it's time to show it
-                                dialog.show();
+                            if(SystemContext.isTitleClicked){
+                                setViewsTagOff();
+                                setMakeRenameItem(1);
+                                MotionLayout ml = findViewById(R.id.motion_layout);
+                                ml.setTransition(R.id.trans5);
+                                ml.transitionToEnd();
+                                (findViewById(R.id.menubar_options)).setEnabled(false);
                             }
-                            else if(item.Type.equals("Паспорт")){
-                                goPatternClick(view);
+                            else {
+                                if (item.Type.equals("Папка")) {
+                                    Dialog dialog = new Dialog(MainContentActivity.this);
+                                    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                                    dialog.setContentView(R.layout.folder_items_panel_layout);
+                                    dialog.setCancelable(true);
+
+                                    int width = getResources().getDimensionPixelSize(R.dimen.popup_width);
+                                    int height = getResources().getDimensionPixelSize(R.dimen.popup_height);
+                                    dialog.getWindow().setLayout(width, height);
+
+                                    //set up text
+                                    TextView text = (TextView) dialog.findViewById(R.id.title_folder_txt);
+                                    text.setText(item.Title);
+
+                                    //items set
+                                    SystemContext.CurrentFolderItemsSet = getItemsFromDb(item.Id);
+
+                                    recyclerFolderView = (RecyclerView) dialog.findViewById(R.id.folder_container);
+
+                                    recyclerFolderView.setLayoutManager(new GridLayoutManager(MainContentActivity.this, 2));
+                                    // создаем адаптер
+                                    ItemAdapter adapter = new ItemAdapter(MainContentActivity.this, SystemContext.CurrentFolderItemsSet, false);
+                                    // устанавливаем для списка адаптер
+                                    recyclerFolderView.setAdapter(adapter);
+                                    recyclerFolderView.addOnItemTouchListener(
+                                        new RecyclerItemClickListener(MainContentActivity.this, recyclerFolderView, new RecyclerItemClickListener.OnItemClickListener() {
+                                            @RequiresApi(api = Build.VERSION_CODES.Q)
+                                            @Override
+                                            public void onItemClick(View view, int position) {
+
+                                            }
+                                            @Override
+                                            public void onLongItemClick(View view, int position) {
+                                                Item folderItem = (Item) view.getTag();
+                                                folderItem.FolderId = 0;
+                                                db.updateItem(folderItem.Id, folderItem);
+                                                SystemContext.CurrentFolderItemsSet = getItemsFromDb(item.Id);
+                                                reFillContentPanel(recyclerFolderView, SystemContext.CurrentFolderItemsSet);
+                                            }
+                                        }));
+                                    //set buttons
+                                    Button flowButton = (Button) dialog.findViewById(R.id.flow_folder_button);
+                                    flowButton.setOnClickListener(view1 -> {
+                                        Intent i = new Intent(MainContentActivity.this, FolderAddItemActivity.class);
+                                        registerForAR.launch(i);
+                                    });
+
+                                    Button hideButton = (Button) dialog.findViewById(R.id.hide_folder_btn);
+                                    hideButton.setOnClickListener(v -> {
+                                        dialog.cancel();
+                                        setInitialData();
+                                        reFillContentPanel(recyclerView, items);
+                                    });
+
+                                    //now that the dialog is set up, it's time to show it
+                                    dialog.show();
+                                } else if (item.Type.equals("Паспорт")) {
+                                    goPatternClick(view);
+                                }
                             }
                         }
                     }
                     @Override public void onLongItemClick(View view, int position) {
                     if(!isSortMode) {
+                        if (findViewById(R.id.content_panel).getAlpha()==0.5f)
+                            return;
                         MotionLayout ml = findViewById(R.id.motion_layout);
                         ml.setTransition(R.id.transGoSelect);
                         ml.transitionToEnd();
@@ -193,19 +207,26 @@ public class MainContentActivity extends AppCompatActivity {
                         int newItemId = SystemContext.CurrentItemsSet.indexOf(item);
                         item.isSelected = 1;
                         selectedItemsNum = 1;
-                        ((TextView) findViewById(R.id.top_select_picked_txt)).setText("Selected: " + selectedItemsNum);
+                        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ + selectedItemsNum);
 
                         SystemContext.CurrentItemsSet.set(newItemId, item);
                         view.setTag(item);
 
                         reFillContentPanel(recyclerView, SystemContext.CurrentItemsSet);
                     }
-                    }
-                })
+                }
+            })
         );
         Button flowBtn = findViewById(R.id.flow_button);
         flowBtn.setOnClickListener(view -> openAddMenuClick(view));
     }
+
+    private void setMakeRenameItem(int i) {
+        EditText fname = findViewById(R.id.folderNameTxt);
+        ((Button)findViewById(R.id.make_rename_item_btn)).setText((i==1)?R.string.rename_an_item:R.string.create_a_folder);
+        fname.setText((i==1)?SystemContext.CurrentItem.Title:"");
+    }
+
     private void setInitialData() {
         items.clear();
         Cursor cur = db.getItemsByFolder0();
@@ -253,17 +274,29 @@ public class MainContentActivity extends AppCompatActivity {
         }
     }
 
-    public void makeFolderClick(View view) {
+    public void makeRenameBtnClick(View view) {
         EditText fname = findViewById(R.id.folderNameTxt);
-        if(fname.getText().toString().equals(""))
+        if (fname.getText().toString().equals(""))
             return;
-        db.insertItem(new Item(0,fname.getText().toString(), "Папка", null, 0, 0, 0, 0, 0));
+        if(SystemContext.isTitleClicked) {
+            Item item = SystemContext.CurrentItem;
+            item.Title = fname.getText().toString();
+            db.updateItem(item.Id,item);
+        }
+        else{
+            db.insertItem(new Item(0, fname.getText().toString(), "Папка", null, 0, 0, 0, 0, 0));
+        }
         setInitialData();
-        reFillContentPanel(recyclerView,items);
+        reFillContentPanel(recyclerView, items);
         cancelMakeFolderClick(view);
-
     }
-
+    public void cancelMakeFolderClick(View view) {
+        SystemContext.isTitleClicked = false;
+        MotionLayout ml = findViewById(R.id.motion_layout);
+        ml.setTransition(R.id.trans6);
+        ml.transitionToEnd();
+        (findViewById(R.id.menubar_options)).setEnabled(true);
+    }
     public void goAccountClick(View view) {
         startActivity(new Intent(MainContentActivity.this, AccountActivity.class));
     }
@@ -292,6 +325,8 @@ public class MainContentActivity extends AppCompatActivity {
     }
 
     public void openAddMenuClick(View view) {
+        if(findViewById(R.id.makeFolderPanel).getVisibility()==View.VISIBLE)
+            return;
         setViewsTagOff();
         MotionLayout ml = findViewById(R.id.motion_layout);
         if(view.getTag().toString() =="off") {
@@ -308,6 +343,16 @@ public class MainContentActivity extends AppCompatActivity {
         }
     }
 
+    public void menuMakeFolderClick(View view) {
+        setViewsTagOff();
+        setMakeRenameItem(0);
+        findViewById(R.id.content_panel).setAlpha(0.5f);
+        MotionLayout ml = findViewById(R.id.motion_layout);
+        ml.transitionToStart();
+        ml.setTransition(R.id.trans5);
+        ml.transitionToEnd();
+        (findViewById(R.id.menubar_options)).setEnabled(false);
+    }
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortFolderClick(View view) {
         ArrayList<Item> _items = new ArrayList<>(items.stream().filter((x)->x.Type.equals("Папка")).collect(Collectors.toList()));
@@ -341,22 +386,6 @@ public class MainContentActivity extends AppCompatActivity {
     public void sortCancelClick(View view) {
         reFillContentPanel(recyclerView, items);
     }
-
-    public void menuMakeFolderClick(View view) {
-        setViewsTagOff();
-        MotionLayout ml = findViewById(R.id.motion_layout);
-        ml.setTransition(R.id.trans5);
-        ml.transitionToEnd();
-        (findViewById(R.id.menubar_options)).setEnabled(false);
-    }
-
-    public void cancelMakeFolderClick(View view) {
-        MotionLayout ml = findViewById(R.id.motion_layout);
-        ml.setTransition(R.id.trans6);
-        ml.transitionToEnd();
-        (findViewById(R.id.menubar_options)).setEnabled(true);
-    }
-
     public void bottomPinClick(View view) {
         for (Item x:
                 SystemContext.CurrentItemsSet) {
@@ -371,7 +400,7 @@ public class MainContentActivity extends AppCompatActivity {
         setInitialData();
         SystemContext.CurrentItemsSet = items;
         reFillContentPanel(recyclerView,items);
-        ((TextView)findViewById(R.id.top_select_picked_txt)).setText("Selected: "+ selectedItemsNum);
+        ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
     }
 
     public void bottomHideClick(View view) {
@@ -387,7 +416,7 @@ public class MainContentActivity extends AppCompatActivity {
         setInitialData();
         SystemContext.CurrentItemsSet = items;
         reFillContentPanel(recyclerView,items);
-        ((TextView)findViewById(R.id.top_select_picked_txt)).setText("Selected: "+ selectedItemsNum);
+        ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
     }
 
     public void bottomDeleteClick(View view) {
@@ -405,7 +434,7 @@ public class MainContentActivity extends AppCompatActivity {
         setInitialData();
         SystemContext.CurrentItemsSet = items;
         reFillContentPanel(recyclerView,items);
-        ((TextView)findViewById(R.id.top_select_picked_txt)).setText("Selected: "+ selectedItemsNum);
+        ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
     }
 
     public void topSelectAllClick(View view) {
@@ -417,7 +446,7 @@ public class MainContentActivity extends AppCompatActivity {
             SystemContext.CurrentItemsSet.set(newItemId,x);
             selectedItemsNum++;
         }
-        ((TextView)findViewById(R.id.top_select_picked_txt)).setText("Selected: "+ selectedItemsNum);
+        ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
 
         reFillContentPanel(recyclerView,SystemContext.CurrentItemsSet);
     }

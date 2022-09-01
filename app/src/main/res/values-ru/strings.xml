@@ -31,4 +31,16 @@
     <string name="place_of_residence">Место проживания</string>
     <string name="female_string">Ж</string>
     <string name="date_pattern">__.__.____ г.</string>
+    <string name="create_a_folder">Содать</string>
+    <string name="rename_an_item">Переименовать</string>
+    <string name="cancel_btn">Отмена</string>
+    <string name="pin_string">Закрепить</string>
+    <string name="hide_string">Скрыть</string>
+    <string name="delete_string">Удалить</string>
+    <string name="document_string">Документ</string>
+    <string name="image_string">Фото</string>
+    <string name="card_string">Карта</string>
+    <string name="folder_string">Папка</string>
+    <string name="selected_string">Выбрано:</string>
+    <string name="enter_a_name">Введите название</string>
 </resources>

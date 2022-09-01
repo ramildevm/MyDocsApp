@@ -39,31 +39,34 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:id="@+id/makeFolderPanel"
+        android:translationY="-50dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:visibility="invisible">
         <EditText
-            android:layout_width="250dp"
+            android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:id="@+id/folderNameTxt"
-            android:hint="Введите название"
+            android:inputType="textCapWords"
+            android:hint="@string/enter_a_name"
             android:textColor="@color/white"/>
         <Button
-            android:layout_width="250dp"
+            android:id="@+id/make_rename_item_btn"
+            android:layout_width="240dp"
             android:layout_height="45dp"
             android:background="@drawable/rounded_border_yellow"
             android:paddingStart="10dp"
             android:layout_marginTop="5dp"
             android:textSize="20dp"
-            android:onClick="makeFolderClick"
+            android:onClick="makeRenameBtnClick"
             android:textAllCaps="false"
             android:textColor="@color/black"
             android:layout_gravity="center"
-            android:text="Создать папку"/>
+            android:text="@string/create_a_folder"/>
         <Button
-            android:layout_width="250dp"
+            android:layout_width="240dp"
             android:layout_height="45dp"
             android:layout_marginTop="10dp"
             android:textSize="20dp"
@@ -73,7 +76,7 @@
             android:onClick="cancelMakeFolderClick"
             android:textColor="@color/black"
             android:layout_gravity="center"
-            android:text="Отмена"/>
+            android:text="@string/cancel_btn"/>
 
 
     </LinearLayout>
@@ -242,6 +245,26 @@
         app:layout_constraintStart_toStartOf="@id/flow_button"
         app:layout_constraintTop_toTopOf="@id/flow_button"
         android:background="@drawable/flow_doc_btn"/>
+    <TextView
+        android:alpha="0"
+        android:layout_marginRight="-2dp"
+        android:textColor="@color/white"
+        android:shadowColor="@color/black"
+        android:shadowDy="4"
+        android:shadowDx="4"
+        android:shadowRadius="9"
+        android:padding="5dp"
+        android:id="@+id/document_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:translationY="-216dp"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        android:text="@string/document_string"
+        app:layout_constraintBottom_toBottomOf="@id/flow_button"
+        app:layout_constraintTop_toTopOf="@id/flow_button"
+        app:layout_constraintEnd_toStartOf="@id/flow_button"
+        />
     <Button
         android:id="@+id/flow_add_image_btn"
         android:layout_width="55dp"
@@ -251,6 +274,26 @@
         app:layout_constraintStart_toStartOf="@id/flow_button"
         app:layout_constraintTop_toTopOf="@id/flow_button"
         android:background="@drawable/flow_image_btn"/>
+    <TextView
+        android:alpha="0"
+        android:layout_marginRight="-2dp"
+        android:textColor="@color/white"
+        android:shadowColor="@color/black"
+        android:shadowDy="4"
+        android:shadowDx="4"
+        android:shadowRadius="9"
+        android:padding="5dp"
+        android:id="@+id/image_txt"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:translationY="-164dp"
+        android:textSize="16dp"
+        android:text="@string/image_string"
+        app:layout_constraintBottom_toBottomOf="@id/flow_button"
+        app:layout_constraintTop_toTopOf="@id/flow_button"
+        app:layout_constraintEnd_toStartOf="@id/flow_button"
+        />
     <Button
         android:id="@+id/flow_add_card_btn"
         android:layout_width="55dp"
@@ -260,6 +303,26 @@
         app:layout_constraintStart_toStartOf="@id/flow_button"
         app:layout_constraintTop_toTopOf="@id/flow_button"
         android:background="@drawable/flow_card_btn"/>
+    <TextView
+        android:alpha="0"
+        android:layout_marginRight="-2dp"
+        android:textColor="@color/white"
+        android:shadowColor="@color/black"
+        android:shadowDy="4"
+        android:shadowDx="4"
+        android:shadowRadius="9"
+        android:padding="5dp"
+        android:id="@+id/card_txt"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:translationY="-112dp"
+        android:textSize="16dp"
+        android:text="@string/card_string"
+        app:layout_constraintBottom_toBottomOf="@id/flow_button"
+        app:layout_constraintTop_toTopOf="@id/flow_button"
+        app:layout_constraintEnd_toStartOf="@id/flow_button"
+        />
     <Button
         android:id="@+id/flow_add_folder_btn"
         android:layout_width="55dp"
@@ -270,7 +333,26 @@
         app:layout_constraintStart_toStartOf="@id/flow_button"
         app:layout_constraintTop_toTopOf="@id/flow_button"
         android:background="@drawable/flow_folder_btn"/>
-
+    <TextView
+        android:alpha="0"
+        android:layout_marginRight="-2dp"
+        android:textColor="@color/white"
+        android:shadowColor="@color/black"
+        android:shadowDy="4"
+        android:shadowDx="4"
+        android:shadowRadius="9"
+        android:padding="5dp"
+        android:id="@+id/folder_txt"
+        android:layout_width="wrap_content"
+        android:textStyle="bold"
+        android:textSize="16dp"
+        android:layout_height="wrap_content"
+        android:translationY="-60dp"
+        android:text="@string/folder_string"
+        app:layout_constraintBottom_toBottomOf="@id/flow_button"
+        app:layout_constraintTop_toTopOf="@id/flow_button"
+        app:layout_constraintEnd_toStartOf="@id/flow_button"
+        />
     <Button
         android:id="@+id/flow_button"
         android:layout_width="60dp"
@@ -289,44 +371,75 @@
         android:layout_height="60dp"
         android:background="#757575"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="parent">
 
         <ImageView
             android:id="@+id/bottom_pin_btn"
             android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="11dp"
+            android:layout_height="37dp"
             android:onClick="bottomPinClick"
             android:src="@drawable/bottom_pin_btn"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/bottom_pin_txt"
             app:layout_constraintEnd_toStartOf="@id/bottom_hide_btn"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/bottom_pin_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="bottomPinClick"
+            android:text="@string/pin_string"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/bottom_pin_btn"
+            app:layout_constraintStart_toStartOf="@+id/bottom_pin_btn"
+            app:layout_constraintTop_toBottomOf="@+id/bottom_pin_btn" />
 
         <ImageView
             android:id="@+id/bottom_hide_btn"
             android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="11dp"
+            android:layout_height="37dp"
             android:onClick="bottomHideClick"
             android:src="@drawable/bottom_hide_btn"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/bottom_hide_txt"
             app:layout_constraintEnd_toStartOf="@id/bottom_delete_btn"
             app:layout_constraintStart_toEndOf="@id/bottom_pin_btn"
             app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/bottom_hide_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hide_string"
+            android:textStyle="bold"
+            android:onClick="bottomHideClick"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/bottom_hide_btn"
+            app:layout_constraintStart_toStartOf="@+id/bottom_hide_btn"
+            app:layout_constraintTop_toBottomOf="@+id/bottom_hide_btn" />
 
         <ImageView
             android:id="@+id/bottom_delete_btn"
             android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="11dp"
+            android:layout_height="37dp"
             android:onClick="bottomDeleteClick"
             android:src="@drawable/bottom_delete_btn"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/bottom_delete_txt"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/bottom_hide_btn"
             app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/bottom_delete_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete_string"
+            android:textStyle="bold"
+            android:onClick="bottomDeleteClick"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/bottom_delete_btn"
+            app:layout_constraintStart_toStartOf="@+id/bottom_delete_btn"
+            app:layout_constraintTop_toBottomOf="@+id/bottom_delete_btn" />
+
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

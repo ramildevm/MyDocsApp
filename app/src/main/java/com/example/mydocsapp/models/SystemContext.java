@@ -8,4 +8,7 @@ public class  SystemContext {
     public static ArrayList<Item> CurrentItemsSet = null;
     public static ArrayList<Item> CurrentFolderItemsSet = null;
     public static Item CurrentItem = null;
+    public static Item CurrentRenamingItem = null;
+
+    public static boolean isTitleClicked = false;
 }

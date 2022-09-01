@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#9C9C9C"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <TextView
+        android:textColor="@color/white"
+        android:shadowColor="@color/black"
+        android:shadowDy="4"
+        android:shadowDx="4"
+        android:shadowRadius="6"
+        android:id="@+id/image_txt"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:translationY="-164dp"
+        android:textSize="16dp"
+        android:text="@string/image_string"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bottom_panel"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#757575"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/bottom_pin_btn"
+            android:layout_width="50dp"
+            android:layout_height="37dp"
+            android:onClick="bottomPinClick"
+            android:src="@drawable/bottom_pin_btn"
+            app:layout_constraintBottom_toTopOf="@id/bottom_pin_txt"
+            app:layout_constraintEnd_toStartOf="@id/bottom_hide_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/bottom_pin_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="To pin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/bottom_pin_btn"
+            app:layout_constraintStart_toStartOf="@+id/bottom_pin_btn"
+            app:layout_constraintTop_toBottomOf="@+id/bottom_pin_btn" />
+
+        <ImageView
+            android:id="@+id/bottom_hide_btn"
+            android:layout_width="50dp"
+            android:layout_height="37dp"
+            android:onClick="bottomHideClick"
+            android:src="@drawable/bottom_hide_btn"
+            app:layout_constraintBottom_toTopOf="@id/bottom_hide_txt"
+            app:layout_constraintEnd_toStartOf="@id/bottom_delete_btn"
+            app:layout_constraintStart_toEndOf="@id/bottom_pin_btn"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/bottom_hide_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hide"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/bottom_hide_btn"
+            app:layout_constraintStart_toStartOf="@+id/bottom_hide_btn"
+            app:layout_constraintTop_toBottomOf="@+id/bottom_hide_btn" />
+
+        <ImageView
+            android:id="@+id/bottom_delete_btn"
+            android:layout_width="50dp"
+            android:layout_height="37dp"
+            android:onClick="bottomDeleteClick"
+            android:src="@drawable/bottom_delete_btn"
+            app:layout_constraintBottom_toTopOf="@id/bottom_delete_txt"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/bottom_hide_btn"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/bottom_delete_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/bottom_delete_btn"
+            app:layout_constraintStart_toStartOf="@+id/bottom_delete_btn"
+            app:layout_constraintTop_toBottomOf="@+id/bottom_delete_btn" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
