@@ -34,52 +34,6 @@
             android:orientation="horizontal">
         </androidx.recyclerview.widget.RecyclerView>
     </androidx.core.widget.NestedScrollView>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/makeFolderPanel"
-        android:translationY="-50dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:visibility="invisible">
-        <EditText
-            android:layout_width="240dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/folderNameTxt"
-            android:inputType="textCapWords"
-            android:hint="@string/enter_a_name"
-            android:textColor="@color/white"/>
-        <Button
-            android:id="@+id/make_rename_item_btn"
-            android:layout_width="240dp"
-            android:layout_height="45dp"
-            android:background="@drawable/rounded_border_yellow"
-            android:paddingStart="10dp"
-            android:layout_marginTop="5dp"
-            android:textSize="20dp"
-            android:onClick="makeRenameBtnClick"
-            android:textAllCaps="false"
-            android:textColor="@color/black"
-            android:layout_gravity="center"
-            android:text="@string/create_a_folder"/>
-        <Button
-            android:layout_width="240dp"
-            android:layout_height="45dp"
-            android:layout_marginTop="10dp"
-            android:textSize="20dp"
-            android:textAllCaps="false"
-            android:background="@drawable/rounded_border_white"
-            android:paddingStart="10dp"
-            android:onClick="cancelMakeFolderClick"
-            android:textColor="@color/black"
-            android:layout_gravity="center"
-            android:text="@string/cancel_btn"/>
-
-
-    </LinearLayout>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_panel"
         android:layout_width="match_parent"
@@ -168,8 +122,8 @@
 
         <ImageView
             android:id="@+id/top_select_all_btn"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
+            android:layout_width="50dp"
+            android:layout_height="37dp"
             android:layout_margin="7dp"
             android:onClick="topSelectAllClick"
             android:src="@drawable/ic_baseline_library_add_check_24"
@@ -192,7 +146,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:textStyle="bold"
-            android:text="Sort by"/>
+            android:text="@string/sort_by_string"/>
         <Button
             android:id="@+id/flow_sort_doc_btn"
             android:layout_width="50dp"
