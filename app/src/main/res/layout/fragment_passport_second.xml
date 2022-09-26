@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".PassportSecondFragment"
+    android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/first_passport_photo"
+            android:layout_width="match_parent"
+            android:layout_height="230dp"
+            android:background="#C4C4C4"
+            android:layout_marginRight="35dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginTop="30dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <ImageView
+            android:id="@+id/second_passport_photo"
+            android:layout_width="match_parent"
+            android:layout_height="230dp"
+            android:background="#C4C4C4"
+            android:layout_marginRight="35dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginTop="300dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

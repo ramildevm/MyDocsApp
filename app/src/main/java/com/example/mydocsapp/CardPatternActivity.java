@@ -15,6 +15,6 @@ public class CardPatternActivity extends AppCompatActivity {
     }
 
     public void goBackMainPageClick(View view) {
-        startActivity(new Intent(CardPatternActivity.this, MainContentActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+        startActivity(new Intent(CardPatternActivity.this, MainContentActivity.class));
     }
 }

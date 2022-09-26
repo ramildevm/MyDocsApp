@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyDocsApp</string>
+    <string name="app_name">MyDocs</string>
     <string name="login">Логин:</string>
     <string name="my_docs">My docs</string>
     <string name="password">Пароль:</string>

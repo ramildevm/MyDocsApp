@@ -1,4 +1,7 @@
 package com.example.mydocsapp.models;
+
+import androidx.annotation.Nullable;
+
 public class Passport {
     public int Id;
     public String SeriaNomer;
@@ -10,6 +13,12 @@ public class Passport {
     public String Gender;
     public String BirthPlace;
     public String ResidencePlace;
+    @Nullable
+    public byte[] FacePhoto;
+    @Nullable
+    public byte[] PhotoPage1;
+    @Nullable
+    public byte[] PhotoPage2;
 
     public Passport(int id, String seriaNomer, String divisionCode, String giveDate, String byWhom, String FIO, String birthDate, String gender, String birthPlace, String residencePlace, byte[] facePhoto, byte[] photoPage1, byte[] photoPage2) {
         Id = id;
@@ -26,8 +35,4 @@ public class Passport {
         PhotoPage1 = photoPage1;
         PhotoPage2 = photoPage2;
     }
-
-    public byte[] FacePhoto;
-    public byte[] PhotoPage1;
-    public byte[] PhotoPage2;
 }

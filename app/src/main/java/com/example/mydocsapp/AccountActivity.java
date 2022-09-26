@@ -20,7 +20,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     public void goAccountClickBack(View view) {
-        startActivity(new Intent(AccountActivity.this, MainContentActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+        startActivity(new Intent(AccountActivity.this, MainContentActivity.class));
     }
 
     public void goMainActivityClick(View view) {
@@ -28,6 +28,6 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     public void goSettingsClick(View view) {
-        startActivity(new Intent(AccountActivity.this, SettingsActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+        startActivity(new Intent(AccountActivity.this, SettingsActivity.class));
     }
 }

@@ -173,18 +173,6 @@ public class MainContentActivity extends AppCompatActivity {
                                             if(SystemContext.isTitleClicked){
                                                 makeRenameDialogMethod(recyclerFolderView,SystemContext.CurrentFolderItemsSet, "FRename");
                                                 makeRenameDialog.show();
-//                                                setViewsTagOff();
-//                                                setMakeRenameItem(1);
-//                                                MotionLayout ml = findViewById(R.id.motion_layout);
-//                                                ml.setTransition(R.id.trans5);
-//                                                ml.transitionToEnd();
-//
-//                                                EditText editText = findViewById(R.id.folderNameTxt);
-//                                                editText.setSelection(editText.getText().length());
-//                                                editText.requestFocus();
-//                                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//                                                imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
-//                                                (findViewById(R.id.menubar_options)).setEnabled(false);
                                             }
                                             else if (SystemContext.CurrentItem.Type.equals("Паспорт")) {
                                                 goPatternClick(view);
@@ -500,23 +488,23 @@ public class MainContentActivity extends AppCompatActivity {
         setSelectedPropertyZero();
         reFillContentPanel(recyclerView,items);
     }
-@Override
+    @Override
     public void onBackPressed(){
-    setInitialData();
-    setSelectedPropertyZero();
-    reFillContentPanel(recyclerView, items);
-    if(SystemContext.isTitleClicked){
-        SystemContext.isTitleClicked = false;
-        SystemContext.CurrentItem = null;
-        return;
+        setInitialData();
+        setSelectedPropertyZero();
+        reFillContentPanel(recyclerView, items);
+        if(SystemContext.isTitleClicked){
+            SystemContext.isTitleClicked = false;
+            SystemContext.CurrentItem = null;
+            return;
+        }
+        if(isSelectMode) {
+            topSelectBackClick(new View(this));
+        }
+        else if(isSortMode){
+            openSortMenuClick(findViewById(R.id.menubar_options));
+        }
+        else
+            NavUtils.navigateUpFromSameTask(this);
     }
-    if(isSelectMode) {
-        topSelectBackClick(new View(this));
-    }
-    else if(isSortMode){
-        openSortMenuClick(findViewById(R.id.menubar_options));
-    }
-    else
-        NavUtils.navigateUpFromSameTask(this);
-}
 }

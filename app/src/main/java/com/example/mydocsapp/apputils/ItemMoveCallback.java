@@ -73,7 +73,6 @@ public class ItemMoveCallback extends ItemTouchHelper.Callback {
     }
 
     public interface ItemTouchHelperContract {
-
         void onRowMoved(RecyclerView recyclerView, int fromPosition, int toPosition);
         void onRowSelected(ItemAdapter.ViewHolder myViewHolder);
         void onRowClear(ItemAdapter.ViewHolder myViewHolder, int fromPosition, int toPosition);

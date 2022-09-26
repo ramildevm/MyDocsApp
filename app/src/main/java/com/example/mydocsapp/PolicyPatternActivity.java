@@ -15,6 +15,6 @@ public class PolicyPatternActivity extends AppCompatActivity {
     }
 
     public void goBackMainPageClick(View view) {
-        startActivity(new Intent(PolicyPatternActivity.this, MainContentActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+        startActivity(new Intent(PolicyPatternActivity.this, MainContentActivity.class));
     }
 }

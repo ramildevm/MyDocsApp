@@ -15,6 +15,6 @@ public class INNPatternActivity extends AppCompatActivity {
     }
 
     public void goBackMainPageClick(View view) {
-        startActivity(new Intent(INNPatternActivity.this, MainContentActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+        startActivity(new Intent(INNPatternActivity.this, MainContentActivity.class));
     }
 }

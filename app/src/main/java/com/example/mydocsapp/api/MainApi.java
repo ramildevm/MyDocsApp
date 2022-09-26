@@ -1,4 +1,5 @@
-package com.example.mydocsapp;
+package com.example.mydocsapp.api;
+import com.example.mydocsapp.api.IApi;
 import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.api.UserGetCallback;
 import com.example.mydocsapp.api.UserPostCallback;

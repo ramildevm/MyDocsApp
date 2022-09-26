@@ -1,4 +1,4 @@
-package com.example.mydocsapp;
+package com.example.mydocsapp.api;
 
 import com.example.mydocsapp.api.User;
 

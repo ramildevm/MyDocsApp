@@ -15,6 +15,6 @@ public class SnilsPatternActivity extends AppCompatActivity {
     }
 
     public void goBackMainPageClick(View view) {
-        startActivity(new Intent(SnilsPatternActivity.this, MainContentActivity.class).putExtra("Login", getString(R.string.extra_guest)));
+        startActivity(new Intent(SnilsPatternActivity.this, MainContentActivity.class));
     }
 }
