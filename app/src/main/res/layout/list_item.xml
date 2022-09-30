@@ -28,24 +28,14 @@
             android:layout_width="match_parent"
             android:layout_margin="5dp"
             android:layout_height="160dp"
+
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
         </androidx.recyclerview.widget.RecyclerView>
     </androidx.constraintlayout.widget.ConstraintLayout>
-    <ImageView
-        android:id="@+id/recycler_blur_panel"
-        android:src="@drawable/blur_panel"
-        android:visibility="invisible"
-        app:layout_constraintTop_toTopOf="@id/folder_content_back"
-        app:layout_constraintStart_toStartOf="@id/folder_content_back"
-        app:layout_constraintBottom_toBottomOf="@id/bottom_panel"
-        android:layout_margin="4dp"
-        android:layout_marginBottom="33dp"
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    />
+
     <ImageView
         android:id="@+id/select_btn"
         android:layout_width="35dp"

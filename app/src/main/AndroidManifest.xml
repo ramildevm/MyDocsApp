@@ -11,6 +11,7 @@
         android:roundIcon="@drawable/ic_mydocs_logo_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:name=".App"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".FolderAddItemActivity"

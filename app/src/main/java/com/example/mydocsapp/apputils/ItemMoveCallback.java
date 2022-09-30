@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.ItemAdapter;
 
 public class ItemMoveCallback extends ItemTouchHelper.Callback {

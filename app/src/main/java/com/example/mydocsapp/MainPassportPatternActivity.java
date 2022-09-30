@@ -23,7 +23,6 @@ import com.example.mydocsapp.models.DBHelper;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
-import com.example.mydocsapp.models.SystemContext;
 
 public class MainPassportPatternActivity extends AppCompatActivity {
 DBHelper db;
@@ -66,7 +65,7 @@ DBHelper db;
         });
         model.setState(this.Passport);
 
-        if(SystemContext.CurrentItem  == null) {
+        if(((App)getApplicationContext()).CurrentItem  == null) {
             ((TextView) findViewById(R.id.passport_txt)).setOnClickListener(v -> {
                 if (v.getTag().equals("off")) {
                     MotionLayout ml = findViewById(R.id.motion_layout);
@@ -84,7 +83,7 @@ DBHelper db;
     }
 
     private void setDataFromDb() {
-        Item item = SystemContext.CurrentItem;
+        Item item = ((App)getApplicationContext()).CurrentItem;
         if(item!= null) {
             Cursor cur = db.getPassportById(item.ObjectId);
             cur.moveToFirst();
@@ -123,13 +122,13 @@ DBHelper db;
     public void goBackMainPageClick(View view) {
         listenerForF1.SaveData();
         Passport p = this.Passport;
-        if(SystemContext.CurrentItem == null){
+        if(((App)getApplicationContext()).CurrentItem == null){
             db.insertPassport(p);
             int id = Integer.parseInt(db.selectLastId());
             db.insertItem(new Item(0, "Паспорт", "Паспорт", null, 0, 0, 0, id, 0));
         }
         else{
-            db.updatePassport(SystemContext.CurrentItem.ObjectId, p);
+            db.updatePassport(((App)getApplicationContext()).CurrentItem.ObjectId, p);
         }
         onBackPressed();
     }

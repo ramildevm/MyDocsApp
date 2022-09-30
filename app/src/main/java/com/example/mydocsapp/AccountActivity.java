@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.mydocsapp.models.SystemContext;
-
 public class AccountActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,7 +14,7 @@ public class AccountActivity extends AppCompatActivity {
         setContentView(R.layout.activity_account);
 
         TextView gtxt = findViewById(R.id.login_txt);
-        gtxt.setText(SystemContext.CurrentUser.login);
+        gtxt.setText(((App)getApplicationContext()).CurrentUser.login);
     }
 
     public void goAccountClickBack(View view) {

@@ -18,7 +18,6 @@ import android.widget.Toast;
 import com.example.mydocsapp.api.MainApi;
 import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.api.UserGetCallback;
-import com.example.mydocsapp.models.SystemContext;
 
 import java.util.Locale;
 
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast msg = Toast.makeText(MainActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
                         msg.show();
                     } else {
-                        SystemContext.CurrentUser = user;
+                        ((App)getApplicationContext()).CurrentUser = user;
                         startActivity(new Intent(MainActivity.this, MainContentActivity.class));
                     }
                 }
@@ -97,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goGuestModeClick(View view) {
-        SystemContext.CurrentUser = new User(getString(R.string.extra_guest),"");
+        ((App)getApplicationContext()).CurrentUser = new User(getString(R.string.extra_guest),"");
         startActivity(new Intent(MainActivity.this, MainContentActivity.class));
     }
     public void switchLangClick(View view) {

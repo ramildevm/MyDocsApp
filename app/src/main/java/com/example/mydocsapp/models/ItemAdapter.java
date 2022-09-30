@@ -14,11 +14,15 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.mydocsapp.App;
+import com.example.mydocsapp.MainContentActivity;
 import com.example.mydocsapp.R;
 import com.example.mydocsapp.apputils.ItemMoveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import jp.wasabeef.blurry.Blurry;
 
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> implements ItemMoveCallback.ItemTouchHelperContract {
@@ -69,12 +73,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
                     holder.recyclerFolder.setLayoutManager(new GridLayoutManager(context, 2));
                     FolderItemAdapter adapter = new FolderItemAdapter(context, items, false);
                     holder.recyclerFolder.setAdapter(adapter);
-                    Glide.with(context.getApplicationContext())
-                            .load(R.drawable.blur_panel)
-                            .override(40, 40) // (change according to your wish)
-                            .error(R.drawable.blur_panel)
-                            .into(holder.recycler_blur_panel);
-                    holder.recycler_blur_panel.setVisibility(View.VISIBLE);
+
                 }
             }
             else if (item.Type.equals("Паспорт"))
@@ -95,9 +94,15 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         holder.titleView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                SystemContext.isTitleClicked = true;
+                ((App)context.getApplicationContext()).isTitleClicked = true;
                 return true;
             }
+        });
+        holder.folderContentBack.post(()->{
+                    Blurry.with(context)
+                            .radius(3)
+                            .sampling(2)
+                            .onto((ViewGroup) holder.folderContentBack);
         });
         holder.titleView.setTag(item);
 
@@ -130,20 +135,26 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         }
     }
 
+    public void onItemDelete(int position) {
+        //int position = items.indexOf(item);
+        items.remove(position);
+        notifyItemRemoved(position);
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final ImageView imageView;
         final ImageView selectBtn;
-        final ImageView recycler_blur_panel;
         final ImageView pinBtn;
         final TextView titleView;
         final ConstraintLayout itemPanel;
         final RecyclerView recyclerFolder;
+        final ConstraintLayout folderContentBack;
         View rowView;
         ViewHolder(View view){
             super(view);
             rowView = view;
+            folderContentBack = view.findViewById(R.id.folder_content_back);
             imageView = view.findViewById(R.id.image_panel);
-            recycler_blur_panel = view.findViewById(R.id.recycler_blur_panel);
             titleView = view.findViewById(R.id.title_txt);
             itemPanel = view.findViewById(R.id.item_panel);
             recyclerFolder = view.findViewById(R.id.recycler_folder);

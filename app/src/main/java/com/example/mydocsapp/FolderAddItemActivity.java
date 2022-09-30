@@ -18,13 +18,13 @@ import com.example.mydocsapp.apputils.RecyclerItemClickListener;
 import com.example.mydocsapp.models.DBHelper;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.ItemAdapter;
-import com.example.mydocsapp.models.SystemContext;
 
 import java.util.ArrayList;
 
 public class FolderAddItemActivity extends AppCompatActivity {
 
     ArrayList<Item> items = new ArrayList<Item>();
+    ItemAdapter adapter;
     DBHelper db;
     private int selectedItemsNum;
     RecyclerView recyclerFolderView;
@@ -38,7 +38,7 @@ public class FolderAddItemActivity extends AppCompatActivity {
 
         recyclerFolderView.setLayoutManager(new GridLayoutManager(FolderAddItemActivity.this, 2));
         // создаем адаптер
-        ItemAdapter adapter = new ItemAdapter(FolderAddItemActivity.this, items, true);
+        adapter = new ItemAdapter(FolderAddItemActivity.this, items, true);
         // устанавливаем для списка адаптер
         recyclerFolderView.setAdapter(adapter);
         recyclerFolderView.addOnItemTouchListener(
@@ -72,7 +72,7 @@ public class FolderAddItemActivity extends AppCompatActivity {
 
     private void setInitialData() {
         items.clear();
-        Cursor cur = db.getItemsByFolderIdForAdding(SystemContext.CurrentItem.Id);
+        Cursor cur = db.getItemsByFolderIdForAdding(((App)getApplicationContext()).CurrentItem.Id);
         Item item;
         while(cur.moveToNext()){
             item = new Item(cur.getInt(0),
@@ -84,7 +84,7 @@ public class FolderAddItemActivity extends AppCompatActivity {
                     cur.getInt(6),
                     cur.getInt(7),
                     cur.getInt(8));
-            if(item.FolderId == SystemContext.CurrentItem.Id){
+            if(item.FolderId == ((App)getApplicationContext()).CurrentItem.Id){
                 item.isSelected = 1;
                 selectedItemsNum++;
                 ((TextView) findViewById(R.id.top_select_picked_txt)).setText("Selected: " + selectedItemsNum);
@@ -115,14 +115,14 @@ public class FolderAddItemActivity extends AppCompatActivity {
     void reFillContentPanel(RecyclerView _recyclerView,ArrayList<Item> _items){
         _recyclerView.removeAllViews();
         // создаем адаптер
-        ItemAdapter adapter = new ItemAdapter(this, _items, true);
+        adapter = new ItemAdapter(this, _items, true);
         // устанавливаем для списка адаптер
         _recyclerView.setAdapter(adapter);
     }
     public void saveSelectedClick(View view) {
         for (Item x: items) {
             if(x.isSelected == 1) {
-                x.FolderId = SystemContext.CurrentItem.Id;
+                x.FolderId = ((App)getApplicationContext()).CurrentItem.Id;
             }
             else{
                 x.FolderId = 0;

@@ -4,6 +4,8 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
@@ -11,33 +13,31 @@ import androidx.core.app.NavUtils;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.mydocsapp.apputils.RecyclerItemClickListener;
 import com.example.mydocsapp.models.DBHelper;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.ItemAdapter;
-import com.example.mydocsapp.models.SystemContext;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+
+import jp.wasabeef.blurry.Blurry;
 
 public class MainContentActivity extends AppCompatActivity {
     ArrayList<Item> items = new ArrayList<Item>();
@@ -50,6 +50,7 @@ public class MainContentActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> registerForAR;
     private RecyclerView recyclerFolderView;
     Dialog makeRenameDialog;
+    ItemAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,18 +62,18 @@ public class MainContentActivity extends AppCompatActivity {
             public void onActivityResult(ActivityResult result) {
                 Intent data = result.getData();
                 int resultCode = result.getResultCode();
-                SystemContext.CurrentFolderItemsSet = getItemsFromDb(SystemContext.CurrentItem.Id);
-                reFillContentPanel(recyclerFolderView, SystemContext.CurrentFolderItemsSet);
+                ((App)getApplicationContext()).CurrentFolderItemsSet = getItemsFromDb(((App)getApplicationContext()).CurrentItem.Id);
+                reFillContentPanel(recyclerFolderView, ((App)getApplicationContext()).CurrentFolderItemsSet);
                 setInitialData();
                 reFillContentPanel(recyclerView, items);
             }
         });
-        SystemContext.CurrentItem = null;
-        SystemContext.CurrentFolderItemsSet = null;
-        SystemContext.isTitleClicked = false;
+        ((App)getApplicationContext()).CurrentItem = null;
+        ((App)getApplicationContext()).CurrentFolderItemsSet = null;
+        ((App)getApplicationContext()).isTitleClicked = false;
 
         TextView gtxt = findViewById(R.id.login_txt);
-        gtxt.setText(SystemContext.CurrentUser.login);
+        gtxt.setText(((App)getApplicationContext()).CurrentUser.login);
         // начальная инициализация списка
         // создаем базу данных
         db = new DBHelper(this);
@@ -89,7 +90,7 @@ public class MainContentActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.container);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         // создаем адаптер
-        ItemAdapter adapter = new ItemAdapter(this, items, isSelectMode);
+        adapter = new ItemAdapter(this, items, isSelectMode);
         // устанавливаем для списка адаптер
         recyclerView.setAdapter(adapter);
 
@@ -106,7 +107,7 @@ public class MainContentActivity extends AppCompatActivity {
             db.updateItem(x.Id, x);
         }
     }
-
+    private ArrayList<String> selectedItemsSet = new ArrayList<>();
     private void setOnClickListeners() {
         recyclerView.addOnItemTouchListener(
             new RecyclerItemClickListener(this, recyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
@@ -116,25 +117,31 @@ public class MainContentActivity extends AppCompatActivity {
                         return;
                     Item item = (Item) view.getTag();
                     if(isSelectMode) {
-                        int newItemId = SystemContext.CurrentItemsSet.indexOf(item);
-                        Log.e("select", item.isSelected + "");
+                        int newItemId = ((App)getApplicationContext()).CurrentItemsSet.indexOf(item);
                         if (item.isSelected == 0) {
                             item.isSelected = 1;
                             selectedItemsNum++;
-
+                            selectedItemsSet.add(position + "");
                         } else {
                             item.isSelected = 0;
                             selectedItemsNum--;
+                            selectedItemsSet.remove(position + "");
+//                            String t = "";
+//                            for (String i:
+//                                 selectedItemsSet) {
+//                                t += i;
+//                            }
+//                            Toast.makeText(MainContentActivity.this,t,Toast.LENGTH_SHORT).show();
                         }
                         view.setTag(item);
-                        SystemContext.CurrentItemsSet.set(newItemId, item);
+                        ((App)getApplicationContext()).CurrentItemsSet.set(position, item);
                         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
-
-                        reFillContentPanel(recyclerView, SystemContext.CurrentItemsSet);
+                        reFillContentPanel(recyclerView, ((App)getApplicationContext()).CurrentItemsSet);
+                        
                     }
                     else{
-                        SystemContext.CurrentItem = item;
-                        if(SystemContext.isTitleClicked){
+                        ((App)getApplicationContext()).CurrentItem = item;
+                        if(((App)getApplicationContext()).isTitleClicked){
                             makeRenameDialogMethod(recyclerView,items,"Rename");
                             makeRenameDialog.show();
                         }
@@ -155,13 +162,13 @@ public class MainContentActivity extends AppCompatActivity {
                                 text.setText(item.Title);
 
                                 //items set
-                                SystemContext.CurrentFolderItemsSet = getItemsFromDb(item.Id);
+                                ((App)getApplicationContext()).CurrentFolderItemsSet = getItemsFromDb(item.Id);
 
                                 recyclerFolderView = (RecyclerView) dialog.findViewById(R.id.folder_container);
 
                                 recyclerFolderView.setLayoutManager(new GridLayoutManager(MainContentActivity.this, 2));
                                 // создаем адаптер
-                                ItemAdapter adapter = new ItemAdapter(MainContentActivity.this, SystemContext.CurrentFolderItemsSet, false);
+                                ItemAdapter adapter = new ItemAdapter(MainContentActivity.this, ((App)getApplicationContext()).CurrentFolderItemsSet, false);
                                 // устанавливаем для списка адаптер
                                 recyclerFolderView.setAdapter(adapter);
                                 recyclerFolderView.addOnItemTouchListener(
@@ -169,12 +176,12 @@ public class MainContentActivity extends AppCompatActivity {
                                         @RequiresApi(api = Build.VERSION_CODES.Q)
                                         @Override
                                         public void onItemClick(View view, int position) {
-                                            SystemContext.CurrentItem = (Item) view.getTag();
-                                            if(SystemContext.isTitleClicked){
-                                                makeRenameDialogMethod(recyclerFolderView,SystemContext.CurrentFolderItemsSet, "FRename");
+                                            ((App)getApplicationContext()).CurrentItem = (Item) view.getTag();
+                                            if(((App)getApplicationContext()).isTitleClicked){
+                                                makeRenameDialogMethod(recyclerFolderView,((App)getApplicationContext()).CurrentFolderItemsSet, "FRename");
                                                 makeRenameDialog.show();
                                             }
-                                            else if (SystemContext.CurrentItem.Type.equals("Паспорт")) {
+                                            else if (((App)getApplicationContext()).CurrentItem.Type.equals("Паспорт")) {
                                                 goPatternClick(view);
                                             }
                                         }
@@ -183,14 +190,15 @@ public class MainContentActivity extends AppCompatActivity {
                                             Item folderItem = (Item) view.getTag();
                                             folderItem.FolderId = 0;
                                             db.updateItem(folderItem.Id, folderItem);
-                                            SystemContext.CurrentFolderItemsSet = getItemsFromDb(item.Id);
-                                            reFillContentPanel(recyclerFolderView, SystemContext.CurrentFolderItemsSet);
+                                            ((App)getApplicationContext()).CurrentFolderItemsSet = getItemsFromDb(item.Id);
+                                            reFillContentPanel(recyclerFolderView, ((App)getApplicationContext()).CurrentFolderItemsSet);
                                         }
                                     }));
                                 //set buttons
                                 Button flowButton = (Button) dialog.findViewById(R.id.flow_folder_button);
                                 flowButton.setOnClickListener(view1 -> {
                                     Intent i = new Intent(MainContentActivity.this, FolderAddItemActivity.class);
+                                    ((App)getApplicationContext()).CurrentItem = item;
                                     registerForAR.launch(i);
                                 });
 
@@ -211,6 +219,8 @@ public class MainContentActivity extends AppCompatActivity {
                 }
                 @Override public void onLongItemClick(View view, int position) {
                 if(!isSortMode) {
+                    selectedItemsSet = new ArrayList<>();
+                    selectedItemsSet.add(position + "");
                     if (findViewById(R.id.content_panel).getAlpha()==0.5f)
                         return;
                     MotionLayout ml = findViewById(R.id.motion_layout);
@@ -219,15 +229,15 @@ public class MainContentActivity extends AppCompatActivity {
                     isSelectMode = true;
 
                     Item item = (Item) view.getTag();
-                    int newItemId = SystemContext.CurrentItemsSet.indexOf(item);
+                    int newItemId = ((App)getApplicationContext()).CurrentItemsSet.indexOf(item);
                     item.isSelected = 1;
                     selectedItemsNum = 1;
                     ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ + selectedItemsNum);
 
-                    SystemContext.CurrentItemsSet.set(newItemId, item);
+                    ((App)getApplicationContext()).CurrentItemsSet.set(newItemId, item);
                     view.setTag(item);
 
-                    reFillContentPanel(recyclerView, SystemContext.CurrentItemsSet);
+                    reFillContentPanel(recyclerView, ((App)getApplicationContext()).CurrentItemsSet);
                 }
             }
             })
@@ -255,7 +265,7 @@ public class MainContentActivity extends AppCompatActivity {
         }
         else {
             ((Button)makeRenameDialog.findViewById(R.id.make_rename_item_btn)).setText(R.string.rename_an_item);
-            editText.append(SystemContext.CurrentItem.Title);
+            editText.append(((App)getApplicationContext()).CurrentItem.Title);
         }
         makeRenameDialog.findViewById(R.id.make_rename_item_btn).setOnClickListener(view2 ->{
             if (editText.getText().toString().equals(""))
@@ -264,7 +274,7 @@ public class MainContentActivity extends AppCompatActivity {
                 db.insertItem(new Item(0, editText.getText().toString(), "Папка", null, 0, 0, 0, 0, 0));
             }
             else{
-                Item item = SystemContext.CurrentItem;
+                Item item = ((App)getApplicationContext()).CurrentItem;
                 item.Title = editText.getText().toString();
                 db.updateItem(item.Id,item);
             }
@@ -273,16 +283,16 @@ public class MainContentActivity extends AppCompatActivity {
                 reFillContentPanel(recyclerView, items);
             }
             else if(mode.equals("FRename")) {
-                SystemContext.CurrentFolderItemsSet = getItemsFromDb(SystemContext.CurrentItem.FolderId);
-                reFillContentPanel(recyclerView, SystemContext.CurrentFolderItemsSet);
+                ((App)getApplicationContext()).CurrentFolderItemsSet = getItemsFromDb(((App)getApplicationContext()).CurrentItem.FolderId);
+                reFillContentPanel(recyclerView, ((App)getApplicationContext()).CurrentFolderItemsSet);
             }
-            SystemContext.isTitleClicked = false;
-            SystemContext.CurrentItem = null;
+            ((App)getApplicationContext()).isTitleClicked = false;
+            ((App)getApplicationContext()).CurrentItem = null;
             makeRenameDialog.dismiss();
         });
         makeRenameDialog.findViewById(R.id.cancel_btn).setOnClickListener(view12 -> {
-            SystemContext.CurrentItem = null;
-            SystemContext.isTitleClicked = false;
+            ((App)getApplicationContext()).CurrentItem = null;
+            ((App)getApplicationContext()).isTitleClicked = false;
             makeRenameDialog.dismiss();
         });
     }
@@ -303,8 +313,8 @@ public class MainContentActivity extends AppCompatActivity {
                     cur.getInt(8));
             items.add(item);
         }
-        SystemContext.CurrentItemsSet = items;
-        SystemContext.CurrentItem = null;
+        ((App)getApplicationContext()).CurrentItemsSet = items;
+        ((App)getApplicationContext()).CurrentItem = null;
     }
     private ArrayList<Item> getItemsFromDb(int id) {
         ArrayList <Item> folderItems = new ArrayList<>();
@@ -408,7 +418,7 @@ public class MainContentActivity extends AppCompatActivity {
     void reFillContentPanel(RecyclerView _recyclerView,ArrayList<Item> _items){
         _recyclerView.removeAllViews();
         // создаем адаптер
-        ItemAdapter adapter = new ItemAdapter(this, _items, isSelectMode);
+        adapter = new ItemAdapter(this, _items, isSelectMode);
         // устанавливаем для списка адаптер
         _recyclerView.setAdapter(adapter);
     }
@@ -417,7 +427,7 @@ public class MainContentActivity extends AppCompatActivity {
     }
     public void bottomPinClick(View view) {
         for (Item x:
-                SystemContext.CurrentItemsSet) {
+                ((App)getApplicationContext()).CurrentItemsSet) {
             if(x.isSelected == 1) {
                 x.Priority = (x.Priority==1)?0:1;
                 x.isSelected = 0;
@@ -427,14 +437,14 @@ public class MainContentActivity extends AppCompatActivity {
             }
         }
         setInitialData();
-        SystemContext.CurrentItemsSet = items;
+        ((App)getApplicationContext()).CurrentItemsSet = items;
         reFillContentPanel(recyclerView,items);
         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
     }
 
     public void bottomHideClick(View view) {
         for (Item x:
-                SystemContext.CurrentItemsSet) {
+                ((App)getApplicationContext()).CurrentItemsSet) {
             if(x.isSelected == 1) {
                 x.isHiden = 1;
                 x.isSelected = 0;
@@ -443,14 +453,13 @@ public class MainContentActivity extends AppCompatActivity {
             }
         }
         setInitialData();
-        SystemContext.CurrentItemsSet = items;
+        ((App)getApplicationContext()).CurrentItemsSet = items;
         reFillContentPanel(recyclerView,items);
         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
     }
 
     public void bottomDeleteClick(View view) {
-        for (Item x:
-             SystemContext.CurrentItemsSet) {
+        for (Item x: ((App)getApplicationContext()).CurrentItemsSet) {
             if(x.isSelected == 1){
                 db.deleteItem(x.Id);
                 selectedItemsNum--;
@@ -460,24 +469,29 @@ public class MainContentActivity extends AppCompatActivity {
                 }
             }
         }
+        for (String index:
+             selectedItemsSet) {
+            adapter.onItemDelete(Integer.valueOf(index));
+        }
         setInitialData();
-        SystemContext.CurrentItemsSet = items;
-        reFillContentPanel(recyclerView,items);
+        ((App)getApplicationContext()).CurrentItemsSet = items;
+
+        //reFillContentPanel(recyclerView,items);
         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
     }
 
     public void topSelectAllClick(View view) {
         selectedItemsNum = 0;
         for (Item x:
-                SystemContext.CurrentItemsSet) {
-            int newItemId = SystemContext.CurrentItemsSet.indexOf(x);
+                ((App)getApplicationContext()).CurrentItemsSet) {
+            int newItemId = ((App)getApplicationContext()).CurrentItemsSet.indexOf(x);
             x.isSelected = 1;
-            SystemContext.CurrentItemsSet.set(newItemId,x);
+            ((App)getApplicationContext()).CurrentItemsSet.set(newItemId,x);
             selectedItemsNum++;
         }
         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
 
-        reFillContentPanel(recyclerView,SystemContext.CurrentItemsSet);
+        reFillContentPanel(recyclerView,((App)getApplicationContext()).CurrentItemsSet);
     }
 
     public void topSelectBackClick(View view) {
@@ -493,9 +507,9 @@ public class MainContentActivity extends AppCompatActivity {
         setInitialData();
         setSelectedPropertyZero();
         reFillContentPanel(recyclerView, items);
-        if(SystemContext.isTitleClicked){
-            SystemContext.isTitleClicked = false;
-            SystemContext.CurrentItem = null;
+        if(((App)getApplicationContext()).isTitleClicked){
+            ((App)getApplicationContext()).isTitleClicked = false;
+            ((App)getApplicationContext()).CurrentItem = null;
             return;
         }
         if(isSelectMode) {
