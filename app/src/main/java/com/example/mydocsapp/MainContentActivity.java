@@ -113,7 +113,7 @@ public class MainContentActivity extends AppCompatActivity {
             new RecyclerItemClickListener(this, recyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
                 @RequiresApi(api = Build.VERSION_CODES.Q)
                 @Override public void onItemClick(View view, int position) {
-                    if (findViewById(R.id.content_panel).getAlpha()==0.5f)
+                    if (findViewById(R.id.container).getAlpha()==0.5f)
                         return;
                     Item item = (Item) view.getTag();
                     if(isSelectMode) {
@@ -221,7 +221,7 @@ public class MainContentActivity extends AppCompatActivity {
                 if(!isSortMode) {
                     selectedItemsSet = new ArrayList<>();
                     selectedItemsSet.add(position + "");
-                    if (findViewById(R.id.content_panel).getAlpha()==0.5f)
+                    if (findViewById(R.id.container).getAlpha()==0.5f)
                         return;
                     MotionLayout ml = findViewById(R.id.motion_layout);
                     ml.setTransition(R.id.transGoSelect);
@@ -345,7 +345,7 @@ public class MainContentActivity extends AppCompatActivity {
         }
     }
     public void goAccountClick(View view) {
-        startActivity(new Intent(MainContentActivity.this, AccountActivity.class));
+        //startActivity(new Intent(MainContentActivity.this, AccountActivity.class));
     }
 
     public void goPatternClick(View view) {
