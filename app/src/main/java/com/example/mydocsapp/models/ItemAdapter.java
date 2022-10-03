@@ -100,8 +100,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         });
         holder.folderContentBack.post(()->{
                     Blurry.with(context)
-                            .radius(3)
-                            .sampling(2)
+                            .radius(4)
                             .onto((ViewGroup) holder.folderContentBack);
         });
         holder.titleView.setTag(item);
