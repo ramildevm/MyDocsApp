@@ -346,6 +346,10 @@ public class MainContentActivity extends AppCompatActivity {
     }
     public void goAccountClick(View view) {
         //startActivity(new Intent(MainContentActivity.this, AccountActivity.class));
+        MotionLayout ml = findViewById(R.id.motion_layout);
+        ml.setTransition(R.id.transOpenLeftMenu);
+        ml.transitionToEnd();
+
     }
 
     public void goPatternClick(View view) {

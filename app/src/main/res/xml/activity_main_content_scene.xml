@@ -312,11 +312,8 @@
     </ConstraintSet>
     <Transition
         app:constraintSetStart="@+id/start"
-        app:constraintSetEnd="@+id/endLeftMenu" >
-        <OnSwipe
-            app:dragDirection="dragRight"
-            app:touchAnchorSide="right"
-            app:touchRegionId="@id/container" />
+        app:constraintSetEnd="@+id/endLeftMenu"
+        android:id="@+id/transOpenLeftMenu">
     </Transition>
     <Transition
         app:constraintSetEnd="@+id/start"

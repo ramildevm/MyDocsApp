@@ -17,8 +17,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="fill_parent"
-        android:paddingTop="60dp"
-        android:layout_height="fill_parent"
+        android:layout_marginTop="60dp"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:id="@+id/container"
         android:background="#2C2C2C"
