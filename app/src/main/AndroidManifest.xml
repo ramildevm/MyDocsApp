@@ -45,7 +45,8 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".AccountActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".MainContentActivity"/>
         <activity
             android:name=".SignInActivity"
             android:exported="false"

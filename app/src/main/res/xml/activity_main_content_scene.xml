@@ -298,28 +298,4 @@
                 android:alpha="0" />
         </KeyFrameSet>
     </Transition>
-    <Transition
-        app:constraintSetStart="@+id/endSelect"
-        app:constraintSetEnd="@+id/start"
-        android:id="@+id/transBackSelect" />
-    <ConstraintSet android:id="@+id/endLeftMenu" >
-        <Constraint
-            android:id="@+id/left_menu"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-    </ConstraintSet>
-    <Transition
-        app:constraintSetStart="@+id/start"
-        app:constraintSetEnd="@+id/endLeftMenu"
-        android:id="@+id/transOpenLeftMenu">
-    </Transition>
-    <Transition
-        app:constraintSetEnd="@+id/start"
-        app:constraintSetStart="@+id/endLeftMenu" >
-        <OnSwipe app:touchAnchorSide="left"
-            app:dragDirection="dragLeft"
-            app:touchAnchorId="@+id/left_menu" />
-    </Transition>
 </MotionScene>

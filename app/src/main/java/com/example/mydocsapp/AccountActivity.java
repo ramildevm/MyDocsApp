@@ -1,6 +1,7 @@
 package com.example.mydocsapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,8 +18,16 @@ public class AccountActivity extends AppCompatActivity {
         //gtxt.setText(((App)getApplicationContext()).CurrentUser.login);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goAccountClickBack(getCurrentFocus());
+    }
+
     public void goAccountClickBack(View view) {
-        startActivity(new Intent(AccountActivity.this, MainContentActivity.class));
+        //startActivity(new Intent(AccountActivity.this, MainContentActivity.class));
+        NavUtils.navigateUpFromSameTask(this);
+        overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
     }
 
     public void goMainActivityClick(View view) {

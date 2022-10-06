@@ -19,6 +19,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.transition.AutoTransition;
+import android.transition.Transition;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -345,11 +347,8 @@ public class MainContentActivity extends AppCompatActivity {
         }
     }
     public void goAccountClick(View view) {
-        //startActivity(new Intent(MainContentActivity.this, AccountActivity.class));
-        MotionLayout ml = findViewById(R.id.motion_layout);
-        ml.setTransition(R.id.transOpenLeftMenu);
-        ml.transitionToEnd();
-
+        startActivity(new Intent(MainContentActivity.this, AccountActivity.class));
+        overridePendingTransition(R.anim.slide_in_left,R.anim.alpha_out);
     }
 
     public void goPatternClick(View view) {
