@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
     public void goGuestModeClick(View view) {
         ((App)getApplicationContext()).CurrentUser = new User(getString(R.string.extra_guest),"");
         startActivity(new Intent(MainActivity.this, MainContentActivity.class));
+        overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
     }
     public void switchLangClick(View view) {
         Locale locale = null;
