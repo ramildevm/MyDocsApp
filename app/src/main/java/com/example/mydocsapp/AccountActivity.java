@@ -13,8 +13,8 @@ public class AccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
 
-        TextView gtxt = findViewById(R.id.login_txt);
-        gtxt.setText(((App)getApplicationContext()).CurrentUser.login);
+        //TextView gtxt = findViewById(R.id.login_txt);
+        //gtxt.setText(((App)getApplicationContext()).CurrentUser.login);
     }
 
     public void goAccountClickBack(View view) {

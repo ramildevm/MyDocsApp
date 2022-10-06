@@ -13,9 +13,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.mydocsapp.App;
-import com.example.mydocsapp.MainContentActivity;
 import com.example.mydocsapp.R;
 import com.example.mydocsapp.apputils.ItemMoveCallback;
 
