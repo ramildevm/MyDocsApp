@@ -357,7 +357,6 @@ public class MainContentActivity extends AppCompatActivity {
 
     public void openSortMenuClick(View view) {
         setViewsTagOff();
-
         MotionLayout ml = findViewById(R.id.motion_layout);
         if(view.getTag().toString() =="off") {
             isSortMode = true;
