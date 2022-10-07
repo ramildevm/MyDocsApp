@@ -17,6 +17,16 @@
         android:tag="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+    <Button
+        android:id="@+id/load_profile_photo_btn"
+        android:layout_width="140dp"
+        android:text="@string/load_image"
+        android:textAllCaps="false"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/user_passport_photo"
+        app:layout_constraintEnd_toEndOf="@id/user_passport_photo"
+        app:layout_constraintBottom_toBottomOf="@id/user_passport_photo"/>
+
 
     <TextView
         android:id="@+id/s_n"

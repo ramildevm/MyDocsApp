@@ -1,11 +1,16 @@
 package com.example.mydocsapp;
 
+import static android.content.Context.MODE_PRIVATE;
+import static com.example.mydocsapp.MainPassportPatternActivity.SELECT_USER_PHOTO;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +18,20 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.databinding.FragmentPassportFirstBinding;
 import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 
 public class PassportFirstFragment extends Fragment implements FragmentSaveViewModel {
 
-    private static final int SELECT_PHOTO = 1;
     FragmentPassportFirstBinding binding;
     PassportStateViewModel model;
 
@@ -36,8 +44,10 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
     }
     public void loadProfileImage(Bitmap bitmap){
         binding.userPassportPhoto.setTag(1);
+        binding.userPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
         binding.userPassportPhoto.setImageBitmap(bitmap);
     }
+
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,10 +57,30 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
         model = new ViewModelProvider(requireActivity()).get(PassportStateViewModel.class);
         loadData();
 
-        binding.userPassportPhoto.setOnClickListener(v->{
+        binding.loadProfilePhotoBtn.setOnClickListener(v->{
             Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
             photoPickerIntent.setType("image/*");
-            getActivity().startActivityForResult(photoPickerIntent,SELECT_PHOTO);
+            getActivity().startActivityForResult(photoPickerIntent,SELECT_USER_PHOTO);
+        });
+        binding.userPassportPhoto.setOnClickListener(v->{
+            Intent intent = new Intent(getActivity(),ImageActivity.class);
+
+            intent.putExtra("text",((App)getActivity().getApplicationContext()).CurrentItem.Title);
+
+            byte[] imageByte = ImageSaveService.bitmapToByteArray(((BitmapDrawable) binding.userPassportPhoto.getDrawable()).getBitmap());
+            String fileName = "SomeName.png";
+            try {
+                FileOutputStream fileOutStream = getContext().openFileOutput(fileName, MODE_PRIVATE);
+                fileOutStream.write(imageByte);  //b is byte array
+                //(used if you have your picture downloaded
+                // from the *Web* or got it from the *devices camera*)
+                //otherwise this technique is useless
+                fileOutStream.close();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+            intent.putExtra("imageFile", fileName);
+            getActivity().startActivity(intent);
         });
         return binding.getRoot();
     }
@@ -73,15 +103,12 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
         if(passport.FacePhoto != null) {
             if (passport.FacePhoto.length != 0) {
                 binding.userPassportPhoto.setTag(1);
+                binding.userPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
                 binding.userPassportPhoto.setImageBitmap(BitmapFactory.decodeByteArray(passport.FacePhoto, 0, passport.FacePhoto.length));
             }
         }
     }
-    public byte[] bitmapToByteArray(Bitmap bmp){
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        return stream.toByteArray();
-    }
+
     @Override
     public void SaveData() {
         Passport passport = model.getState().getValue();
@@ -100,7 +127,7 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
         passport.ResidencePlace = binding.editTextPlaceResidence.getText().toString();
 
         if(binding.userPassportPhoto.getTag().toString().equals("1")) {
-            byte[] imgByte = bitmapToByteArray(((BitmapDrawable) binding.userPassportPhoto.getDrawable()).getBitmap());
+            byte[] imgByte = ImageSaveService.bitmapToByteArray(((BitmapDrawable) binding.userPassportPhoto.getDrawable()).getBitmap());
             passport.FacePhoto = imgByte;
         }
         model.setState(passport);

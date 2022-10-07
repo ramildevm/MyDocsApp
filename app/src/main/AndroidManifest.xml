@@ -5,14 +5,17 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@drawable/ic_mydocs_logo"
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_mydocs_logo_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name=".App"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".ImageActivity"
+            android:exported="false" />
         <activity
             android:name=".FolderAddItemActivity"
             android:exported="false" />
@@ -21,20 +24,20 @@
             android:exported="false" />
         <activity
             android:name=".SnilsPatternActivity"
-            android:parentActivityName=".MainContentActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".MainContentActivity" />
         <activity
             android:name=".PolicyPatternActivity"
-            android:parentActivityName=".MainContentActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".MainContentActivity" />
         <activity
             android:name=".INNPatternActivity"
-            android:parentActivityName=".MainContentActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".MainContentActivity" />
         <activity
             android:name=".MainPassportPatternActivity"
-            android:parentActivityName=".MainContentActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".MainContentActivity" />
         <activity
             android:name=".SettingsActivity"
             android:exported="false" />
@@ -46,7 +49,7 @@
         <activity
             android:name=".AccountActivity"
             android:exported="false"
-            android:parentActivityName=".MainContentActivity"/>
+            android:parentActivityName=".MainContentActivity" />
         <activity
             android:name=".SignInActivity"
             android:exported="false"

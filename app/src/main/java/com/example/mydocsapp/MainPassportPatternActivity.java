@@ -35,8 +35,11 @@ DBHelper db;
     private com.example.mydocsapp.models.Passport Passport;
     PassportStateViewModel model;
     private FragmentSaveViewModel listenerForF1;
+    private FragmentSaveViewModel listenerForF2;
 
-    private static final int SELECT_PHOTO = 1;
+    public static final int SELECT_USER_PHOTO = 1;
+    public static final int SELECT_PAGE1_PHOTO = 2;
+    public static final int SELECT_PAGE2_PHOTO = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,42 +92,39 @@ DBHelper db;
             });
         }
     }
-    public void insertImg(int id , Bitmap img ) {
 
-
-        byte[] data = getBitmapAsByteArray(img); // this is a function
-
-        //бд
-
-    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == SELECT_PHOTO) {
+
             if (resultCode == RESULT_OK) {
                 if (intent != null) {
                     // Get the URI of the selected file
                     final Uri uri = intent.getData();
                     try {
-                        useImage(uri);
+                        useImage(requestCode, uri);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
             super.onActivityResult(requestCode, resultCode, intent);
-        }
     }
-    void useImage(Uri uri) throws IOException {
+    void useImage(int requestCode, Uri uri) throws IOException {
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
         //use the bitmap as you like
-        ((PassportFirstFragment)listenerForF1).loadProfileImage(bitmap);
-        //.setImageBitmap(bitmap);
+        switch (requestCode){
+            case SELECT_USER_PHOTO:
+                ((PassportFirstFragment)listenerForF1).loadProfileImage(bitmap);
+                break;
+            case SELECT_PAGE1_PHOTO:
+                ((PassportSecondFragment)listenerForF2).loadPassportPage1(bitmap);
+                break;
+            case SELECT_PAGE2_PHOTO:
+                ((PassportSecondFragment)listenerForF2).loadPassportPage2(bitmap);
+                break;
+        }
     }
-    public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
-        return outputStream.toByteArray();
-    }
+
     private void setDataFromDb() {
         Item item = ((App)getApplicationContext()).CurrentItem;
         if(item!= null) {
@@ -164,6 +164,7 @@ DBHelper db;
 
     public void goBackMainPageClick(View view) {
         listenerForF1.SaveData();
+        listenerForF2.SaveData();
         Passport p = this.Passport;
         if(((App)getApplicationContext()).CurrentItem == null){
             db.insertPassport(p);
@@ -194,6 +195,9 @@ DBHelper db;
         listenerForF1 = fragment;
     }
 
+    void setListenerForF2(FragmentSaveViewModel fragment2) {
+        listenerForF2 = fragment2;
+    }
     public static class MyFragmentAdapter extends FragmentStateAdapter {
         private static int NUM_ITEMS = 2;
         MainPassportPatternActivity activity;
@@ -205,13 +209,15 @@ DBHelper db;
         @NonNull
         @Override
         public Fragment createFragment(int position) {
+            PassportFirstFragment f1 = new PassportFirstFragment();
+            PassportSecondFragment f2 = new PassportSecondFragment();
             switch (position) {
                 case 0:
-                    PassportFirstFragment f1 = new PassportFirstFragment();
                     activity.setListenerForF1(f1);
                     return f1;
                 case 1:
-                    return new PassportSecondFragment();
+                    activity.setListenerForF2(f2);
+                    return f2;
                 default:
                     return null;
             }
@@ -222,4 +228,5 @@ DBHelper db;
             return NUM_ITEMS;
         }
     }
+
 }
