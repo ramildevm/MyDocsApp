@@ -14,6 +14,7 @@
         android:layout_marginLeft="35dp"
         android:layout_marginTop="30dp"
         android:background="#C4C4C4"
+        android:tag="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

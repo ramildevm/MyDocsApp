@@ -2,8 +2,11 @@ package com.example.mydocsapp;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.TransitionDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.TextView;
 
@@ -24,11 +27,16 @@ import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 public class MainPassportPatternActivity extends AppCompatActivity {
 DBHelper db;
     private com.example.mydocsapp.models.Passport Passport;
     PassportStateViewModel model;
     private FragmentSaveViewModel listenerForF1;
+
+    private static final int SELECT_PHOTO = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,41 +89,76 @@ DBHelper db;
             });
         }
     }
+    public void insertImg(int id , Bitmap img ) {
 
+
+        byte[] data = getBitmapAsByteArray(img); // this is a function
+
+        //бд
+
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == SELECT_PHOTO) {
+            if (resultCode == RESULT_OK) {
+                if (intent != null) {
+                    // Get the URI of the selected file
+                    final Uri uri = intent.getData();
+                    try {
+                        useImage(uri);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            super.onActivityResult(requestCode, resultCode, intent);
+        }
+    }
+    void useImage(Uri uri) throws IOException {
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+        //use the bitmap as you like
+        ((PassportFirstFragment)listenerForF1).loadProfileImage(bitmap);
+        //.setImageBitmap(bitmap);
+    }
+    public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+        return outputStream.toByteArray();
+    }
     private void setDataFromDb() {
         Item item = ((App)getApplicationContext()).CurrentItem;
         if(item!= null) {
             Cursor cur = db.getPassportById(item.ObjectId);
             cur.moveToFirst();
             this.Passport = new Passport(0,
-                    cur.getString(1),
-                    cur.getString(2),
-                    cur.getString(3),
-                    cur.getString(4),
-                    cur.getString(5),
-                    cur.getString(6),
-                    cur.getString(7),
-                    cur.getString(8),
-                    cur.getString(9),
-                    cur.getBlob(10),
-                    cur.getBlob(11),
-                    cur.getBlob(12));
+                cur.getString(1),
+                cur.getString(2),
+                cur.getString(3),
+                cur.getString(4),
+                cur.getString(5),
+                cur.getString(6),
+                cur.getString(7),
+                cur.getString(8),
+                cur.getString(9),
+                cur.getBlob(10),
+                cur.getBlob(11),
+                cur.getBlob(12));
         }
         else
             this.Passport = new Passport(
-                    0,
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    null,
-                    null,
-                    null
+                0,
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                null,
+                null,
+                null
             );
     }
 
@@ -132,6 +175,7 @@ DBHelper db;
         }
         onBackPressed();
     }
+
 
     public void goInnClick(View view) {
         startActivity(new Intent(MainPassportPatternActivity.this, INNPatternActivity.class));

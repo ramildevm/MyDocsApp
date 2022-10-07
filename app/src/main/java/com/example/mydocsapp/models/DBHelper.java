@@ -172,6 +172,9 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("Gender",passport.Gender);
         cv.put("BirthPlace",passport.BirthPlace);
         cv.put("ResidencePlace",passport.ResidencePlace);
+        cv.put("FacePhoto",passport.FacePhoto);
+        cv.put("PhotoPage1",passport.PhotoPage1);
+        cv.put("PhotoPage2",passport.PhotoPage2);
         long result = db.update("Passport",cv,"id=?", new String[]{""+id});
         if (result <=0)
             return false;
