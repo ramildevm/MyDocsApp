@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +23,7 @@ import com.example.mydocsapp.apputils.ItemMoveCallback;
 import com.example.mydocsapp.interfaces.ItemAdapterActivity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import jp.wasabeef.blurry.Blurry;
@@ -30,10 +33,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
 
     private final LayoutInflater inflater;
     private Context context;
-    private final List<Item> items;
+    private List<Item> items;
     private boolean isSelectMode;
-    private DBHelper db = null;
-
+    private DBHelper db;
+    public static final String PAYLOAD_SELECT_MODE = "PAYLOAD_SELECT_MODE";
+    public static final String PAYLOAD_PIN_MODE = "PAYLOAD_PIN_MODE";
 
     public ItemAdapter(Context context, List<Item> items, boolean isSelectMode) {
         this.context = context;
@@ -49,43 +53,76 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
     }
 
     @Override
-    public void onBindViewHolder(ItemAdapter.ViewHolder holder, int position) {
-        Item item = items.get(position);
-
-        if (item.Type.equals("Папка")) {
-            if(db.getItemFolderItemsCount(item.Id)>0) {
-                ArrayList<Item> items = new ArrayList<>();
-
-                Cursor cur = db.getItemsByFolder(item.Id);
-                //Cursor cur = db.getItems();
-                Item _item;
-                while(cur.moveToNext()) {
-                    _item = new Item(cur.getInt(0),
-                            cur.getString(1),
-                            cur.getString(2),
-                            cur.getBlob(3),
-                            cur.getInt(4),
-                            cur.getInt(5),
-                            cur.getInt(6),
-                            cur.getInt(7),
-                            cur.getInt(8));
-                    items.add(_item);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if(!payloads.isEmpty()){
+            final Item item = items.get(position);
+            for(final Object payload:payloads){
+                if(payload.equals(PAYLOAD_SELECT_MODE)) {
+                    if (isSelectMode) {
+                        holder.selectBtn.setVisibility(View.VISIBLE);
+                        if (item.isSelected == 1)
+                            holder.selectBtn.setBackgroundResource(R.drawable.selected_circle);
+                        else
+                            holder.selectBtn.setBackgroundResource(R.drawable.unselected_circle);
+                    } else {
+                        holder.selectBtn.setVisibility(View.INVISIBLE);
+                    }
                 }
-                holder.recyclerFolder.setLayoutManager(new GridLayoutManager(context, 2));
-                FolderItemAdapter adapter = new FolderItemAdapter(context, items, false);
-                holder.recyclerFolder.setAdapter(adapter);
-
             }
         }
-        if(item.Image!=null) {
+        else
+            super.onBindViewHolder(holder, position, payloads);
+    }
+
+    @Override
+    public void onBindViewHolder(ItemAdapter.ViewHolder holder, int position) {
+        Item item = items.get(position);
+        if(item.Image==null) {
+            if (item.Type.equals("Папка")) {
+                holder.imageView.setVisibility(View.INVISIBLE);
+                if (db.getItemFolderItemsCount(item.Id) > 0) {
+                    ArrayList<Item> items = new ArrayList<>();
+
+                    Cursor cur = db.getItemsByFolder(item.Id);
+                    //Cursor cur = db.getItems();
+                    Item _item;
+                    while (cur.moveToNext()) {
+                        _item = new Item(cur.getInt(0),
+                                cur.getString(1),
+                                cur.getString(2),
+                                cur.getBlob(3),
+                                cur.getInt(4),
+                                cur.getInt(5),
+                                cur.getInt(6),
+                                cur.getInt(7),
+                                cur.getInt(8));
+                        items.add(_item);
+                    }
+                    holder.recyclerFolder.setLayoutManager(new GridLayoutManager(context, 2));
+                    FolderItemAdapter adapter = new FolderItemAdapter(context, items, false);
+                    holder.recyclerFolder.setAdapter(adapter);
+                }
+            }
+            else if (item.Type.equals("Паспорт"))
+                holder.imageView.setImageResource(R.drawable.passport_image);
+            else
+                holder.imageView.setImageResource(R.drawable.passport_image);
+        }
+        else{
             Bitmap image = BitmapFactory.decodeByteArray(item.Image, 0, item.Image.length);
             image = ImageSaveService.scaleDown(image,ImageSaveService.dpToPx(context,150),true);
             holder.imageView.setImageBitmap(image);
         }
+
+        if(item.Type.equals("Папка"))
+            holder.icoImg.setImageResource(R.drawable.ic_folder);
         else if (item.Type.equals("Паспорт"))
-            holder.imageView.setImageResource(R.drawable.passport_image);
+            holder.icoImg.setImageResource(R.drawable.ic_personalcard);
+        else if (item.Type.equals("Изображение"))
+            holder.icoImg.setImageResource(R.drawable.ic_image);
         else
-            holder.imageView.setImageResource(R.drawable.passport_image);
+            holder.icoImg.setImageResource(R.drawable.ic_document);
+
 
         holder.itemPanel.setTag(item);
         holder.selectBtn.setTag(item);
@@ -93,9 +130,18 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
             holder.selectBtn.setVisibility(View.VISIBLE);
             if(item.isSelected==1)
                 holder.selectBtn.setBackgroundResource(R.drawable.selected_circle);
+            else
+                holder.selectBtn.setBackgroundResource(R.drawable.unselected_circle);
+        }
+        else{
+            holder.selectBtn.setVisibility(View.INVISIBLE);
+            holder.selectBtn.setBackgroundResource(R.drawable.unselected_circle);
         }
         if(item.Priority > 0)
             holder.pinBtn.setVisibility(View.VISIBLE);
+        else
+            holder.pinBtn.setVisibility(View.INVISIBLE);
+
         holder.titleView.setText(item.Title);
         holder.titleView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -112,7 +158,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         holder.titleView.setTag(item);
 
     }
-
+    public void setSelectMode(Boolean value){
+        isSelectMode = value;
+    }
     @Override
     public int getItemCount() {
         return items.size();
@@ -120,7 +168,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
 
     @Override
     public void onRowMoved(RecyclerView recyclerView, int fromPosition, int toPosition) {
-
     }
 
 
@@ -141,15 +188,64 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
     }
 
     public void onItemDelete(int position) {
-        //int position = items.indexOf(item);
         items.remove(position);
         notifyItemRemoved(position);
+    }
+
+    public void onItemMoved(Item item, List<Item> _items){
+        Item newItem = null;
+        int position = 0;
+        for (Item _item :
+                items) {
+            if(_item.Id == item.Id) {
+                newItem = _item;
+                position = items.indexOf(_item);
+                newItem.Priority = item.Priority;
+            }
+        }
+        items.set(position,newItem);
+        notifyItemChanged(position);
+
+        int newPosition = _items.indexOf(item);
+        if (position < newPosition) {
+            for (int i = position; i < newPosition; i++) {
+                Collections.swap(items, i, i + 1);
+            }
+        } else {
+            for (int i = position; i > newPosition; i--) {
+                Collections.swap(items, i, i - 1);
+            }
+        }
+        notifyItemMoved(position, newPosition);
+
+    }
+    public void onItemChanged(Item item) {
+        Item newItem = null;
+        int position = 0;
+        for (Item _item :
+                items) {
+            if(_item.Id == item.Id) {
+                newItem = _item;
+                position = items.indexOf(_item);
+                newItem.isSelected = item.isSelected;
+            }
+        }
+        items.set(position,newItem);
+        if(!isSelectMode)
+            notifyItemRangeChanged(0,items.size());
+        else
+            notifyItemChanged(position,PAYLOAD_SELECT_MODE);
+    }
+    public void onItemsSetChanged(List<Item> newItemSet){
+        items = newItemSet;
+        notifyDataSetChanged();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final ImageView imageView;
         final ImageView selectBtn;
         final ImageView pinBtn;
+        final ImageView icoImg;
         final TextView titleView;
         final ConstraintLayout itemPanel;
         final RecyclerView recyclerFolder;
@@ -165,6 +261,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
             recyclerFolder = view.findViewById(R.id.recycler_folder);
             selectBtn = view.findViewById(R.id.select_btn);
             pinBtn = view.findViewById(R.id.pin_btn);
+            icoImg = view.findViewById(R.id.ico_img);
         }
     }
 }

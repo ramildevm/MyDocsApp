@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class MainContentActivity extends AppCompatActivity implements ItemAdapterActivity {
-    ArrayList<Item> items = new ArrayList<Item>();
     RecyclerView recyclerView;
     String filterOption = "All";
     DBHelper db;
@@ -54,6 +53,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     private ArrayList<Item> CurrentFolderItemsSet;
     private boolean isTitleClicked = false;
 
+    public static final int RECYCLER_ADAPTER_EVENT_CHANGE = 1;
+    public static final int RECYCLER_ADAPTER_EVENT_MOVE = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +69,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                 CurrentFolderItemsSet = getItemsFromDb(CurrentItem.Id);
                 reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
                 setInitialData();
-                reFillContentPanel(recyclerView, items);
+                reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
             }
         });
         CurrentItem = null;
@@ -85,13 +87,15 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         TextView gtxt = findViewById(R.id.login_txt);
         gtxt.setText((CurrentUser.login));
 
+        CurrentItemsSet = new ArrayList<>();
         setInitialData();
         setSelectedPropertyZero();
         setViewsTagOff();
         recyclerView = findViewById(R.id.container);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         // создаем адаптер
-        adapter = new ItemAdapter(this, items, isSelectMode);
+        adapter = new ItemAdapter(this, CurrentItemsSet, isSelectMode);
+        //adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
         // устанавливаем для списка адаптер
         recyclerView.setAdapter(adapter);
 
@@ -103,8 +107,10 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     }
 
     private void setSelectedPropertyZero() {
-        for (Item x: items) {
+        for (Item x: CurrentItemsSet) {
+            int id = CurrentItemsSet.indexOf(x);
             x.isSelected = 0;
+            CurrentItemsSet.set(id, x);
             db.updateItem(x.Id, x);
         }
     }
@@ -118,7 +124,6 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                         return;
                     Item item = (Item) view.getTag();
                     if(isSelectMode) {
-                        int newItemId = CurrentItemsSet.indexOf(item);
                         if (item.isSelected == 0) {
                             item.isSelected = 1;
                             selectedItemsNum++;
@@ -130,14 +135,14 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                         }
                         view.setTag(item);
                         CurrentItemsSet.set(position, item);
+                        adapter.onItemChanged(item);
+
                         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
-                        reFillContentPanel(recyclerView, CurrentItemsSet);
-                        
                     }
                     else{
                         CurrentItem = item;
                         if(isTitleClicked){
-                            makeRenameDialogMethod(recyclerView,items,"Rename");
+                            makeRenameDialogMethod(recyclerView,CurrentItemsSet,"Rename");
                             makeRenameDialog.show();
                         }
                         else {
@@ -202,7 +207,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                 hideButton.setOnClickListener(v -> {
                                     dialog.cancel();
                                     setInitialData();
-                                    reFillContentPanel(recyclerView, items);
+                                    reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
                                 });
 
                                 //now that the dialog is set up, it's time to show it
@@ -225,15 +230,14 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                     isSelectMode = true;
 
                     Item item = (Item) view.getTag();
-                    int newItemId = CurrentItemsSet.indexOf(item);
                     item.isSelected = 1;
                     selectedItemsNum = 1;
                     ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ + selectedItemsNum);
 
-                    CurrentItemsSet.set(newItemId, item);
+                    CurrentItemsSet.set(position, item);
                     view.setTag(item);
 
-                    reFillContentPanel(recyclerView, CurrentItemsSet);
+                    reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
                 }
             }
             })
@@ -276,11 +280,11 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             }
             if(mode.equals("Rename") | mode.equals("Make")) {
                 setInitialData();
-                reFillContentPanel(recyclerView, items);
+                reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, items);
             }
             else if(mode.equals("FRename")) {
                 CurrentFolderItemsSet = getItemsFromDb(CurrentItem.FolderId);
-                reFillContentPanel(recyclerView, CurrentFolderItemsSet);
+                reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentFolderItemsSet);
             }
             isTitleClicked = false;
             CurrentItem = null;
@@ -294,7 +298,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     }
 
     private void setInitialData() {
-        items.clear();
+        CurrentItemsSet.clear();
         Cursor cur = db.getItemsByFolder0();
         Item item;
         while(cur.moveToNext()){
@@ -307,9 +311,8 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                     cur.getInt(6),
                     cur.getInt(7),
                     cur.getInt(8));
-            items.add(item);
+            CurrentItemsSet.add(item);
         }
-        CurrentItemsSet = items;
         CurrentItem = null;
     }
     private ArrayList<Item> getItemsFromDb(int id) {
@@ -388,31 +391,31 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     }
 
     public void menuMakeFolderClick(View view) {
-        makeRenameDialogMethod(recyclerView,items,"Make");
+        makeRenameDialogMethod(recyclerView,CurrentItemsSet,"Make");
         makeRenameDialog.show();
     }
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortFolderClick(View view) {
-        ArrayList<Item> _items = new ArrayList<>(items.stream().filter((x)->x.Type.equals("Папка")).collect(Collectors.toList()));
-        reFillContentPanel(recyclerView,_items);
+        ArrayList<Item> _items = new ArrayList<>(CurrentItemsSet.stream().filter((x)->x.Type.equals("Папка")).collect(Collectors.toList()));
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE,_items);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortCardClick(View view) {
-        ArrayList<Item> _items = new ArrayList<>(items.stream().filter((x)->x.Type.equals("Карта")).collect(Collectors.toList()));
-        reFillContentPanel(recyclerView,_items);
+        ArrayList<Item> _items = new ArrayList<>(CurrentItemsSet.stream().filter((x)->x.Type.equals("Карта")).collect(Collectors.toList()));
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE,_items);
     }
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortImageClick(View view) {
-        ArrayList<Item> _items = new ArrayList<>(items.stream().filter((x)->x.Type.equals("Картинка")).collect(Collectors.toList()));
-        reFillContentPanel(recyclerView,_items);
+        ArrayList<Item> _items = new ArrayList<>(CurrentItemsSet.stream().filter((x)->x.Type.equals("Картинка")).collect(Collectors.toList()));
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE,_items);
     }
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortDocClick(View view) {
-        ArrayList<Item> _items = new ArrayList<>(items.stream()
+        ArrayList<Item> _items = new ArrayList<>(CurrentItemsSet.stream()
                 .filter((x)->!x.Type.equals("Картинка")& !x.Type.equals("Карта")& !x.Type.equals("Папка"))
                 .collect(Collectors.toList()));
-        reFillContentPanel(recyclerView,_items);
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE,_items);
     }
     void reFillContentPanel(RecyclerView _recyclerView,ArrayList<Item> _items){
         _recyclerView.removeAllViews();
@@ -421,8 +424,23 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         // устанавливаем для списка адаптер
         _recyclerView.setAdapter(adapter);
     }
+    void reFillContentPanel(int mode,ArrayList<Item> _items){
+        adapter.setSelectMode(isSelectMode);
+        for (Item item:
+             _items) {
+            switch (mode) {
+                case RECYCLER_ADAPTER_EVENT_CHANGE:
+                    adapter.onItemChanged(item);
+                    break;
+                case RECYCLER_ADAPTER_EVENT_MOVE:
+                    if(item.Priority>0)
+                        adapter.onItemMoved(item,CurrentItemsSet);
+            }
+
+        }
+    }
     public void sortCancelClick(View view) {
-        reFillContentPanel(recyclerView, items);
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
     }
     public void bottomPinClick(View view) {
         for (Item x:
@@ -431,13 +449,11 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                 x.Priority = (x.Priority==1)?0:1;
                 x.isSelected = 0;
                 selectedItemsNum--;
-
                 db.updateItem(x.Id, x);
             }
         }
         setInitialData();
-        CurrentItemsSet = items;
-        reFillContentPanel(recyclerView,items);
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_MOVE, CurrentItemsSet);
         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
     }
 
@@ -452,8 +468,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             }
         }
         setInitialData();
-        CurrentItemsSet = items;
-        reFillContentPanel(recyclerView,items);
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE,CurrentItemsSet);
         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
     }
 
@@ -473,9 +488,6 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             adapter.onItemDelete(Integer.valueOf(index));
         }
         setInitialData();
-        CurrentItemsSet = items;
-
-        //reFillContentPanel(recyclerView,items);
         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
     }
 
@@ -490,7 +502,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         }
         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
 
-        reFillContentPanel(recyclerView,CurrentItemsSet);
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE,CurrentItemsSet);
     }
 
     public void topSelectBackClick(View view) {
@@ -499,16 +511,17 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         ml.transitionToStart();
         isSelectMode = false;
         setSelectedPropertyZero();
-        reFillContentPanel(recyclerView,items);
+        setInitialData();
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE,CurrentItemsSet);
     }
     @Override
     public void onBackPressed(){
         setInitialData();
         setSelectedPropertyZero();
-        reFillContentPanel(recyclerView, items);
         if(isTitleClicked){
             isTitleClicked = false;
             CurrentItem = null;
+            reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
             return;
         }
         if(isSelectMode) {
