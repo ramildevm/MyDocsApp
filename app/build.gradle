@@ -40,7 +40,7 @@ dependencies {
 
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'jp.wasabeef:blurry:4.0.1'
-    implementation 'com.github.MikeOrtiz:TouchImageView:1.4.1'
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

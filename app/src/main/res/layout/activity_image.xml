@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ImageActivity">
-    <com.ortiz.touchview.TouchImageView
+    <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/image_holder"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +44,8 @@
             android:layout_gravity="center"
             android:layout_marginBottom="5dp"
             android:tag="off"
-            android:textColor="#FFC700"
+            android:textColor="#fff"
+            tools:text="Sample text"
             android:textIsSelectable="false"
             android:textSize="24dp"
             android:textStyle="bold"

@@ -64,17 +64,13 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
         });
         binding.userPassportPhoto.setOnClickListener(v->{
             Intent intent = new Intent(getActivity(),ImageActivity.class);
-
-            intent.putExtra("text",((App)getActivity().getApplicationContext()).CurrentItem.Title);
+            intent.putExtra("text", ((MainPassportPatternActivity)getActivity()).getCurrentItem().Title);
 
             byte[] imageByte = ImageSaveService.bitmapToByteArray(((BitmapDrawable) binding.userPassportPhoto.getDrawable()).getBitmap());
             String fileName = "SomeName.png";
             try {
                 FileOutputStream fileOutStream = getContext().openFileOutput(fileName, MODE_PRIVATE);
-                fileOutStream.write(imageByte);  //b is byte array
-                //(used if you have your picture downloaded
-                // from the *Web* or got it from the *devices camera*)
-                //otherwise this technique is useless
+                fileOutStream.write(imageByte);
                 fileOutStream.close();
             } catch (IOException ioe) {
                 ioe.printStackTrace();

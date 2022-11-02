@@ -66,6 +66,9 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         return binding.getRoot();
     }
 
+    public boolean getPhotoOption(){
+        return binding.usePhotoOption.isChecked();
+    }
     private void loadData() {
         Passport passport = model.getState().getValue();
         //photo load
@@ -88,7 +91,6 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
     @Override
     public void SaveData() {
         Passport passport = model.getState().getValue();
-
         if(binding.firstPassportPhoto.getTag().toString().equals("1")) {
             byte[] imgByte = ImageSaveService.bitmapToByteArray(((BitmapDrawable) binding.firstPassportPhoto.getDrawable()).getBitmap());
             passport.PhotoPage1 = imgByte;

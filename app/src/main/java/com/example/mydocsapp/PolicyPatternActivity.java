@@ -1,6 +1,7 @@
 package com.example.mydocsapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +16,6 @@ public class PolicyPatternActivity extends AppCompatActivity {
     }
 
     public void goBackMainPageClick(View view) {
-        startActivity(new Intent(PolicyPatternActivity.this, MainContentActivity.class));
+        NavUtils.navigateUpFromSameTask(this);
     }
 }

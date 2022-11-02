@@ -1,11 +1,22 @@
 package com.example.mydocsapp;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.os.Build;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
@@ -13,24 +24,9 @@ import androidx.core.app.NavUtils;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Dialog;
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.os.Build;
-import android.os.Bundle;
-import android.transition.AutoTransition;
-import android.transition.Transition;
-import android.util.AttributeSet;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-
+import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.apputils.RecyclerItemClickListener;
+import com.example.mydocsapp.interfaces.ItemAdapterActivity;
 import com.example.mydocsapp.models.DBHelper;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.ItemAdapter;
@@ -39,9 +35,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-import jp.wasabeef.blurry.Blurry;
-
-public class MainContentActivity extends AppCompatActivity {
+public class MainContentActivity extends AppCompatActivity implements ItemAdapterActivity {
     ArrayList<Item> items = new ArrayList<Item>();
     RecyclerView recyclerView;
     String filterOption = "All";
@@ -54,6 +48,12 @@ public class MainContentActivity extends AppCompatActivity {
     Dialog makeRenameDialog;
     ItemAdapter adapter;
 
+    private User CurrentUser;
+    private Item CurrentItem;
+    private ArrayList<Item> CurrentItemsSet;
+    private ArrayList<Item> CurrentFolderItemsSet;
+    private boolean isTitleClicked = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,28 +64,27 @@ public class MainContentActivity extends AppCompatActivity {
             public void onActivityResult(ActivityResult result) {
                 Intent data = result.getData();
                 int resultCode = result.getResultCode();
-                ((App)getApplicationContext()).CurrentFolderItemsSet = getItemsFromDb(((App)getApplicationContext()).CurrentItem.Id);
-                reFillContentPanel(recyclerFolderView, ((App)getApplicationContext()).CurrentFolderItemsSet);
+                CurrentFolderItemsSet = getItemsFromDb(CurrentItem.Id);
+                reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
                 setInitialData();
                 reFillContentPanel(recyclerView, items);
             }
         });
-        ((App)getApplicationContext()).CurrentItem = null;
-        ((App)getApplicationContext()).CurrentFolderItemsSet = null;
-        ((App)getApplicationContext()).isTitleClicked = false;
+        CurrentItem = null;
+        CurrentFolderItemsSet = null;
+        isTitleClicked = false;
 
-        TextView gtxt = findViewById(R.id.login_txt);
-        gtxt.setText(((App)getApplicationContext()).CurrentUser.login);
         // начальная инициализация списка
         // создаем базу данных
         db = new DBHelper(this);
-        try {
-            db.create_db();
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        }
+        Cursor cur = db.getUserById(1);
+        cur.moveToFirst();
+        CurrentUser = new User(cur.getString(1),cur.getString(2));
+
         isSelectMode = false;
+        TextView gtxt = findViewById(R.id.login_txt);
+        gtxt.setText((CurrentUser.login));
+
         setInitialData();
         setSelectedPropertyZero();
         setViewsTagOff();
@@ -119,7 +118,7 @@ public class MainContentActivity extends AppCompatActivity {
                         return;
                     Item item = (Item) view.getTag();
                     if(isSelectMode) {
-                        int newItemId = ((App)getApplicationContext()).CurrentItemsSet.indexOf(item);
+                        int newItemId = CurrentItemsSet.indexOf(item);
                         if (item.isSelected == 0) {
                             item.isSelected = 1;
                             selectedItemsNum++;
@@ -128,22 +127,16 @@ public class MainContentActivity extends AppCompatActivity {
                             item.isSelected = 0;
                             selectedItemsNum--;
                             selectedItemsSet.remove(position + "");
-//                            String t = "";
-//                            for (String i:
-//                                 selectedItemsSet) {
-//                                t += i;
-//                            }
-//                            Toast.makeText(MainContentActivity.this,t,Toast.LENGTH_SHORT).show();
                         }
                         view.setTag(item);
-                        ((App)getApplicationContext()).CurrentItemsSet.set(position, item);
+                        CurrentItemsSet.set(position, item);
                         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
-                        reFillContentPanel(recyclerView, ((App)getApplicationContext()).CurrentItemsSet);
+                        reFillContentPanel(recyclerView, CurrentItemsSet);
                         
                     }
                     else{
-                        ((App)getApplicationContext()).CurrentItem = item;
-                        if(((App)getApplicationContext()).isTitleClicked){
+                        CurrentItem = item;
+                        if(isTitleClicked){
                             makeRenameDialogMethod(recyclerView,items,"Rename");
                             makeRenameDialog.show();
                         }
@@ -164,13 +157,13 @@ public class MainContentActivity extends AppCompatActivity {
                                 text.setText(item.Title);
 
                                 //items set
-                                ((App)getApplicationContext()).CurrentFolderItemsSet = getItemsFromDb(item.Id);
+                                CurrentFolderItemsSet = getItemsFromDb(item.Id);
 
                                 recyclerFolderView = (RecyclerView) dialog.findViewById(R.id.folder_container);
 
                                 recyclerFolderView.setLayoutManager(new GridLayoutManager(MainContentActivity.this, 2));
                                 // создаем адаптер
-                                ItemAdapter adapter = new ItemAdapter(MainContentActivity.this, ((App)getApplicationContext()).CurrentFolderItemsSet, false);
+                                ItemAdapter adapter = new ItemAdapter(MainContentActivity.this, CurrentFolderItemsSet, false);
                                 // устанавливаем для списка адаптер
                                 recyclerFolderView.setAdapter(adapter);
                                 recyclerFolderView.addOnItemTouchListener(
@@ -178,12 +171,12 @@ public class MainContentActivity extends AppCompatActivity {
                                         @RequiresApi(api = Build.VERSION_CODES.Q)
                                         @Override
                                         public void onItemClick(View view, int position) {
-                                            ((App)getApplicationContext()).CurrentItem = (Item) view.getTag();
-                                            if(((App)getApplicationContext()).isTitleClicked){
-                                                makeRenameDialogMethod(recyclerFolderView,((App)getApplicationContext()).CurrentFolderItemsSet, "FRename");
+                                            CurrentItem = (Item) view.getTag();
+                                            if(isTitleClicked){
+                                                makeRenameDialogMethod(recyclerFolderView, CurrentFolderItemsSet, "FRename");
                                                 makeRenameDialog.show();
                                             }
-                                            else if (((App)getApplicationContext()).CurrentItem.Type.equals("Паспорт")) {
+                                            else if (CurrentItem.Type.equals("Паспорт")) {
                                                 goPatternClick(view);
                                             }
                                         }
@@ -192,15 +185,16 @@ public class MainContentActivity extends AppCompatActivity {
                                             Item folderItem = (Item) view.getTag();
                                             folderItem.FolderId = 0;
                                             db.updateItem(folderItem.Id, folderItem);
-                                            ((App)getApplicationContext()).CurrentFolderItemsSet = getItemsFromDb(item.Id);
-                                            reFillContentPanel(recyclerFolderView, ((App)getApplicationContext()).CurrentFolderItemsSet);
+                                            CurrentFolderItemsSet = getItemsFromDb(item.Id);
+                                            reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
                                         }
                                     }));
                                 //set buttons
                                 Button flowButton = (Button) dialog.findViewById(R.id.flow_folder_button);
                                 flowButton.setOnClickListener(view1 -> {
                                     Intent i = new Intent(MainContentActivity.this, FolderAddItemActivity.class);
-                                    ((App)getApplicationContext()).CurrentItem = item;
+                                    CurrentItem = item;
+                                    i.putExtra("item",CurrentItem);
                                     registerForAR.launch(i);
                                 });
 
@@ -231,15 +225,15 @@ public class MainContentActivity extends AppCompatActivity {
                     isSelectMode = true;
 
                     Item item = (Item) view.getTag();
-                    int newItemId = ((App)getApplicationContext()).CurrentItemsSet.indexOf(item);
+                    int newItemId = CurrentItemsSet.indexOf(item);
                     item.isSelected = 1;
                     selectedItemsNum = 1;
                     ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ + selectedItemsNum);
 
-                    ((App)getApplicationContext()).CurrentItemsSet.set(newItemId, item);
+                    CurrentItemsSet.set(newItemId, item);
                     view.setTag(item);
 
-                    reFillContentPanel(recyclerView, ((App)getApplicationContext()).CurrentItemsSet);
+                    reFillContentPanel(recyclerView, CurrentItemsSet);
                 }
             }
             })
@@ -267,7 +261,7 @@ public class MainContentActivity extends AppCompatActivity {
         }
         else {
             ((Button)makeRenameDialog.findViewById(R.id.make_rename_item_btn)).setText(R.string.rename_an_item);
-            editText.append(((App)getApplicationContext()).CurrentItem.Title);
+            editText.append(CurrentItem.Title);
         }
         makeRenameDialog.findViewById(R.id.make_rename_item_btn).setOnClickListener(view2 ->{
             if (editText.getText().toString().equals(""))
@@ -276,7 +270,7 @@ public class MainContentActivity extends AppCompatActivity {
                 db.insertItem(new Item(0, editText.getText().toString(), "Папка", null, 0, 0, 0, 0, 0));
             }
             else{
-                Item item = ((App)getApplicationContext()).CurrentItem;
+                Item item = CurrentItem;
                 item.Title = editText.getText().toString();
                 db.updateItem(item.Id,item);
             }
@@ -285,16 +279,16 @@ public class MainContentActivity extends AppCompatActivity {
                 reFillContentPanel(recyclerView, items);
             }
             else if(mode.equals("FRename")) {
-                ((App)getApplicationContext()).CurrentFolderItemsSet = getItemsFromDb(((App)getApplicationContext()).CurrentItem.FolderId);
-                reFillContentPanel(recyclerView, ((App)getApplicationContext()).CurrentFolderItemsSet);
+                CurrentFolderItemsSet = getItemsFromDb(CurrentItem.FolderId);
+                reFillContentPanel(recyclerView, CurrentFolderItemsSet);
             }
-            ((App)getApplicationContext()).isTitleClicked = false;
-            ((App)getApplicationContext()).CurrentItem = null;
+            isTitleClicked = false;
+            CurrentItem = null;
             makeRenameDialog.dismiss();
         });
         makeRenameDialog.findViewById(R.id.cancel_btn).setOnClickListener(view12 -> {
-            ((App)getApplicationContext()).CurrentItem = null;
-            ((App)getApplicationContext()).isTitleClicked = false;
+            CurrentItem = null;
+            isTitleClicked = false;
             makeRenameDialog.dismiss();
         });
     }
@@ -315,8 +309,8 @@ public class MainContentActivity extends AppCompatActivity {
                     cur.getInt(8));
             items.add(item);
         }
-        ((App)getApplicationContext()).CurrentItemsSet = items;
-        ((App)getApplicationContext()).CurrentItem = null;
+        CurrentItemsSet = items;
+        CurrentItem = null;
     }
     private ArrayList<Item> getItemsFromDb(int id) {
         ArrayList <Item> folderItems = new ArrayList<>();
@@ -352,7 +346,9 @@ public class MainContentActivity extends AppCompatActivity {
     }
 
     public void goPatternClick(View view) {
-        startActivity(new Intent(MainContentActivity.this, MainPassportPatternActivity.class));
+        Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
+        intent.putExtra("item",CurrentItem);
+        startActivity(intent);
     }
 
     public void openSortMenuClick(View view) {
@@ -430,7 +426,7 @@ public class MainContentActivity extends AppCompatActivity {
     }
     public void bottomPinClick(View view) {
         for (Item x:
-                ((App)getApplicationContext()).CurrentItemsSet) {
+                CurrentItemsSet) {
             if(x.isSelected == 1) {
                 x.Priority = (x.Priority==1)?0:1;
                 x.isSelected = 0;
@@ -440,14 +436,14 @@ public class MainContentActivity extends AppCompatActivity {
             }
         }
         setInitialData();
-        ((App)getApplicationContext()).CurrentItemsSet = items;
+        CurrentItemsSet = items;
         reFillContentPanel(recyclerView,items);
         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
     }
 
     public void bottomHideClick(View view) {
         for (Item x:
-                ((App)getApplicationContext()).CurrentItemsSet) {
+                CurrentItemsSet) {
             if(x.isSelected == 1) {
                 x.isHiden = 1;
                 x.isSelected = 0;
@@ -456,13 +452,13 @@ public class MainContentActivity extends AppCompatActivity {
             }
         }
         setInitialData();
-        ((App)getApplicationContext()).CurrentItemsSet = items;
+        CurrentItemsSet = items;
         reFillContentPanel(recyclerView,items);
         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
     }
 
     public void bottomDeleteClick(View view) {
-        for (Item x: ((App)getApplicationContext()).CurrentItemsSet) {
+        for (Item x: CurrentItemsSet) {
             if(x.isSelected == 1){
                 db.deleteItem(x.Id);
                 selectedItemsNum--;
@@ -477,7 +473,7 @@ public class MainContentActivity extends AppCompatActivity {
             adapter.onItemDelete(Integer.valueOf(index));
         }
         setInitialData();
-        ((App)getApplicationContext()).CurrentItemsSet = items;
+        CurrentItemsSet = items;
 
         //reFillContentPanel(recyclerView,items);
         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
@@ -486,15 +482,15 @@ public class MainContentActivity extends AppCompatActivity {
     public void topSelectAllClick(View view) {
         selectedItemsNum = 0;
         for (Item x:
-                ((App)getApplicationContext()).CurrentItemsSet) {
-            int newItemId = ((App)getApplicationContext()).CurrentItemsSet.indexOf(x);
+                CurrentItemsSet) {
+            int newItemId = CurrentItemsSet.indexOf(x);
             x.isSelected = 1;
-            ((App)getApplicationContext()).CurrentItemsSet.set(newItemId,x);
+            CurrentItemsSet.set(newItemId,x);
             selectedItemsNum++;
         }
         ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) +" "+ selectedItemsNum);
 
-        reFillContentPanel(recyclerView,((App)getApplicationContext()).CurrentItemsSet);
+        reFillContentPanel(recyclerView,CurrentItemsSet);
     }
 
     public void topSelectBackClick(View view) {
@@ -510,9 +506,9 @@ public class MainContentActivity extends AppCompatActivity {
         setInitialData();
         setSelectedPropertyZero();
         reFillContentPanel(recyclerView, items);
-        if(((App)getApplicationContext()).isTitleClicked){
-            ((App)getApplicationContext()).isTitleClicked = false;
-            ((App)getApplicationContext()).CurrentItem = null;
+        if(isTitleClicked){
+            isTitleClicked = false;
+            CurrentItem = null;
             return;
         }
         if(isSelectMode) {
@@ -523,5 +519,15 @@ public class MainContentActivity extends AppCompatActivity {
         }
         else
             NavUtils.navigateUpFromSameTask(this);
+    }
+
+    @Override
+    public boolean getIsTitleClicked() {
+        return isTitleClicked;
+    }
+
+    @Override
+    public void setIsTitleClicked(boolean value) {
+        this.isTitleClicked = value;
     }
 }

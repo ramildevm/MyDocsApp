@@ -15,23 +15,28 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.mydocsapp.apputils.RecyclerItemClickListener;
+import com.example.mydocsapp.interfaces.ItemAdapterActivity;
 import com.example.mydocsapp.models.DBHelper;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.ItemAdapter;
 
 import java.util.ArrayList;
 
-public class FolderAddItemActivity extends AppCompatActivity {
+public class FolderAddItemActivity extends AppCompatActivity implements ItemAdapterActivity {
 
     ArrayList<Item> items = new ArrayList<Item>();
     ItemAdapter adapter;
     DBHelper db;
     private int selectedItemsNum;
     RecyclerView recyclerFolderView;
+    private Item CurrentItem;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_folder_add_item);
+        getExtraData(getIntent());
+
         db = new DBHelper(this);
         setInitialData();
         recyclerFolderView = (RecyclerView) findViewById(R.id.container);
@@ -70,9 +75,14 @@ public class FolderAddItemActivity extends AppCompatActivity {
                 }));
     }
 
+    private void getExtraData(Intent intent) {
+        CurrentItem = intent.getParcelableExtra("item");
+
+    }
+
     private void setInitialData() {
         items.clear();
-        Cursor cur = db.getItemsByFolderIdForAdding(((App)getApplicationContext()).CurrentItem.Id);
+        Cursor cur = db.getItemsByFolderIdForAdding(CurrentItem.Id);
         Item item;
         while(cur.moveToNext()){
             item = new Item(cur.getInt(0),
@@ -84,7 +94,7 @@ public class FolderAddItemActivity extends AppCompatActivity {
                     cur.getInt(6),
                     cur.getInt(7),
                     cur.getInt(8));
-            if(item.FolderId == ((App)getApplicationContext()).CurrentItem.Id){
+            if(item.FolderId == CurrentItem.Id){
                 item.isSelected = 1;
                 selectedItemsNum++;
                 ((TextView) findViewById(R.id.top_select_picked_txt)).setText("Selected: " + selectedItemsNum);
@@ -122,7 +132,7 @@ public class FolderAddItemActivity extends AppCompatActivity {
     public void saveSelectedClick(View view) {
         for (Item x: items) {
             if(x.isSelected == 1) {
-                x.FolderId = ((App)getApplicationContext()).CurrentItem.Id;
+                x.FolderId = CurrentItem.Id;
             }
             else{
                 x.FolderId = 0;
@@ -138,5 +148,14 @@ public class FolderAddItemActivity extends AppCompatActivity {
         Intent returnIntent = new Intent();
         setResult(Activity.RESULT_CANCELED,returnIntent);
         finish();
+    }
+
+    @Override
+    public boolean getIsTitleClicked() {
+        return false;
+    }
+    @Override
+    public void setIsTitleClicked(boolean value) {
+
     }
 }

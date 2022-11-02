@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mydocsapp.databinding.ActivityImageBinding;
+import com.github.chrisbanes.photoview.PhotoView;
 
 import java.io.File;
 
@@ -32,7 +33,7 @@ public class ImageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_image);
 
 
-        ((ImageView)findViewById(R.id.image_holder)).setBackground(d);
+        ((PhotoView)findViewById(R.id.image_holder)).setImageDrawable(d);
         ((TextView)findViewById(R.id.image_txt)).setText(imgText);
     }
     public void goBackClick(View view){

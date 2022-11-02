@@ -4,11 +4,12 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import android.database.SQLException;
+import com.example.mydocsapp.api.User;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -204,13 +205,55 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         }
     }
-@SuppressLint("Range")
-public String selectLastId(){
+    @SuppressLint("Range")
+    public String selectLastId(){
         SQLiteDatabase db = open();
         Cursor cur = db.rawQuery("SELECT * FROM SQLITE_SEQUENCE where name=?",new String[]{"Passport"});
         cur.moveToFirst();
         String id = cur.getString(cur.getColumnIndex("seq"));
         return id;
-}
+    }
+
+    //*********************************************************************************************
+    //User table
+
+    public Cursor getUserById(int objectId) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from User where Id=?", new String[]{""+objectId});
+        return cursor;
+    }
+    public Boolean deleteUser(int id){
+        SQLiteDatabase db = open();
+        long result = db.delete("User","id=?", new String[]{""+id});
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
+    public Boolean updateUser(int id, User user){
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("Login",user.login);
+        cv.put("Password",user.password);
+        long result = db.update("User",cv,"id=?", new String[]{""+id});
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
+    public Boolean insertUser(User user){
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("Login",user.login);
+        cv.put("Password",user.password);
+        long result = db.insert("User",null,cv);
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
 }
 

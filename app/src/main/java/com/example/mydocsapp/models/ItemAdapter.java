@@ -2,6 +2,8 @@ package com.example.mydocsapp.models;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,9 +15,10 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.mydocsapp.App;
 import com.example.mydocsapp.R;
+import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.apputils.ItemMoveCallback;
+import com.example.mydocsapp.interfaces.ItemAdapterActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,37 +51,42 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
     @Override
     public void onBindViewHolder(ItemAdapter.ViewHolder holder, int position) {
         Item item = items.get(position);
-        if(item.Image==null) {
-            if (item.Type.equals("Папка")) {
-                if(db.getItemFolderItemsCount(item.Id)>0) {
-                    ArrayList<Item> items = new ArrayList<>();
 
-                    Cursor cur = db.getItemsByFolder(item.Id);
-                    //Cursor cur = db.getItems();
-                    Item _item;
-                    while(cur.moveToNext()) {
-                        _item = new Item(cur.getInt(0),
-                                cur.getString(1),
-                                cur.getString(2),
-                                cur.getBlob(3),
-                                cur.getInt(4),
-                                cur.getInt(5),
-                                cur.getInt(6),
-                                cur.getInt(7),
-                                cur.getInt(8));
-                        items.add(_item);
-                    }
-                    holder.recyclerFolder.setLayoutManager(new GridLayoutManager(context, 2));
-                    FolderItemAdapter adapter = new FolderItemAdapter(context, items, false);
-                    holder.recyclerFolder.setAdapter(adapter);
+        if (item.Type.equals("Папка")) {
+            if(db.getItemFolderItemsCount(item.Id)>0) {
+                ArrayList<Item> items = new ArrayList<>();
 
+                Cursor cur = db.getItemsByFolder(item.Id);
+                //Cursor cur = db.getItems();
+                Item _item;
+                while(cur.moveToNext()) {
+                    _item = new Item(cur.getInt(0),
+                            cur.getString(1),
+                            cur.getString(2),
+                            cur.getBlob(3),
+                            cur.getInt(4),
+                            cur.getInt(5),
+                            cur.getInt(6),
+                            cur.getInt(7),
+                            cur.getInt(8));
+                    items.add(_item);
                 }
+                holder.recyclerFolder.setLayoutManager(new GridLayoutManager(context, 2));
+                FolderItemAdapter adapter = new FolderItemAdapter(context, items, false);
+                holder.recyclerFolder.setAdapter(adapter);
+
             }
-            else if (item.Type.equals("Паспорт"))
-                holder.imageView.setImageResource(R.drawable.passport_image);
-            else
-                holder.imageView.setImageResource(R.drawable.passport_image);
         }
+        if(item.Image!=null) {
+            Bitmap image = BitmapFactory.decodeByteArray(item.Image, 0, item.Image.length);
+            image = ImageSaveService.scaleDown(image,ImageSaveService.dpToPx(context,150),true);
+            holder.imageView.setImageBitmap(image);
+        }
+        else if (item.Type.equals("Паспорт"))
+            holder.imageView.setImageResource(R.drawable.passport_image);
+        else
+            holder.imageView.setImageResource(R.drawable.passport_image);
+
         holder.itemPanel.setTag(item);
         holder.selectBtn.setTag(item);
         if(isSelectMode) {
@@ -92,7 +100,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         holder.titleView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                ((App)context.getApplicationContext()).isTitleClicked = true;
+                ((ItemAdapterActivity)context).setIsTitleClicked(true);
                 return true;
             }
         });

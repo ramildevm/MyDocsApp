@@ -25,13 +25,13 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     public void goAccountClickBack(View view) {
-        //startActivity(new Intent(AccountActivity.this, MainContentActivity.class));
         NavUtils.navigateUpFromSameTask(this);
         overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
     }
 
     public void goMainActivityClick(View view) {
-        startActivity(new Intent(AccountActivity.this, MainActivity.class));
+        NavUtils.navigateUpFromSameTask(this);
+        overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
     }
 
     public void goSettingsClick(View view) {

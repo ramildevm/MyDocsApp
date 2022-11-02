@@ -45,4 +45,5 @@
     <string name="enter_a_name">Enter a name</string>
     <string name="sort_by_string">Sort by</string>
     <string name="load_image">Load image</string>
+    <string name="passport_first_photo_usage">Use first photo as item image</string>
 </resources>

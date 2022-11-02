@@ -18,16 +18,30 @@ import android.widget.Toast;
 import com.example.mydocsapp.api.MainApi;
 import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.api.UserGetCallback;
+import com.example.mydocsapp.models.DBHelper;
 
+import java.io.IOException;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
+    DBHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        db = new DBHelper(this);
+        try {
+            db.create_db();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        try {
+            db.deleteUser(1);
+        }
+        catch (Exception e){}
     }
     private void changeButtonBack(View view, int backSetId, int duration){
         view.setBackground(ContextCompat.getDrawable(this,backSetId));
@@ -56,12 +70,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResult(User user) {
                 if(user != null) {
-                    if (!password.equals(user.password.replaceAll(" ", ""))) {
+                    if (!password.equals(user.password.replaceAll(" ", "")) && !password.isEmpty()) {
                         Toast msg = Toast.makeText(MainActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
                         msg.show();
                     } else {
-                        ((App)getApplicationContext()).CurrentUser = user;
-                        startActivity(new Intent(MainActivity.this, MainContentActivity.class));
+                        db.insertUser(user);
+                        Intent intent =new Intent(MainActivity.this, MainContentActivity.class);
+                        startActivity(intent);
                     }
                 }
                 else{
@@ -96,10 +111,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goGuestModeClick(View view) {
-        ((App)getApplicationContext()).CurrentUser = new User(getString(R.string.extra_guest),"");
-        startActivity(new Intent(MainActivity.this, MainContentActivity.class));
+        Intent intent = new Intent(MainActivity.this, MainContentActivity.class);
+        User user = new User(getString(R.string.extra_guest),"");
+        db.insertUser(user);
+        startActivity(intent);
         overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
     }
+
+    private void intentPutUserExtras(Intent intent, User user) {
+        intent.putExtra("user_login",user.login);
+        intent.putExtra("user_password",user.password);
+    }
+
     public void switchLangClick(View view) {
         Locale locale = null;
         if (((TextView)findViewById(R.id.login_btn)).getText().equals("Выйти"))

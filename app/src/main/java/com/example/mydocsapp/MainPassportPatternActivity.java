@@ -3,6 +3,7 @@ package com.example.mydocsapp;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -40,11 +42,21 @@ DBHelper db;
     public static final int SELECT_USER_PHOTO = 1;
     public static final int SELECT_PAGE1_PHOTO = 2;
     public static final int SELECT_PAGE2_PHOTO = 3;
+    private Item CurrentItem;
+
+    public Item getCurrentItem() {
+        return CurrentItem;
+    }
+
+    public void setCurrentItem(Item currentItem) {
+        CurrentItem = currentItem;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_passport_pattern);
+        getExtraData(getIntent());
         ViewPager2 viewPager2 = findViewById(R.id.frame_container);
         viewPager2.setAdapter(new MyFragmentAdapter(getSupportFragmentManager(), getLifecycle(),this));
         viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -76,7 +88,7 @@ DBHelper db;
         });
         model.setState(this.Passport);
 
-        if(((App)getApplicationContext()).CurrentItem  == null) {
+        if(CurrentItem  == null) {
             ((TextView) findViewById(R.id.passport_txt)).setOnClickListener(v -> {
                 if (v.getTag().equals("off")) {
                     MotionLayout ml = findViewById(R.id.motion_layout);
@@ -93,40 +105,45 @@ DBHelper db;
         }
     }
 
+    private void getExtraData(Intent intent) {
+        CurrentItem= intent.getParcelableExtra("item");
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-            if (resultCode == RESULT_OK) {
-                if (intent != null) {
-                    // Get the URI of the selected file
-                    final Uri uri = intent.getData();
-                    try {
-                        useImage(requestCode, uri);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        if (resultCode == RESULT_OK) {
+            if (intent != null) {
+                // Get the URI of the selected file
+                final Uri uri = intent.getData();
+                try {
+                    useImage(requestCode, uri);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-            super.onActivityResult(requestCode, resultCode, intent);
+        }
+        super.onActivityResult(requestCode, resultCode, intent);
     }
     void useImage(int requestCode, Uri uri) throws IOException {
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
+        Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
         //use the bitmap as you like
         switch (requestCode){
             case SELECT_USER_PHOTO:
-                ((PassportFirstFragment)listenerForF1).loadProfileImage(bitmap);
+                ((PassportFirstFragment)listenerForF1).loadProfileImage(decoded);
                 break;
             case SELECT_PAGE1_PHOTO:
-                ((PassportSecondFragment)listenerForF2).loadPassportPage1(bitmap);
+                ((PassportSecondFragment)listenerForF2).loadPassportPage1(decoded);
                 break;
             case SELECT_PAGE2_PHOTO:
-                ((PassportSecondFragment)listenerForF2).loadPassportPage2(bitmap);
+                ((PassportSecondFragment)listenerForF2).loadPassportPage2(decoded);
                 break;
         }
     }
-
     private void setDataFromDb() {
-        Item item = ((App)getApplicationContext()).CurrentItem;
+        Item item = CurrentItem;
         if(item!= null) {
             Cursor cur = db.getPassportById(item.ObjectId);
             cur.moveToFirst();
@@ -164,15 +181,24 @@ DBHelper db;
 
     public void goBackMainPageClick(View view) {
         listenerForF1.SaveData();
-        listenerForF2.SaveData();
+        if (listenerForF2!=null)
+            listenerForF2.SaveData();
+        byte[] itemImage = null;
         Passport p = this.Passport;
-        if(((App)getApplicationContext()).CurrentItem == null){
+        if(CurrentItem == null){
             db.insertPassport(p);
             int id = Integer.parseInt(db.selectLastId());
-            db.insertItem(new Item(0, "Паспорт", "Паспорт", null, 0, 0, 0, id, 0));
+            if(listenerForF2!=null)
+                if(((PassportSecondFragment)listenerForF2).getPhotoOption())
+                    itemImage=p.PhotoPage1;
+            db.insertItem(new Item(0, "Паспорт", "Паспорт", itemImage, 0, 0, 0, id, 0));
         }
         else{
-            db.updatePassport(((App)getApplicationContext()).CurrentItem.ObjectId, p);
+            db.updatePassport(CurrentItem.ObjectId, p);
+            if(listenerForF2!=null)
+                if(((PassportSecondFragment)listenerForF2).getPhotoOption())
+                    CurrentItem.Image = p.PhotoPage1;
+            db.updateItem(CurrentItem.Id,CurrentItem);
         }
         onBackPressed();
     }
