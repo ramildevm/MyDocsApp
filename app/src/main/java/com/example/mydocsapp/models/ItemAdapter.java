@@ -14,12 +14,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mydocsapp.R;
 import com.example.mydocsapp.apputils.ImageSaveService;
-import com.example.mydocsapp.apputils.ItemMoveCallback;
 import com.example.mydocsapp.interfaces.ItemAdapterActivity;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.List;
 import jp.wasabeef.blurry.Blurry;
 
 
-public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> implements ItemMoveCallback.ItemTouchHelperContract {
+public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     private final LayoutInflater inflater;
     private Context context;
@@ -46,6 +46,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         this.inflater = LayoutInflater.from(context);
         this.isSelectMode = isSelectMode;
     }
+
     @Override
     public ItemAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.list_item, parent, false);
@@ -54,35 +55,37 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
-        if(!payloads.isEmpty()){
+        if (!payloads.isEmpty()) {
             final Item item = items.get(position);
-            for(final Object payload:payloads){
-                if(payload.equals(PAYLOAD_SELECT_MODE)) {
+            for (final Object payload : payloads) {
+                if (payload.equals(PAYLOAD_SELECT_MODE)) {
                     if (isSelectMode) {
                         holder.selectBtn.setVisibility(View.VISIBLE);
                         if (item.isSelected == 1)
                             holder.selectBtn.setBackgroundResource(R.drawable.selected_circle);
                         else
                             holder.selectBtn.setBackgroundResource(R.drawable.unselected_circle);
+                        if (item.Priority>0)
+                            holder.pinBtn.setVisibility(View.VISIBLE);
+                        else
+                            holder.pinBtn.setVisibility(View.INVISIBLE);
                     } else {
                         holder.selectBtn.setVisibility(View.INVISIBLE);
                     }
                 }
             }
-        }
-        else
+        } else
             super.onBindViewHolder(holder, position, payloads);
     }
 
     @Override
     public void onBindViewHolder(ItemAdapter.ViewHolder holder, int position) {
         Item item = items.get(position);
-        if(item.Image==null) {
+        if (item.Image == null) {
             if (item.Type.equals("Папка")) {
                 holder.imageView.setVisibility(View.INVISIBLE);
                 if (db.getItemFolderItemsCount(item.Id) > 0) {
                     ArrayList<Item> items = new ArrayList<>();
-
                     Cursor cur = db.getItemsByFolder(item.Id);
                     //Cursor cur = db.getItems();
                     Item _item;
@@ -103,18 +106,23 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
                     holder.recyclerFolder.setAdapter(adapter);
                 }
             }
-            else if (item.Type.equals("Паспорт"))
+            else if (item.Type.equals("Паспорт")){
                 holder.imageView.setImageResource(R.drawable.passport_image);
-            else
+                holder.imageView.setVisibility(View.VISIBLE);
+            }
+            else{
                 holder.imageView.setImageResource(R.drawable.passport_image);
+                holder.imageView.setVisibility(View.VISIBLE);
+            }
         }
-        else{
+        else {
+            holder.imageView.setVisibility(View.VISIBLE);
             Bitmap image = BitmapFactory.decodeByteArray(item.Image, 0, item.Image.length);
-            image = ImageSaveService.scaleDown(image,ImageSaveService.dpToPx(context,150),true);
+            image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 150), true);
             holder.imageView.setImageBitmap(image);
         }
 
-        if(item.Type.equals("Папка"))
+        if (item.Type.equals("Папка"))
             holder.icoImg.setImageResource(R.drawable.ic_folder);
         else if (item.Type.equals("Паспорт"))
             holder.icoImg.setImageResource(R.drawable.ic_personalcard);
@@ -126,18 +134,17 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
 
         holder.itemPanel.setTag(item);
         holder.selectBtn.setTag(item);
-        if(isSelectMode) {
+        if (isSelectMode) {
             holder.selectBtn.setVisibility(View.VISIBLE);
-            if(item.isSelected==1)
+            if (item.isSelected == 1)
                 holder.selectBtn.setBackgroundResource(R.drawable.selected_circle);
             else
                 holder.selectBtn.setBackgroundResource(R.drawable.unselected_circle);
-        }
-        else{
+        } else {
             holder.selectBtn.setVisibility(View.INVISIBLE);
             holder.selectBtn.setBackgroundResource(R.drawable.unselected_circle);
         }
-        if(item.Priority > 0)
+        if (item.Priority > 0)
             holder.pinBtn.setVisibility(View.VISIBLE);
         else
             holder.pinBtn.setVisibility(View.INVISIBLE);
@@ -146,97 +153,69 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         holder.titleView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                ((ItemAdapterActivity)context).setIsTitleClicked(true);
+                ((ItemAdapterActivity) context).setIsTitleClicked(true);
                 return true;
             }
         });
-        holder.folderContentBack.post(()->{
-                    Blurry.with(context)
-                            .radius(4)
-                            .onto((ViewGroup) holder.folderContentBack);
+        holder.folderContentBack.post(() -> {
+            Blurry.with(context)
+                    .radius(4)
+                    .onto((ViewGroup) holder.folderContentBack);
         });
         holder.titleView.setTag(item);
 
     }
-    public void setSelectMode(Boolean value){
+
+    public void setSelectMode(Boolean value) {
         isSelectMode = value;
     }
+
     @Override
     public int getItemCount() {
         return items.size();
     }
 
-    @Override
-    public void onRowMoved(RecyclerView recyclerView, int fromPosition, int toPosition) {
-    }
-
-
-    @Override
-    public void onRowSelected(ViewHolder myViewHolder) {
-        myViewHolder.rowView.setAlpha(0.8f);
-    }
-    @Override
-    public void onRowClear(ViewHolder myViewHolder, int fromPosition, int toPosition) {
-        myViewHolder.rowView.setAlpha(1f);
-        if(fromPosition != -1 && fromPosition!=toPosition) {
-            Item item = items.get(fromPosition);
-            item.FolderId = items.get(toPosition).Id;
-            items.remove(fromPosition);
-            db.updateItem(item.Id,item);
-            notifyItemRemoved(fromPosition);
-        }
-    }
 
     public void onItemDelete(int position) {
         items.remove(position);
         notifyItemRemoved(position);
     }
 
-    public void onItemMoved(Item item, List<Item> _items){
-        Item newItem = null;
-        int position = 0;
-        for (Item _item :
-                items) {
-            if(_item.Id == item.Id) {
-                newItem = _item;
-                position = items.indexOf(_item);
-                newItem.Priority = item.Priority;
-            }
-        }
-        items.set(position,newItem);
-        notifyItemChanged(position);
-
-        int newPosition = _items.indexOf(item);
-        if (position < newPosition) {
-            for (int i = position; i < newPosition; i++) {
+    public void onItemMoved(int oldPosition, int newPosition) {
+        if (oldPosition < newPosition) {
+            for (int i = oldPosition; i < newPosition; i++) {
                 Collections.swap(items, i, i + 1);
             }
         } else {
-            for (int i = position; i > newPosition; i--) {
+            for (int i = oldPosition; i > newPosition; i--) {
                 Collections.swap(items, i, i - 1);
             }
         }
-        notifyItemMoved(position, newPosition);
-
+        notifyItemMoved(oldPosition, newPosition);
+    }
+    public void onMovedItemChanged(Item item, int position) {
+        items.set(position,item);
+        notifyItemChanged(position);
     }
     public void onItemChanged(Item item) {
-        Item newItem = null;
-        int position = 0;
-        for (Item _item :
-                items) {
-            if(_item.Id == item.Id) {
-                newItem = _item;
-                position = items.indexOf(_item);
-                newItem.isSelected = item.isSelected;
-            }
+        Item newItem;
+        int position;
+        Item oldItem = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            oldItem = items.stream().filter(item1 -> item1.Id == item.Id).findFirst().get();
         }
-        items.set(position,newItem);
-        if(!isSelectMode)
-            notifyItemRangeChanged(0,items.size());
+        newItem = oldItem;
+        position = items.indexOf(oldItem);
+        newItem.isSelected = item.isSelected;
+        newItem.Priority = item.Priority;
+        items.set(position, newItem);
+        if (!isSelectMode)
+            notifyItemChanged(position);
         else
-            notifyItemChanged(position,PAYLOAD_SELECT_MODE);
+            notifyItemChanged(position, PAYLOAD_SELECT_MODE);
     }
-    public void onItemsSetChanged(List<Item> newItemSet){
+
+    public void onItemsSetChanged(List<Item> newItemSet) {
         items = newItemSet;
         notifyDataSetChanged();
     }
@@ -251,7 +230,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         final RecyclerView recyclerFolder;
         final ConstraintLayout folderContentBack;
         View rowView;
-        ViewHolder(View view){
+
+        ViewHolder(View view) {
             super(view);
             rowView = view;
             folderContentBack = view.findViewById(R.id.folder_content_back);

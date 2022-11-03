@@ -33,6 +33,7 @@ import com.example.mydocsapp.models.ItemAdapter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 public class MainContentActivity extends AppCompatActivity implements ItemAdapterActivity {
@@ -55,6 +56,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
 
     public static final int RECYCLER_ADAPTER_EVENT_CHANGE = 1;
     public static final int RECYCLER_ADAPTER_EVENT_MOVE = 2;
+    public static final int RECYCLER_ADAPTER_EVENT_BACK = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -439,7 +441,30 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                 }
                 break;
             case RECYCLER_ADAPTER_EVENT_MOVE:
-                adapter.onItemMoved(item, CurrentItemsSet);
+                ArrayList<Item> oldItems = CurrentItemsSet;
+                setInitialData();
+                int oldPosition;
+                int newPosition;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    for (Item newItem :
+                            CurrentItemsSet) {
+                        Item oldItem = oldItems.stream().filter(item -> item.Id == newItem.Id).findFirst().get();
+                        if (oldItem != null) {
+                            oldPosition = oldItems.indexOf(oldItem);
+                            adapter.onMovedItemChanged(newItem, oldPosition);
+                        }
+                    }
+                    for (Item newItem:
+                            CurrentItemsSet) {
+                        Item oldItem = oldItems.stream().filter(item -> item.Id == newItem.Id).findFirst().get();
+                        if (oldItem != null) {
+                            oldPosition = oldItems.indexOf(oldItem);
+                            newPosition = CurrentItemsSet.indexOf(newItem);
+                            adapter.onItemMoved(oldPosition,newPosition);
+                        }
+                    }
+                }
+                break;
         }
     }
 
@@ -448,8 +473,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     }
 
     public void bottomPinClick(View view) {
-        for (Item x :
-                CurrentItemsSet) {
+        for(Item x: CurrentItemsSet){
             if (x.isSelected == 1) {
                 x.Priority = (x.Priority == 1) ? 0 : 1;
                 x.isSelected = 0;
@@ -457,7 +481,6 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                 db.updateItem(x.Id, x);
             }
         }
-        setInitialData();
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_MOVE, CurrentItemsSet);
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
     }

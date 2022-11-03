@@ -142,29 +142,29 @@
             android:text="@string/sort_by_string"/>
         <Button
             android:id="@+id/flow_sort_doc_btn"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_gravity="center"
             android:onClick="sortDocClick"
             android:background="@drawable/flow_doc_btn"/>
         <Button
             android:id="@+id/flow_sort_image_btn"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_gravity="center"
             android:onClick="sortImageClick"
             android:background="@drawable/flow_image_btn"/>
         <Button
             android:id="@+id/flow_sort_card_btn"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_gravity="center"
             android:onClick="sortCardClick"
             android:background="@drawable/flow_card_btn"/>
         <Button
             android:id="@+id/flow_sort_folder_btn"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_gravity="center"
             android:onClick="sortFolderClick"
             android:background="@drawable/flow_folder_btn"/>
@@ -184,8 +184,8 @@
         android:orientation="vertical"/>
     <Button
         android:id="@+id/flow_doc_add_btn"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:onClick="goPatternClick"
         app:layout_constraintEnd_toEndOf="@id/flow_button"
         app:layout_constraintBottom_toBottomOf="@id/flow_button"
@@ -214,8 +214,8 @@
         />
     <Button
         android:id="@+id/flow_add_image_btn"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         app:layout_constraintEnd_toEndOf="@id/flow_button"
         app:layout_constraintBottom_toBottomOf="@id/flow_button"
         app:layout_constraintStart_toStartOf="@id/flow_button"
@@ -243,8 +243,8 @@
         />
     <Button
         android:id="@+id/flow_add_card_btn"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         app:layout_constraintEnd_toEndOf="@id/flow_button"
         app:layout_constraintBottom_toBottomOf="@id/flow_button"
         app:layout_constraintStart_toStartOf="@id/flow_button"
@@ -272,8 +272,8 @@
         />
     <Button
         android:id="@+id/flow_add_folder_btn"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:onClick="menuMakeFolderClick"
         app:layout_constraintEnd_toEndOf="@id/flow_button"
         app:layout_constraintBottom_toBottomOf="@id/flow_button"
