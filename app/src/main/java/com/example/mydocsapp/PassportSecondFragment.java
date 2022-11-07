@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,13 +27,20 @@ import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class PassportSecondFragment extends Fragment implements FragmentSaveViewModel {
 
     FragmentPassportSecondBinding binding;
     PassportStateViewModel model;
+    private Bitmap pagePhoto1;
+    private Bitmap pagePhoto2;
+    private OutputStream out;
+
     public PassportSecondFragment() {
     }
 
@@ -78,64 +86,79 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         //photo load
         if(passport.PhotoPage1 != null) {
             if (passport.PhotoPage1.length() != 0) {
-                binding.firstPassportPhoto.setTag(1);
                 binding.firstPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
                 binding.firstPassportPhoto.setImageBitmap(BitmapFactory.decodeFile(passport.PhotoPage1));
             }
         }
         if(passport.PhotoPage2 != null) {
             if (passport.PhotoPage2.length() != 0) {
-                binding.secondPassportPhoto.setTag(1);
                 binding.secondPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
                 binding.secondPassportPhoto.setImageBitmap(BitmapFactory.decodeFile(passport.PhotoPage2));
             }
         }
+
+        binding.usePhotoOption.setChecked(((MainPassportPatternActivity)getActivity()).getCurrentItem().Image!=null);
     }
 
     @Override
     public void SaveData() {
-        Passport passport = model.getState().getValue();
-        if(binding.firstPassportPhoto.getTag().toString().equals("1")) {
-            byte[] imgByte = ImageSaveService.bitmapToByteArray(((BitmapDrawable) binding.firstPassportPhoto.getDrawable()).getBitmap());
-            String fileName = "Passport"+ passport.Id + "/photoPage1"+passport.SeriaNomer + ".png";
-            try {
-                FileOutputStream fileOutStream = getContext().openFileOutput(fileName, MODE_PRIVATE);
-                fileOutStream.write(imgByte);
-                fileOutStream.close();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-            passport.PhotoPage1 = fileName;
-        }
-
-        model.setState(passport);
     }
 
     @Override
     public void SavePhotos(int PassportId, int ItemId) {
         Passport passport = model.getState().getValue();
-//        if(binding.secondPassportPhoto.getTag().toString().equals("1")) {
-//            byte[] imgByte = ImageSaveService.bitmapToByteArray(((BitmapDrawable) binding.secondPassportPhoto.getDrawable()).getBitmap());
-//            String fileName = "Passport"+ passport.Id + "/photoPage2"+passport.SeriaNomer + ".png";
-//            try {
-//                FileOutputStream fileOutStream = getContext().openFileOutput(fileName, MODE_PRIVATE);
-//                fileOutStream.write(imgByte);
-//                fileOutStream.close();
-//            } catch (IOException ioe) {
-//                ioe.printStackTrace();
-//            }
-//            passport.PhotoPage2 = fileName;
-//        }
+        if (pagePhoto1 != null) {
+            if (passport.PhotoPage1!=null) {
+                File filePath = new File(passport.PhotoPage1);
+                filePath.delete();
+            }
+            passport.PhotoPage1 = savePhotoToFile(PassportId, ItemId,pagePhoto1,"PassportPagePhotoFirst");
+        }
+        if (pagePhoto2 != null) {
+            if (passport.PhotoPage2 != null) {
+                File filePath = new File(passport.PhotoPage2);
+                filePath.delete();
+            }
+            passport.PhotoPage2 = savePhotoToFile(PassportId, ItemId,pagePhoto2, "PassportPagePhotoSecond");
+        }
         model.setState(passport);
     }
 
+    @NonNull
+    private String savePhotoToFile(int PassportId, int ItemId, Bitmap pagePhoto, String fileName) {
+        File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        String imgPath = filepath.getAbsolutePath() + "/"+ MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
+        File dir = new File(imgPath);
+        if(!dir.exists())
+            dir.mkdirs();
+        String imgName = fileName + PassportId + System.currentTimeMillis() + ".jpg";
+        File imgFile = new File(dir, imgName);
+        try {
+            out = new FileOutputStream(imgFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        pagePhoto.compress(Bitmap.CompressFormat.JPEG, 100, out);
+        try {
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return imgFile.getAbsolutePath();
+    }
+
     public void loadPassportPage1(Bitmap bitmap) {
-        binding.firstPassportPhoto.setTag(1);
+        pagePhoto1 = bitmap;
         binding.firstPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
         binding.firstPassportPhoto.setImageBitmap(bitmap);
     }
     public void loadPassportPage2(Bitmap bitmap) {
-        binding.secondPassportPhoto.setTag(1);
+        pagePhoto2 = bitmap;
         binding.secondPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
         binding.secondPassportPhoto.setImageBitmap(Bitmap.createScaledBitmap(bitmap, binding.secondPassportPhoto.getWidth(),ImageSaveService.dpToPx(getContext(),230),false));
     }

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -31,9 +32,9 @@ import com.example.mydocsapp.models.DBHelper;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.ItemAdapter;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.stream.Collectors;
 
 public class MainContentActivity extends AppCompatActivity implements ItemAdapterActivity {
@@ -56,7 +57,8 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
 
     public static final int RECYCLER_ADAPTER_EVENT_CHANGE = 1;
     public static final int RECYCLER_ADAPTER_EVENT_MOVE = 2;
-    public static final int RECYCLER_ADAPTER_EVENT_BACK = 3;
+
+    public static final String APPLICATION_NAME = "MyDocs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -504,6 +506,19 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         for (Item x : CurrentItemsSet) {
             if (x.isSelected == 1) {
                 db.deleteItem(x.Id);
+                try{
+                    File dir = Environment.getExternalStoragePublicDirectory("Pictures/"+APPLICATION_NAME+ "/Item"+x.Id);
+                    if (dir.isDirectory())
+                    {
+                        String[] children = dir.list();
+                        for (int i = 0; i < children.length; i++)
+                        {
+                            new File(dir, children[i]).delete();
+                        }
+                    }
+                }
+                catch (Exception e){
+                }
                 selectedItemsNum--;
                 if (x.ObjectId != 0) {
                     if (x.Type.equals("Паспорт"))

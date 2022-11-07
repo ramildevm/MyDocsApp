@@ -26,7 +26,7 @@ public class ImageActivity extends AppCompatActivity {
         imgFile = getIntent().getStringExtra("imageFile");
         imgText = getIntent().getStringExtra("text");
 
-        File filePath = getFileStreamPath(imgFile);
+        File filePath = new File(imgFile);
         Drawable d = Drawable.createFromPath(filePath.toString());
 
         setContentView(R.layout.activity_image);

@@ -33,7 +33,6 @@ import java.io.OutputStream;
 
 public class PassportFirstFragment extends Fragment implements FragmentSaveViewModel {
 
-    public static final String APPLICATION_NAME = "MyDocs";
     FragmentPassportFirstBinding binding;
     PassportStateViewModel model;
     Bitmap profilePhoto = null;
@@ -49,7 +48,6 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
 
     public void loadProfileImage(Bitmap bitmap) {
         profilePhoto = bitmap;
-        binding.userPassportPhoto.setTag(1);
         binding.userPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
         binding.userPassportPhoto.setImageBitmap(bitmap);
     }
@@ -75,10 +73,11 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
         binding.userPassportPhoto.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ImageActivity.class);
             intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
-
-            String fileName = model.getState().getValue().FacePhoto;
-            intent.putExtra("imageFile", fileName);
-            getActivity().startActivity(intent);
+            if(model.getState().getValue().FacePhoto!=null) {
+                String fileName = model.getState().getValue().FacePhoto;
+                intent.putExtra("imageFile", fileName);
+                getActivity().startActivity(intent);
+            }
         });
         return binding.getRoot();
     }
@@ -102,7 +101,8 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             if (!passport.FacePhoto.isEmpty()) {
                 binding.userPassportPhoto.setTag(1);
                 binding.userPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
-                binding.userPassportPhoto.setImageBitmap(BitmapFactory.decodeFile(passport.FacePhoto));
+                Bitmap image = BitmapFactory.decodeFile(passport.FacePhoto);
+                binding.userPassportPhoto.setImageBitmap(image);
             }
         }
     }
@@ -110,7 +110,6 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
     @Override
     public void SaveData() {
         Passport passport = model.getState().getValue();
-        passport.FacePhoto = null;
         passport.SeriaNomer = binding.editTextSeriesNumber.getText().toString();
         passport.DivisionCode = binding.editTextDivisionCode.getText().toString();
         passport.GiveDate = binding.editTextDateIssue.getText().toString();
@@ -123,25 +122,22 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             passport.Gender = "F";
         passport.BirthPlace = binding.editTextPlaceBirth.getText().toString();
         passport.ResidencePlace = binding.editTextPlaceResidence.getText().toString();
-
-
         model.setState(passport);
     }
 
     @Override
     public void SavePhotos(int PassportId, int ItemId) {
         Passport passport = model.getState().getValue();
-        if (passport.FacePhoto!=null) {
-            File filePath = getActivity().getFileStreamPath(passport.FacePhoto);
-            filePath.delete();
-        }
-        if (binding.userPassportPhoto.getTag().toString().equals("1") && profilePhoto != null) {
+        if (profilePhoto != null) {
+            if (passport.FacePhoto!=null) {
+                File filePath = new File(passport.FacePhoto);
+                filePath.delete();
+            }
             File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            String imgPath = filepath.getAbsolutePath() + "/"+ APPLICATION_NAME + "/Item" + ItemId + "/";
+            String imgPath = filepath.getAbsolutePath() + "/"+ MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
             File dir = new File(imgPath);
             if(!dir.exists())
-                dir.mkdir();
-
+                dir.mkdirs();
             String imgName = "PassportProfileImage" + PassportId + System.currentTimeMillis() + ".jpg";
             File imgFile = new File(dir, imgName);
             try {
@@ -161,7 +157,8 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            passport.FacePhoto = imgPath + imgName;
+            passport.FacePhoto = imgFile.getAbsolutePath();
+            Log.e("FILEPATH",passport.FacePhoto);
         }
         model.setState(passport);
     }

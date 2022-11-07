@@ -8,6 +8,7 @@ import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -180,15 +181,14 @@ DBHelper db;
     }
 
     public void goBackMainPageClick(View view) {
+        //Log.e("FILE",this.Passport.FacePhoto);
         listenerForF1.SaveData();
-        if (listenerForF2!=null)
-            listenerForF2.SaveData();
         String itemImagePath = null;
 
-        Passport p = this.Passport;
         Item item;
         if(CurrentItem == null){
-            db.insertPassport(p);
+            db.insertPassport(this.Passport);
+
             int PassportId = Integer.parseInt(db.selectLastId());
             item = new Item(0, "Паспорт", "Паспорт", null, 0, 0, 0, PassportId, 0);
             db.insertItem(item);
@@ -198,7 +198,7 @@ DBHelper db;
             if (listenerForF2!=null) {
                 listenerForF2.SavePhotos(PassportId, ItemId);
                 if (((PassportSecondFragment) listenerForF2).getPhotoOption())
-                    itemImagePath = p.PhotoPage1;
+                    itemImagePath = this.Passport.PhotoPage1;
             }
             db.updatePassport(PassportId,this.Passport);
             item.Image = itemImagePath;
@@ -209,7 +209,9 @@ DBHelper db;
             if(listenerForF2!=null) {
                 listenerForF2.SavePhotos(CurrentItem.ObjectId, CurrentItem.Id);
                 if (((PassportSecondFragment) listenerForF2).getPhotoOption())
-                    CurrentItem.Image = p.PhotoPage1;
+                    CurrentItem.Image = this.Passport.PhotoPage1;
+                else
+                    CurrentItem.Image = null;
             }
             db.updatePassport(CurrentItem.ObjectId, this.Passport);
             db.updateItem(CurrentItem.Id,CurrentItem);
