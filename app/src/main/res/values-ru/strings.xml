@@ -43,4 +43,7 @@
     <string name="folder_string">Папка</string>
     <string name="selected_string">Выбрано:</string>
     <string name="enter_a_name">Введите название</string>
+    <string name="sort_by_string">Сортировать</string>
+    <string name="load_image">Загрузить изображение</string>
+    <string name="passport_first_photo_usage">Использовать первое фото как изображения документа</string>
 </resources>

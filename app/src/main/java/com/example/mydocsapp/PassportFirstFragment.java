@@ -1,29 +1,34 @@
 package com.example.mydocsapp;
 
-import static com.example.mydocsapp.MainPassportPatternActivity.SELECT_USER_PHOTO;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.databinding.FragmentPassportFirstBinding;
 import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
+import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -46,12 +51,33 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
         }
     }
 
-    public void loadProfileImage(Bitmap bitmap) {
+    private void loadProfileImage(Bitmap bitmap) {
         profilePhoto = bitmap;
+        bitmap = ImageSaveService.scaleDown(bitmap, ImageSaveService.dpToPx(getContext(), binding.userPassportPhoto.getWidth()), true);
         binding.userPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
         binding.userPassportPhoto.setImageBitmap(bitmap);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        CropImage.ActivityResult result = CropImage.getActivityResult(data);
+        if (resultCode == MainPassportPatternActivity.RESULT_OK) {
+            if (data != null) {
+                // Get the URI of the selected file
+                final Uri uri = result.getUri();
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), uri);
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+                    loadProfileImage(decoded);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,17 +89,17 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
 
         binding.loadProfilePhotoBtn.setOnClickListener(v -> {
             if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                getActivity().startActivityForResult(photoPickerIntent, SELECT_USER_PHOTO);
+                Intent intent = CropImage.activity()
+                        .getIntent(getContext());
+                startActivityForResult(intent, MainPassportPatternActivity.SELECT_USER_PHOTO);
             } else {
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
             }
         });
         binding.userPassportPhoto.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ImageActivity.class);
-            intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
             if(model.getState().getValue().FacePhoto!=null) {
+                intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
                 String fileName = model.getState().getValue().FacePhoto;
                 intent.putExtra("imageFile", fileName);
                 getActivity().startActivity(intent);

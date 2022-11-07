@@ -1,5 +1,7 @@
 package com.example.mydocsapp;
 
+import static java.security.AccessController.getContext;
+
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -11,6 +13,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +31,7 @@ import com.example.mydocsapp.models.DBHelper;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
+import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -108,36 +112,7 @@ DBHelper db;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (resultCode == RESULT_OK) {
-            if (intent != null) {
-                // Get the URI of the selected file
-                final Uri uri = intent.getData();
-                try {
-                    useImage(requestCode, uri);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
         super.onActivityResult(requestCode, resultCode, intent);
-    }
-    void useImage(int requestCode, Uri uri) throws IOException {
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-        Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
-        //use the bitmap as you like
-        switch (requestCode){
-            case SELECT_USER_PHOTO:
-                ((PassportFirstFragment)listenerForF1).loadProfileImage(decoded);
-                break;
-            case SELECT_PAGE1_PHOTO:
-                ((PassportSecondFragment)listenerForF2).loadPassportPage1(decoded);
-                break;
-            case SELECT_PAGE2_PHOTO:
-                ((PassportSecondFragment)listenerForF2).loadPassportPage2(decoded);
-                break;
-        }
     }
     private void setDataFromDb() {
         Item item = CurrentItem;

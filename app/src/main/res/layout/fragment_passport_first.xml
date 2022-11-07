@@ -27,7 +27,6 @@
         app:layout_constraintEnd_toEndOf="@id/user_passport_photo"
         app:layout_constraintBottom_toBottomOf="@id/user_passport_photo"/>
 
-
     <TextView
         android:id="@+id/s_n"
         android:layout_width="wrap_content"

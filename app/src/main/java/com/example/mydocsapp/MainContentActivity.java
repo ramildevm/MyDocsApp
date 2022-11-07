@@ -513,6 +513,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                             new File(dir, children[i]).delete();
                         }
                     }
+                    dir.delete();
                 }
                 catch (Exception e){
                 }
