@@ -68,8 +68,6 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         registerForAR = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
-                Intent data = result.getData();
-                int resultCode = result.getResultCode();
                 CurrentFolderItemsSet = getItemsFromDb(CurrentItem.Id);
                 reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
                 setInitialData();
@@ -427,7 +425,6 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
 
     void reFillContentPanel(RecyclerView _recyclerView, ArrayList<Item> _items) {
         _recyclerView.removeAllViews();
-        // создаем адаптер
         adapter = new ItemAdapter(this, _items, isSelectMode);
         // устанавливаем для списка адаптер
         _recyclerView.setAdapter(adapter);

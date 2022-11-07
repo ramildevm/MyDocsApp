@@ -49,10 +49,6 @@ DBHelper db;
         return CurrentItem;
     }
 
-    public void setCurrentItem(Item currentItem) {
-        CurrentItem = currentItem;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

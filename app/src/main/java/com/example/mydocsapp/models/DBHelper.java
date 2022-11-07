@@ -23,12 +23,6 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final int SCHEMA = 1; // версия базы данных
     private Context myContext;
 
-    public static String getDbPath() {
-        return DB_PATH;
-    }
-    public static String getDbName() {
-        return DB_NAME;
-    }
     public DBHelper(Context context) {
         super(context, DB_NAME, null, SCHEMA);
         this.myContext = context;
