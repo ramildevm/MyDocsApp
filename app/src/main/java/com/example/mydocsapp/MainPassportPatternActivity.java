@@ -127,7 +127,7 @@ DBHelper db;
     void useImage(int requestCode, Uri uri) throws IOException {
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
         Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
         //use the bitmap as you like
         switch (requestCode){
@@ -157,9 +157,9 @@ DBHelper db;
                 cur.getString(7),
                 cur.getString(8),
                 cur.getString(9),
-                cur.getBlob(10),
-                cur.getBlob(11),
-                cur.getBlob(12));
+                cur.getString(10),
+                cur.getString(11),
+                cur.getString(12));
         }
         else
             this.Passport = new Passport(
@@ -183,21 +183,35 @@ DBHelper db;
         listenerForF1.SaveData();
         if (listenerForF2!=null)
             listenerForF2.SaveData();
-        byte[] itemImage = null;
+        String itemImagePath = null;
+
         Passport p = this.Passport;
+        Item item;
         if(CurrentItem == null){
             db.insertPassport(p);
-            int id = Integer.parseInt(db.selectLastId());
-            if(listenerForF2!=null)
-                if(((PassportSecondFragment)listenerForF2).getPhotoOption())
-                    itemImage=p.PhotoPage1;
-            db.insertItem(new Item(0, "Паспорт", "Паспорт", itemImage, 0, 0, 0, id, 0));
+            int PassportId = Integer.parseInt(db.selectLastId());
+            item = new Item(0, "Паспорт", "Паспорт", null, 0, 0, 0, PassportId, 0);
+            db.insertItem(item);
+            int ItemId = Integer.parseInt(db.selectLastId());
+
+            listenerForF1.SavePhotos(PassportId, ItemId);
+            if (listenerForF2!=null) {
+                listenerForF2.SavePhotos(PassportId, ItemId);
+                if (((PassportSecondFragment) listenerForF2).getPhotoOption())
+                    itemImagePath = p.PhotoPage1;
+            }
+            db.updatePassport(PassportId,this.Passport);
+            item.Image = itemImagePath;
+            db.updateItem(ItemId,item);
         }
         else{
-            db.updatePassport(CurrentItem.ObjectId, p);
-            if(listenerForF2!=null)
-                if(((PassportSecondFragment)listenerForF2).getPhotoOption())
+            listenerForF1.SavePhotos(CurrentItem.ObjectId,CurrentItem.Id);
+            if(listenerForF2!=null) {
+                listenerForF2.SavePhotos(CurrentItem.ObjectId, CurrentItem.Id);
+                if (((PassportSecondFragment) listenerForF2).getPhotoOption())
                     CurrentItem.Image = p.PhotoPage1;
+            }
+            db.updatePassport(CurrentItem.ObjectId, this.Passport);
             db.updateItem(CurrentItem.Id,CurrentItem);
         }
         onBackPressed();

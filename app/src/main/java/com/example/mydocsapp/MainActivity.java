@@ -1,19 +1,20 @@
 package com.example.mydocsapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.ContextCompat;
-
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 
 import com.example.mydocsapp.api.MainApi;
 import com.example.mydocsapp.api.User;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
             db.create_db();
         }
         catch (IOException e){
+            Log.e("SQLError",e.getMessage());
             e.printStackTrace();
         }
         try {

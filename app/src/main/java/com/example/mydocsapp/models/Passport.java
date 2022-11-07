@@ -14,13 +14,13 @@ public class Passport {
     public String BirthPlace;
     public String ResidencePlace;
     @Nullable
-    public byte[] FacePhoto;
+    public String FacePhoto;
     @Nullable
-    public byte[] PhotoPage1;
+    public String PhotoPage1;
     @Nullable
-    public byte[] PhotoPage2;
+    public String PhotoPage2;
 
-    public Passport(int id, String seriaNomer, String divisionCode, String giveDate, String byWhom, String FIO, String birthDate, String gender, String birthPlace, String residencePlace, byte[] facePhoto, byte[] photoPage1, byte[] photoPage2) {
+    public Passport(int id, String seriaNomer, String divisionCode, String giveDate, String byWhom, String FIO, String birthDate, String gender, String birthPlace, String residencePlace, String facePhoto, String photoPage1, String photoPage2) {
         Id = id;
         SeriaNomer = seriaNomer;
         DivisionCode = divisionCode;

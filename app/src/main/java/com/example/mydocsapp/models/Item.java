@@ -7,14 +7,14 @@ public class Item implements Parcelable {
     public int Id;
     public String Title;
     public String Type;
-    public byte[] Image;
+    public String Image;
     public int Priority;
     public int isHiden;
     public int FolderId;
     public int ObjectId;
     public int isSelected;
 
-    public Item(int id,String title, String type, byte[] image, int priority, int isHiden, int folderId, int objectId, int isSelected) {
+    public Item(int id,String title, String type, String image, int priority, int isHiden, int folderId, int objectId, int isSelected) {
         Id = id;
         Title = title;
         Type = type;
@@ -30,7 +30,7 @@ public class Item implements Parcelable {
         Id = in.readInt();
         Title = in.readString();
         Type = in.readString();
-        Image = in.createByteArray();
+        Image = in.readString();
         Priority = in.readInt();
         isHiden = in.readInt();
         FolderId = in.readInt();
@@ -60,7 +60,7 @@ public class Item implements Parcelable {
         parcel.writeInt(Id);
         parcel.writeString(Title);
         parcel.writeString(Type);
-        parcel.writeByteArray(Image);
+        parcel.writeString(Image);
         parcel.writeInt(Priority);
         parcel.writeInt(isHiden);
         parcel.writeInt(FolderId);

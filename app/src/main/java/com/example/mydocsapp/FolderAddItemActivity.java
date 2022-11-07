@@ -88,7 +88,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements ItemAdap
             item = new Item(cur.getInt(0),
                     cur.getString(1),
                     cur.getString(2),
-                    cur.getBlob(3),
+                    cur.getString(3),
                     cur.getInt(4),
                     cur.getInt(5),
                     cur.getInt(6),

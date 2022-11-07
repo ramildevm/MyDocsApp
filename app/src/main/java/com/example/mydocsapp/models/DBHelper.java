@@ -32,7 +32,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public DBHelper(Context context) {
         super(context, DB_NAME, null, SCHEMA);
         this.myContext = context;
-        DB_PATH = context.getFilesDir().getPath() +"/"+ DB_NAME;
+        context.getFilesDir().mkdir();
+        DB_PATH = context.getFilesDir().getPath() + DB_NAME;
     }
     @Override
     public void onCreate(SQLiteDatabase db) { }

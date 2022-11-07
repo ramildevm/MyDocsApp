@@ -1,5 +1,6 @@
 package com.example.mydocsapp;
 
+import static android.content.Context.MODE_PRIVATE;
 import static com.example.mydocsapp.MainPassportPatternActivity.SELECT_PAGE1_PHOTO;
 import static com.example.mydocsapp.MainPassportPatternActivity.SELECT_PAGE2_PHOTO;
 
@@ -24,6 +25,9 @@ import com.example.mydocsapp.databinding.FragmentPassportSecondBinding;
 import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class PassportSecondFragment extends Fragment implements FragmentSaveViewModel {
 
@@ -73,17 +77,17 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         Passport passport = model.getState().getValue();
         //photo load
         if(passport.PhotoPage1 != null) {
-            if (passport.PhotoPage1.length != 0) {
+            if (passport.PhotoPage1.length() != 0) {
                 binding.firstPassportPhoto.setTag(1);
                 binding.firstPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
-                binding.firstPassportPhoto.setImageBitmap(BitmapFactory.decodeByteArray(passport.PhotoPage1, 0, passport.PhotoPage1.length));
+                binding.firstPassportPhoto.setImageBitmap(BitmapFactory.decodeFile(passport.PhotoPage1));
             }
         }
         if(passport.PhotoPage2 != null) {
-            if (passport.PhotoPage2.length != 0) {
+            if (passport.PhotoPage2.length() != 0) {
                 binding.secondPassportPhoto.setTag(1);
                 binding.secondPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
-                binding.secondPassportPhoto.setImageBitmap(BitmapFactory.decodeByteArray(passport.PhotoPage2, 0, passport.PhotoPage2.length));
+                binding.secondPassportPhoto.setImageBitmap(BitmapFactory.decodeFile(passport.PhotoPage2));
             }
         }
     }
@@ -93,12 +97,35 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         Passport passport = model.getState().getValue();
         if(binding.firstPassportPhoto.getTag().toString().equals("1")) {
             byte[] imgByte = ImageSaveService.bitmapToByteArray(((BitmapDrawable) binding.firstPassportPhoto.getDrawable()).getBitmap());
-            passport.PhotoPage1 = imgByte;
+            String fileName = "Passport"+ passport.Id + "/photoPage1"+passport.SeriaNomer + ".png";
+            try {
+                FileOutputStream fileOutStream = getContext().openFileOutput(fileName, MODE_PRIVATE);
+                fileOutStream.write(imgByte);
+                fileOutStream.close();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+            passport.PhotoPage1 = fileName;
         }
-        if(binding.secondPassportPhoto.getTag().toString().equals("1")) {
-            byte[] imgByte = ImageSaveService.bitmapToByteArray(((BitmapDrawable) binding.secondPassportPhoto.getDrawable()).getBitmap());
-            passport.PhotoPage2 = imgByte;
-        }
+
+        model.setState(passport);
+    }
+
+    @Override
+    public void SavePhotos(int PassportId, int ItemId) {
+        Passport passport = model.getState().getValue();
+//        if(binding.secondPassportPhoto.getTag().toString().equals("1")) {
+//            byte[] imgByte = ImageSaveService.bitmapToByteArray(((BitmapDrawable) binding.secondPassportPhoto.getDrawable()).getBitmap());
+//            String fileName = "Passport"+ passport.Id + "/photoPage2"+passport.SeriaNomer + ".png";
+//            try {
+//                FileOutputStream fileOutStream = getContext().openFileOutput(fileName, MODE_PRIVATE);
+//                fileOutStream.write(imgByte);
+//                fileOutStream.close();
+//            } catch (IOException ioe) {
+//                ioe.printStackTrace();
+//            }
+//            passport.PhotoPage2 = fileName;
+//        }
         model.setState(passport);
     }
 

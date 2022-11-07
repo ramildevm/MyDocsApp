@@ -93,7 +93,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                         _item = new Item(cur.getInt(0),
                                 cur.getString(1),
                                 cur.getString(2),
-                                cur.getBlob(3),
+                                cur.getString(3),
                                 cur.getInt(4),
                                 cur.getInt(5),
                                 cur.getInt(6),
@@ -117,7 +117,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         }
         else {
             holder.imageView.setVisibility(View.VISIBLE);
-            Bitmap image = BitmapFactory.decodeByteArray(item.Image, 0, item.Image.length);
+            Bitmap image = BitmapFactory.decodeFile(item.Image);
             image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 150), true);
             holder.imageView.setImageBitmap(image);
         }

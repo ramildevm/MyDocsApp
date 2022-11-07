@@ -1,39 +1,43 @@
 package com.example.mydocsapp;
 
-import static android.content.Context.MODE_PRIVATE;
 import static com.example.mydocsapp.MainPassportPatternActivity.SELECT_USER_PHOTO;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.databinding.FragmentPassportFirstBinding;
 import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 
 public class PassportFirstFragment extends Fragment implements FragmentSaveViewModel {
 
+    public static final String APPLICATION_NAME = "MyDocs";
     FragmentPassportFirstBinding binding;
     PassportStateViewModel model;
+    Bitmap profilePhoto = null;
+    OutputStream out;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,13 +46,15 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
 
         }
     }
-    public void loadProfileImage(Bitmap bitmap){
+
+    public void loadProfileImage(Bitmap bitmap) {
+        profilePhoto = bitmap;
         binding.userPassportPhoto.setTag(1);
         binding.userPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
         binding.userPassportPhoto.setImageBitmap(bitmap);
     }
 
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -57,24 +63,20 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
         model = new ViewModelProvider(requireActivity()).get(PassportStateViewModel.class);
         loadData();
 
-        binding.loadProfilePhotoBtn.setOnClickListener(v->{
-            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-            photoPickerIntent.setType("image/*");
-            getActivity().startActivityForResult(photoPickerIntent,SELECT_USER_PHOTO);
-        });
-        binding.userPassportPhoto.setOnClickListener(v->{
-            Intent intent = new Intent(getActivity(),ImageActivity.class);
-            intent.putExtra("text", ((MainPassportPatternActivity)getActivity()).getCurrentItem().Title);
-
-            byte[] imageByte = ImageSaveService.bitmapToByteArray(((BitmapDrawable) binding.userPassportPhoto.getDrawable()).getBitmap());
-            String fileName = "SomeName.png";
-            try {
-                FileOutputStream fileOutStream = getContext().openFileOutput(fileName, MODE_PRIVATE);
-                fileOutStream.write(imageByte);
-                fileOutStream.close();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
+        binding.loadProfilePhotoBtn.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                getActivity().startActivityForResult(photoPickerIntent, SELECT_USER_PHOTO);
+            } else {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
             }
+        });
+        binding.userPassportPhoto.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), ImageActivity.class);
+            intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
+
+            String fileName = model.getState().getValue().FacePhoto;
             intent.putExtra("imageFile", fileName);
             getActivity().startActivity(intent);
         });
@@ -90,17 +92,17 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
         binding.editTextIssuedWhom.setText(passport.ByWhom);
         binding.editTextFullName.setText(passport.FIO);
         binding.editTextDateBirth.setText(passport.BirthDate);
-        if(passport.Gender.equals("M"))
+        if (passport.Gender.equals("M"))
             binding.maleCheck.setChecked(true);
         else
             binding.femaleCheck.setChecked(true);
         binding.editTextPlaceBirth.setText(passport.BirthPlace);
         binding.editTextPlaceResidence.setText(passport.ResidencePlace);
-        if(passport.FacePhoto != null) {
-            if (passport.FacePhoto.length != 0) {
+        if (passport.FacePhoto!=null) {
+            if (!passport.FacePhoto.isEmpty()) {
                 binding.userPassportPhoto.setTag(1);
                 binding.userPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
-                binding.userPassportPhoto.setImageBitmap(BitmapFactory.decodeByteArray(passport.FacePhoto, 0, passport.FacePhoto.length));
+                binding.userPassportPhoto.setImageBitmap(BitmapFactory.decodeFile(passport.FacePhoto));
             }
         }
     }
@@ -110,21 +112,56 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
         Passport passport = model.getState().getValue();
         passport.FacePhoto = null;
         passport.SeriaNomer = binding.editTextSeriesNumber.getText().toString();
-        passport.DivisionCode =binding.editTextDivisionCode.getText().toString();
-        passport.GiveDate =binding.editTextDateIssue.getText().toString();
-        passport.ByWhom =binding.editTextIssuedWhom.getText().toString();
+        passport.DivisionCode = binding.editTextDivisionCode.getText().toString();
+        passport.GiveDate = binding.editTextDateIssue.getText().toString();
+        passport.ByWhom = binding.editTextIssuedWhom.getText().toString();
         passport.FIO = binding.editTextFullName.getText().toString();
         passport.BirthDate = binding.editTextDateBirth.getText().toString();
-        if(binding.maleCheck.isChecked())
+        if (binding.maleCheck.isChecked())
             passport.Gender = "M";
         else
             passport.Gender = "F";
         passport.BirthPlace = binding.editTextPlaceBirth.getText().toString();
         passport.ResidencePlace = binding.editTextPlaceResidence.getText().toString();
 
-        if(binding.userPassportPhoto.getTag().toString().equals("1")) {
-            byte[] imgByte = ImageSaveService.bitmapToByteArray(((BitmapDrawable) binding.userPassportPhoto.getDrawable()).getBitmap());
-            passport.FacePhoto = imgByte;
+
+        model.setState(passport);
+    }
+
+    @Override
+    public void SavePhotos(int PassportId, int ItemId) {
+        Passport passport = model.getState().getValue();
+        if (passport.FacePhoto!=null) {
+            File filePath = getActivity().getFileStreamPath(passport.FacePhoto);
+            filePath.delete();
+        }
+        if (binding.userPassportPhoto.getTag().toString().equals("1") && profilePhoto != null) {
+            File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            String imgPath = filepath.getAbsolutePath() + "/"+ APPLICATION_NAME + "/Item" + ItemId + "/";
+            File dir = new File(imgPath);
+            if(!dir.exists())
+                dir.mkdir();
+
+            String imgName = "PassportProfileImage" + PassportId + System.currentTimeMillis() + ".jpg";
+            File imgFile = new File(dir, imgName);
+            try {
+                out = new FileOutputStream(imgFile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Log.e("FILEOUT",e.getMessage());
+            }
+            profilePhoto.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            try {
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            passport.FacePhoto = imgPath + imgName;
         }
         model.setState(passport);
     }
