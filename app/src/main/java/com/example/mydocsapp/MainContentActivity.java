@@ -8,10 +8,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
@@ -33,7 +37,6 @@ import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.ItemAdapter;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -71,7 +74,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                 CurrentFolderItemsSet = getItemsFromDb(CurrentItem.Id);
                 reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
                 setInitialData();
-                reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
+                reFillContentPanel(recyclerView, CurrentItemsSet);
             }
         });
         CurrentItem = null;
@@ -153,26 +156,22 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                     Dialog dialog = new Dialog(MainContentActivity.this);
                                     dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                                     dialog.setContentView(R.layout.folder_items_panel_layout);
-                                    dialog.getWindow().setGravity(Gravity.TOP);
+                                    dialog.getWindow().setGravity(Gravity.CENTER);
                                     dialog.setCancelable(true);
 
                                     int width = getResources().getDimensionPixelSize(R.dimen.popup_width);
                                     int height = getResources().getDimensionPixelSize(R.dimen.popup_height);
                                     dialog.getWindow().setLayout(width, height);
 
-                                    //set up text
-                                    TextView text = (TextView) dialog.findViewById(R.id.title_folder_txt);
+                                    TextView text = dialog.findViewById(R.id.title_folder_txt);
                                     text.setText(item.Title);
 
-                                    //items set
                                     CurrentFolderItemsSet = getItemsFromDb(item.Id);
 
-                                    recyclerFolderView = (RecyclerView) dialog.findViewById(R.id.folder_container);
+                                    recyclerFolderView = dialog.findViewById(R.id.folder_container);
 
                                     recyclerFolderView.setLayoutManager(new GridLayoutManager(MainContentActivity.this, 2));
-                                    // создаем адаптер
                                     ItemAdapter adapter = new ItemAdapter(MainContentActivity.this, CurrentFolderItemsSet, false);
-                                    // устанавливаем для списка адаптер
                                     recyclerFolderView.setAdapter(adapter);
                                     recyclerFolderView.addOnItemTouchListener(
                                             new RecyclerItemClickListener(MainContentActivity.this, recyclerFolderView, new RecyclerItemClickListener.OnItemClickListener() {
@@ -184,7 +183,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                                         makeRenameDialogMethod(recyclerFolderView, CurrentFolderItemsSet, "FRename");
                                                         makeRenameDialog.show();
                                                     } else if (CurrentItem.Type.equals("Паспорт")) {
-                                                        goPatternClick(view);
+                                                        Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
+                                                        intent.putExtra("item", CurrentItem);
+                                                        startActivity(intent);
                                                     }
                                                 }
 
@@ -198,25 +199,27 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                                 }
                                             }));
                                     //set buttons
-                                    Button flowButton = (Button) dialog.findViewById(R.id.flow_folder_button);
+                                    Button flowButton = dialog.findViewById(R.id.flow_folder_button);
                                     flowButton.setOnClickListener(view1 -> {
                                         Intent i = new Intent(MainContentActivity.this, FolderAddItemActivity.class);
                                         CurrentItem = item;
                                         i.putExtra("item", CurrentItem);
                                         registerForAR.launch(i);
+                                        overridePendingTransition(R.anim.alpha, R.anim.alpha_to_zero);
                                     });
 
-                                    Button hideButton = (Button) dialog.findViewById(R.id.hide_folder_btn);
+                                    Button hideButton = dialog.findViewById(R.id.hide_folder_btn);
                                     hideButton.setOnClickListener(v -> {
                                         dialog.cancel();
-                                        setInitialData();
-                                        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
                                     });
 
-                                    //now that the dialog is set up, it's time to show it
+                                    dialog.getWindow().setWindowAnimations(R.style.PauseDialogAnimation);
                                     dialog.show();
-                                } else if (item.Type.equals("Паспорт")) {
-                                    goPatternClick(view);
+                                }
+                                else if (item.Type.equals("Паспорт")) {
+                                    Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
+                                    intent.putExtra("item", CurrentItem);
+                                    startActivity(intent);
                                 }
                             }
                         }
@@ -256,6 +259,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         makeRenameDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         makeRenameDialog.setContentView(R.layout.make_rename_layout);
         makeRenameDialog.setCancelable(true);
+        makeRenameDialog.setCanceledOnTouchOutside(false);
         makeRenameDialog.getWindow().getAttributes().windowAnimations = R.style.MakeRenameDialogAnimation;
 
         EditText editText = makeRenameDialog.findViewById(R.id.folderNameTxt);
@@ -354,6 +358,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
 
     public void goPatternClick(View view) {
         Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
+        CurrentItem = null;
         intent.putExtra("item", CurrentItem);
         startActivity(intent);
     }

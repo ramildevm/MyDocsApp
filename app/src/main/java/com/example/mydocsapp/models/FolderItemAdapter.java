@@ -2,6 +2,8 @@ package com.example.mydocsapp.models;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mydocsapp.R;
+import com.example.mydocsapp.apputils.ImageSaveService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +30,8 @@ public class FolderItemAdapter extends RecyclerView.Adapter<FolderItemAdapter.Vi
 
     public FolderItemAdapter(Context context, List<Item> items, boolean isSelectMode) {
         this.context = context;
-        this.db = new DBHelper(context);
         this.items = items;
         this.inflater = LayoutInflater.from(context);
-        this.isSelectMode = isSelectMode;
     }
     @Override
     public FolderItemAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -46,6 +47,12 @@ public class FolderItemAdapter extends RecyclerView.Adapter<FolderItemAdapter.Vi
                 holder.imageView.setImageResource(R.drawable.passport_image);
             else
                 holder.imageView.setImageResource(R.drawable.passport_image);
+        }
+        else{
+            holder.imageView.setVisibility(View.VISIBLE);
+            Bitmap image = BitmapFactory.decodeFile(item.Image);
+            image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 50), true);
+            holder.imageView.setImageBitmap(image);
         }
         holder.itemPanel.setTag(item);
         holder.titleView.setText(item.Title);

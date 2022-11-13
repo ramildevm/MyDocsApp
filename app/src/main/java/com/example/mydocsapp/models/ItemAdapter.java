@@ -215,11 +215,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             notifyItemChanged(position, PAYLOAD_SELECT_MODE);
     }
 
-    public void onItemsSetChanged(List<Item> newItemSet) {
-        items = newItemSet;
-        notifyDataSetChanged();
-    }
-
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final ImageView imageView;
         final ImageView selectBtn;

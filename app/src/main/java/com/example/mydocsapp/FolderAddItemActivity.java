@@ -1,18 +1,20 @@
 package com.example.mydocsapp;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.motion.widget.MotionLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mydocsapp.apputils.RecyclerItemClickListener;
 import com.example.mydocsapp.interfaces.ItemAdapterActivity;
@@ -37,6 +39,14 @@ public class FolderAddItemActivity extends AppCompatActivity implements ItemAdap
         setContentView(R.layout.activity_folder_add_item);
         getExtraData(getIntent());
 
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                MotionLayout ml = findViewById(R.id.motion_layout);
+                ml.setTransition(R.id.transitionToEnd);
+                ml.transitionToEnd();
+            }
+        }, 100);
         db = new DBHelper(this);
         setInitialData();
         recyclerFolderView = (RecyclerView) findViewById(R.id.container);
@@ -107,6 +117,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements ItemAdap
         Intent returnIntent = new Intent();
         setResult(Activity.RESULT_CANCELED,returnIntent);
         finish();
+        overridePendingTransition(R.anim.alpha, R.anim.alpha_to_zero);
     }
 
     public void topSelectAllClick(View view) {

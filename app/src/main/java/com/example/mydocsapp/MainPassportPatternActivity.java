@@ -90,7 +90,7 @@ DBHelper db;
         model.setState(this.Passport);
 
         if(CurrentItem  == null) {
-            ((TextView) findViewById(R.id.passport_txt)).setOnClickListener(v -> {
+            (findViewById(R.id.passport_txt)).setOnClickListener(v -> {
                 if (v.getTag().equals("off")) {
                     MotionLayout ml = findViewById(R.id.motion_layout);
                     ml.setTransition(R.id.transTop);
@@ -180,10 +180,11 @@ DBHelper db;
             if(listenerForF2!=null) {
                 listenerForF2.SavePhotos(CurrentItem.ObjectId, CurrentItem.Id);
                 if (((PassportSecondFragment) listenerForF2).getPhotoOption())
-                    CurrentItem.Image = this.Passport.PhotoPage1;
+                    itemImagePath = this.Passport.PhotoPage1;
                 else
                     CurrentItem.Image = null;
             }
+            CurrentItem.Image = itemImagePath;
             db.updatePassport(CurrentItem.ObjectId, this.Passport);
             db.updateItem(CurrentItem.Id,CurrentItem);
         }

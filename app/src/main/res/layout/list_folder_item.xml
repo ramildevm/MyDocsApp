@@ -28,6 +28,7 @@
         <ImageView
             android:id="@+id/image_panel"
             android:layout_width="match_parent"
+            android:layout_marginHorizontal="3dp"
             android:layout_height="50dp"
             app:layout_constraintBottom_toBottomOf="@+id/bottom_panel"
             app:layout_constraintEnd_toEndOf="parent"
