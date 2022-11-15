@@ -159,8 +159,8 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                     dialog.getWindow().setGravity(Gravity.CENTER);
                                     dialog.setCancelable(true);
 
-                                    int width = getResources().getDimensionPixelSize(R.dimen.popup_width);
-                                    int height = getResources().getDimensionPixelSize(R.dimen.popup_height);
+                                    int width = LinearLayout.LayoutParams.MATCH_PARENT;
+                                    int height = LinearLayout.LayoutParams.MATCH_PARENT;
                                     dialog.getWindow().setLayout(width, height);
 
                                     TextView text = dialog.findViewById(R.id.title_folder_txt);

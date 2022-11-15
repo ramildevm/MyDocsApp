@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.mydocsapp.apputils.ImageSaveService;
+import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.databinding.FragmentPassportFirstBinding;
 import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
 import com.example.mydocsapp.models.Passport;
@@ -30,10 +30,16 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.NoSuchPaddingException;
 
 
 public class PassportFirstFragment extends Fragment implements FragmentSaveViewModel {
@@ -41,7 +47,6 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
     FragmentPassportFirstBinding binding;
     PassportStateViewModel model;
     Bitmap profilePhoto = null;
-    OutputStream out;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -127,6 +132,27 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             if (!passport.FacePhoto.isEmpty()) {
                 binding.userPassportPhoto.setTag(1);
                 binding.userPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
+                File outputFile = new File(passport.FacePhoto+"_copy");
+                File encFile = new File(passport.FacePhoto);
+                try {
+                    MyEncrypter.decryptToFile(((MainPassportPatternActivity)getActivity()).getMy_key(), ((MainPassportPatternActivity)getActivity()).getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
+                    binding.userPassportPhoto.setImageURI(Uri.fromFile(outputFile));
+
+                    outputFile.delete();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 Bitmap image = BitmapFactory.decodeFile(passport.FacePhoto);
                 binding.userPassportPhoto.setImageBitmap(image);
             }
@@ -164,27 +190,25 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             File dir = new File(imgPath);
             if(!dir.exists())
                 dir.mkdirs();
-            String imgName = "PassportProfileImage" + PassportId + System.currentTimeMillis() + ".jpg";
+            String imgName = "PassportProfileImage" + PassportId + System.currentTimeMillis();
             File imgFile = new File(dir, imgName);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            profilePhoto.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            InputStream is = new ByteArrayInputStream(stream.toByteArray());
             try {
-                out = new FileOutputStream(imgFile);
-            } catch (FileNotFoundException e) {
+                MyEncrypter.encryptToFile(((MainPassportPatternActivity)getActivity()).getMy_key(), ((MainPassportPatternActivity)getActivity()).getMy_spec_key(), is, new FileOutputStream(imgFile));
+            } catch (NoSuchPaddingException e) {
                 e.printStackTrace();
-                Log.e("FILEOUT",e.getMessage());
-            }
-            profilePhoto.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            try {
-                out.flush();
-            } catch (IOException e) {
+            } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
-            }
-            try {
-                out.close();
+            } catch (InvalidAlgorithmParameterException e) {
+                e.printStackTrace();
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             passport.FacePhoto = imgFile.getAbsolutePath();
-            Log.e("FILEPATH",passport.FacePhoto);
         }
         model.setState(passport);
     }

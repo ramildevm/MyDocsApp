@@ -44,6 +44,9 @@ DBHelper db;
     private FragmentSaveViewModel listenerForF1;
     private FragmentSaveViewModel listenerForF2;
 
+    private static String my_key = "r6Nuf3tD9MF0oCcA";
+    private static String my_spec_key = "yWP30I1zO92r83Kt";
+
     public static final int SELECT_USER_PHOTO = 1;
     public static final int SELECT_PAGE1_PHOTO = 2;
     public static final int SELECT_PAGE2_PHOTO = 3;
@@ -184,7 +187,8 @@ DBHelper db;
                 else
                     CurrentItem.Image = null;
             }
-            CurrentItem.Image = itemImagePath;
+            if(listenerForF2!=null)
+                CurrentItem.Image = itemImagePath;
             db.updatePassport(CurrentItem.ObjectId, this.Passport);
             db.updateItem(CurrentItem.Id,CurrentItem);
         }
@@ -212,6 +216,15 @@ DBHelper db;
     void setListenerForF2(FragmentSaveViewModel fragment2) {
         listenerForF2 = fragment2;
     }
+
+    public static String getMy_key() {
+        return my_key;
+    }
+
+    public static String getMy_spec_key() {
+        return my_spec_key;
+    }
+
     public static class MyFragmentAdapter extends FragmentStateAdapter {
         private static int NUM_ITEMS = 2;
         MainPassportPatternActivity activity;

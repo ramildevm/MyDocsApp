@@ -30,6 +30,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.mydocsapp.apputils.ImageSaveService;
+import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.databinding.FragmentPassportSecondBinding;
 import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
 import com.example.mydocsapp.models.Passport;
@@ -39,10 +40,17 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.NoSuchPaddingException;
 
 public class PassportSecondFragment extends Fragment implements FragmentSaveViewModel {
 
@@ -78,6 +86,9 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         loadData();
         binding.firstPassportPhoto.setOnClickListener(v->{
             Intent intent = new Intent(getActivity(), ImageActivity.class);
+            if(pagePhoto1!=null){
+                //TODO: create intent for bitmap
+            }
             if(model.getState().getValue().PhotoPage1!=null) {
                 intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
                 String fileName = model.getState().getValue().PhotoPage1;
@@ -121,16 +132,56 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
     private void loadData() {
         Passport passport = model.getState().getValue();
         //photo load
+        File outputFile;
+        File encFile;
         if(passport.PhotoPage1 != null) {
             if (passport.PhotoPage1.length() != 0) {
                 binding.firstPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
-                binding.firstPassportPhoto.setImageBitmap(BitmapFactory.decodeFile(passport.PhotoPage1));
+                outputFile = new File(passport.PhotoPage1+"_copy");
+                encFile = new File(passport.PhotoPage1);
+                try {
+                    MyEncrypter.decryptToFile(((MainPassportPatternActivity)getActivity()).getMy_key(), ((MainPassportPatternActivity)getActivity()).getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
+                    binding.firstPassportPhoto.setImageURI(Uri.fromFile(outputFile));
+
+                    outputFile.delete();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         if(passport.PhotoPage2 != null) {
             if (passport.PhotoPage2.length() != 0) {
                 binding.secondPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
-                binding.secondPassportPhoto.setImageBitmap(BitmapFactory.decodeFile(passport.PhotoPage2));
+                outputFile = new File(passport.PhotoPage2+"_copy");
+                encFile = new File(passport.PhotoPage2);
+                try {
+                    MyEncrypter.decryptToFile(((MainPassportPatternActivity)getActivity()).getMy_key(), ((MainPassportPatternActivity)getActivity()).getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
+                    binding.secondPassportPhoto.setImageURI(Uri.fromFile(outputFile));
+
+                    outputFile.delete();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -197,21 +248,21 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         File dir = new File(imgPath);
         if(!dir.exists())
             dir.mkdirs();
-        String imgName = fileName + PassportId + System.currentTimeMillis() + ".jpg";
+        String imgName = fileName + PassportId + System.currentTimeMillis();
         File imgFile = new File(dir, imgName);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        pagePhoto.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        InputStream is = new ByteArrayInputStream(stream.toByteArray());
         try {
-            out = new FileOutputStream(imgFile);
-        } catch (FileNotFoundException e) {
+            MyEncrypter.encryptToFile(((MainPassportPatternActivity)getActivity()).getMy_key(), ((MainPassportPatternActivity)getActivity()).getMy_spec_key(), is, new FileOutputStream(imgFile));
+        } catch (NoSuchPaddingException e) {
             e.printStackTrace();
-        }
-        pagePhoto.compress(Bitmap.CompressFormat.JPEG, 100, out);
-        try {
-            out.flush();
-        } catch (IOException e) {
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-        }
-        try {
-            out.close();
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

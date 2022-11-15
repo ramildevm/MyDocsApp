@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +16,23 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mydocsapp.MainPassportPatternActivity;
 import com.example.mydocsapp.R;
 import com.example.mydocsapp.apputils.ImageSaveService;
+import com.example.mydocsapp.apputils.MyEncrypter;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.crypto.NoSuchPaddingException;
 
 public class FolderItemAdapter extends RecyclerView.Adapter<FolderItemAdapter.ViewHolder> {
     private final LayoutInflater inflater;
@@ -50,9 +64,27 @@ public class FolderItemAdapter extends RecyclerView.Adapter<FolderItemAdapter.Vi
         }
         else{
             holder.imageView.setVisibility(View.VISIBLE);
-            Bitmap image = BitmapFactory.decodeFile(item.Image);
-            image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 50), true);
-            holder.imageView.setImageBitmap(image);
+            File outputFile = new File(item.Image+"_copy");
+            File encFile = new File(item.Image);
+            try {
+                MyEncrypter.decryptToFile(MainPassportPatternActivity.getMy_key(), MainPassportPatternActivity.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
+                Bitmap image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(outputFile));
+                image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 50), true);
+                holder.imageView.setImageBitmap(image);
+                outputFile.delete();
+            } catch (NoSuchPaddingException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (InvalidAlgorithmParameterException e) {
+                e.printStackTrace();
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         holder.itemPanel.setTag(item);
         holder.titleView.setText(item.Title);
