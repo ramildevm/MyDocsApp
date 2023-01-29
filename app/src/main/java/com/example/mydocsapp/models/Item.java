@@ -7,23 +7,26 @@ public class Item implements Parcelable {
     public int Id;
     public String Title;
     public String Type;
-    public String Image;
+    public String Image ;
     public int Priority;
     public int isHiden;
-    public int FolderId;
-    public int ObjectId;
     public int isSelected;
+    public String DateCreation;
+    public int FolderId;
+    public int UserId;
 
-    public Item(int id,String title, String type, String image, int priority, int isHiden, int folderId, int objectId, int isSelected) {
-        Id = id;
-        Title = title;
-        Type = type;
-        Image = image;
-        Priority = priority;
-        this.isHiden = isHiden;
-        FolderId = folderId;
-        ObjectId = objectId;
-        this.isSelected = isSelected;
+    public Item(int Id_,String Title_,String Type_,String Image_,int Priority_,int isHiden_,int isSelected_,String DateCreation_,int FolderId_,int UserId_)
+    {
+        this.Id = Id_;
+        this.Title = Title_;
+        this.Type = Type_;
+        this.Image = Image_;
+        this.Priority = Priority_;
+        this.isHiden = isHiden_;
+        this.isSelected = isSelected_;
+        this.DateCreation = DateCreation_;
+        this.FolderId = FolderId_;
+        this.UserId = UserId_;
     }
 
     protected Item(Parcel in) {
@@ -33,11 +36,25 @@ public class Item implements Parcelable {
         Image = in.readString();
         Priority = in.readInt();
         isHiden = in.readInt();
-        FolderId = in.readInt();
-        ObjectId = in.readInt();
         isSelected = in.readInt();
+        DateCreation = in.readString();
+        FolderId = in.readInt();
+        UserId = in.readInt();
     }
 
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(Id);
+        parcel.writeString(Title);
+        parcel.writeString(Type);
+        parcel.writeString(Image);
+        parcel.writeInt(Priority);
+        parcel.writeInt(isHiden);
+        parcel.writeInt(isSelected);
+        parcel.writeString(DateCreation);
+        parcel.writeInt(FolderId);
+        parcel.writeInt(UserId);
+    }
     public static final Creator<Item> CREATOR = new Creator<Item>() {
         @Override
         public Item createFromParcel(Parcel in) {
@@ -55,16 +72,4 @@ public class Item implements Parcelable {
         return 0;
     }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(Id);
-        parcel.writeString(Title);
-        parcel.writeString(Type);
-        parcel.writeString(Image);
-        parcel.writeInt(Priority);
-        parcel.writeInt(isHiden);
-        parcel.writeInt(FolderId);
-        parcel.writeInt(ObjectId);
-        parcel.writeInt(isSelected);
-    }
 }

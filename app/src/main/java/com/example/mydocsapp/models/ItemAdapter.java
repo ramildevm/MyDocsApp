@@ -108,8 +108,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                                 cur.getInt(4),
                                 cur.getInt(5),
                                 cur.getInt(6),
-                                cur.getInt(7),
-                                cur.getInt(8));
+                                cur.getString(7),
+                                cur.getInt(8),
+                                cur.getInt(9));
                         items.add(_item);
                     }
                     holder.recyclerFolder.setLayoutManager(new GridLayoutManager(context, 2));

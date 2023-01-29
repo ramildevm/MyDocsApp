@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResult(User user) {
                 if(user != null) {
-                    if (!password.equals(user.password.replaceAll(" ", "")) && !password.isEmpty()) {
+                    if (!password.equals(user.Password.replaceAll(" ", "")) && !password.isEmpty()) {
                         Toast msg = Toast.makeText(MainActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
                         msg.show();
                     } else {
@@ -114,15 +114,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void goGuestModeClick(View view) {
         Intent intent = new Intent(MainActivity.this, MainContentActivity.class);
-        User user = new User(getString(R.string.extra_guest),"");
+        User user = new User(0,getString(R.string.extra_guest),"","None","None",null);
         db.insertUser(user);
         startActivity(intent);
         overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
     }
 
     private void intentPutUserExtras(Intent intent, User user) {
-        intent.putExtra("user_login",user.login);
-        intent.putExtra("user_password",user.password);
+        intent.putExtra("user_login",user.Login);
+        intent.putExtra("user_password",user.Password);
     }
 
     public void switchLangClick(View view) {

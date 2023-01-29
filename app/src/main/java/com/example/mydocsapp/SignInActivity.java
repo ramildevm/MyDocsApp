@@ -59,7 +59,7 @@ public class SignInActivity extends AppCompatActivity {
             msg.show();
             return;
         }
-        MainApi.CreateUser(new User(login,password), new UserPostCallback() {
+        MainApi.CreateUser(new User(0,login,password,"None","None",null), new UserPostCallback() {
             @Override
             public void onResult(User result) {
                 if(result == null) {

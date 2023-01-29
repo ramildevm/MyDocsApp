@@ -1,4 +1,4 @@
-package com.example.mydocsapp;
+package com.example.mydocsapp.apputils;
 
 import android.graphics.Rect;
 import android.view.View;

@@ -1,19 +1,11 @@
 package com.example.mydocsapp;
 
-import static java.security.AccessController.getContext;
-
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.TransitionDrawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,11 +23,10 @@ import com.example.mydocsapp.models.DBHelper;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
-import com.theartofdev.edmodo.cropper.CropImage;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainPassportPatternActivity extends AppCompatActivity {
 DBHelper db;
@@ -120,7 +111,7 @@ DBHelper db;
     private void setDataFromDb() {
         Item item = CurrentItem;
         if(item!= null) {
-            Cursor cur = db.getPassportById(item.ObjectId);
+            Cursor cur = db.getPassportById(item.Id);
             cur.moveToFirst();
             this.Passport = new Passport(0,
                 cur.getString(1),
@@ -155,33 +146,34 @@ DBHelper db;
     }
 
     public void goBackMainPageClick(View view) {
-        //Log.e("FILE",this.Passport.FacePhoto);
         listenerForF1.SaveData();
         String itemImagePath = null;
 
         Item item;
         if(CurrentItem == null){
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+            String time = df.format(new Date());
+            item = new Item(0, "Паспорт" +db.selectLastItemId(), "Паспорт", null, 0,0,0, time, 0, 0);
+            db.insertItem(item);
+            int ItemId = db.selectLastItemId();
+            this.Passport.Id = ItemId;
+
             db.insertPassport(this.Passport);
 
-            int PassportId = Integer.parseInt(db.selectLastId());
-            item = new Item(0, "Паспорт", "Паспорт", null, 0, 0, 0, PassportId, 0);
-            db.insertItem(item);
-            int ItemId = Integer.parseInt(db.selectLastId());
-
-            listenerForF1.SavePhotos(PassportId, ItemId);
+            listenerForF1.SavePhotos(ItemId);
             if (listenerForF2!=null) {
-                listenerForF2.SavePhotos(PassportId, ItemId);
+                listenerForF2.SavePhotos(ItemId);
                 if (((PassportSecondFragment) listenerForF2).getPhotoOption())
                     itemImagePath = this.Passport.PhotoPage1;
             }
-            db.updatePassport(PassportId,this.Passport);
+            db.updatePassport(ItemId,this.Passport);
             item.Image = itemImagePath;
             db.updateItem(ItemId,item);
         }
         else{
-            listenerForF1.SavePhotos(CurrentItem.ObjectId,CurrentItem.Id);
+            listenerForF1.SavePhotos(CurrentItem.Id);
             if(listenerForF2!=null) {
-                listenerForF2.SavePhotos(CurrentItem.ObjectId, CurrentItem.Id);
+                listenerForF2.SavePhotos(CurrentItem.Id);
                 if (((PassportSecondFragment) listenerForF2).getPhotoOption())
                     itemImagePath = this.Passport.PhotoPage1;
                 else
@@ -189,13 +181,44 @@ DBHelper db;
             }
             if(listenerForF2!=null)
                 CurrentItem.Image = itemImagePath;
-            db.updatePassport(CurrentItem.ObjectId, this.Passport);
+            db.updatePassport(CurrentItem.Id, this.Passport);
             db.updateItem(CurrentItem.Id,CurrentItem);
         }
         onBackPressed();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SaveDbLog();
+    }
+    private void SaveDbLog(){
+        Cursor cur = db.getItems();
+        String it = "passport\nitems: \n";
+        String ps = "passports: \n";
+        Item item;
+        while (cur.moveToNext()) {
+            item = new Item(cur.getInt(0),
+                    cur.getString(1),
+                    cur.getString(2),
+                    cur.getString(3),
+                    cur.getInt(4),
+                    cur.getInt(5),
+                    cur.getInt(6),
+                    cur.getString(7),
+                    cur.getInt(8),
+                    cur.getInt(9));
+            it+= (item.Id + " " + item.Title + " " + item.FolderId+" \n");
+        }
+        cur = db.getPassports();
+        while (cur.moveToNext()) {
+            ps+= (cur.getInt(0)) + " \n";
+        }
+        Log.d("DBData", it);
+        Log.d("DBData", ps);
 
+
+    }
     public void goInnClick(View view) {
         startActivity(new Intent(MainPassportPatternActivity.this, INNPatternActivity.class));
     }

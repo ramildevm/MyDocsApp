@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -37,7 +38,10 @@ import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.ItemAdapter;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class MainContentActivity extends AppCompatActivity implements ItemAdapterActivity {
@@ -86,11 +90,11 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         db = new DBHelper(this);
         Cursor cur = db.getUserById(1);
         cur.moveToFirst();
-        CurrentUser = new User(cur.getString(1), cur.getString(2));
+        CurrentUser = new User(0, cur.getString(1), cur.getString(2),cur.getString(3),cur.getString(4), cur.getString(5));
 
         isSelectMode = false;
         TextView gtxt = findViewById(R.id.login_txt);
-        gtxt.setText((CurrentUser.login));
+        gtxt.setText((CurrentUser.Login));
 
         CurrentItemsSet = new ArrayList<>();
         setInitialData();
@@ -107,7 +111,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         int spanCount = 2; // 2 columns
         int spacing = 20; // 10px
         boolean includeEdge = true;
-        recyclerView.addItemDecoration(new com.example.mydocsapp.GridSpacingItemDecoration(spanCount, spacing, includeEdge));
+        recyclerView.addItemDecoration(new com.example.mydocsapp.apputils.GridSpacingItemDecoration(spanCount, spacing, includeEdge));
         setOnClickListeners();
     }
 
@@ -188,14 +192,8 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                                         startActivity(intent);
                                                     }
                                                 }
-
                                                 @Override
                                                 public void onLongItemClick(View view, int position) {
-                                                    Item folderItem = (Item) view.getTag();
-                                                    folderItem.FolderId = 0;
-                                                    db.updateItem(folderItem.Id, folderItem);
-                                                    CurrentFolderItemsSet = getItemsFromDb(item.Id);
-                                                    reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
                                                 }
                                             }));
                                     //set buttons
@@ -279,7 +277,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             if (editText.getText().toString().equals(""))
                 return;
             if (mode.equals("Make")) {
-                db.insertItem(new Item(0, editText.getText().toString(), "Папка", null, 0, 0, 0, 0, 0));
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+                String time = df.format(new Date());
+                db.insertItem(new Item(0, editText.getText().toString(), "Папка", null, 0, 0, 0, time,0, 0));
             } else {
                 Item item = CurrentItem;
                 item.Title = editText.getText().toString();
@@ -303,6 +303,38 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SaveDbLog();
+    }
+private void SaveDbLog(){
+    Cursor cur = db.getItems();
+    String it = "tems: \n";
+    String ps = "passports: \n";
+    Item item;
+    while (cur.moveToNext()) {
+        item = new Item(cur.getInt(0),
+                cur.getString(1),
+                cur.getString(2),
+                cur.getString(3),
+                cur.getInt(4),
+                cur.getInt(5),
+                cur.getInt(6),
+                cur.getString(7),
+                cur.getInt(8),
+                cur.getInt(9));
+        it+= (item.Id + " " + item.Title + " " + item.FolderId+" \n");
+    }
+    cur = db.getPassports();
+    while (cur.moveToNext()) {
+        ps+= (cur.getInt(0)) + " \n";
+    }
+    Log.d("DBData", it);
+    Log.d("DBData", ps);
+
+
+}
     private void setInitialData() {
         CurrentItemsSet.clear();
         Cursor cur = db.getItemsByFolder0();
@@ -315,10 +347,12 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                     cur.getInt(4),
                     cur.getInt(5),
                     cur.getInt(6),
-                    cur.getInt(7),
+                    cur.getString(7),
+                    cur.getInt(8),
                     cur.getInt(8));
             CurrentItemsSet.add(item);
         }
+        Log.d("DbData", "Items were loaded: " + CurrentItemsSet.size());
         CurrentItem = null;
     }
 
@@ -335,8 +369,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                     cur.getInt(4),
                     cur.getInt(5),
                     cur.getInt(6),
-                    cur.getInt(7),
-                    cur.getInt(8));
+                    cur.getString(7),
+                    cur.getInt(8),
+                    cur.getInt(9));
             folderItems.add(item);
         }
         return folderItems;
@@ -397,6 +432,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         }
     }
 
+
     public void menuMakeFolderClick(View view) {
         makeRenameDialogMethod(recyclerView, CurrentItemsSet, "Make");
         makeRenameDialog.show();
@@ -433,6 +469,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         adapter = new ItemAdapter(this, _items, isSelectMode);
         // устанавливаем для списка адаптер
         _recyclerView.setAdapter(adapter);
+        SaveDbLog();
     }
 
     void reFillContentPanel(int mode, ArrayList<Item> _items) {
@@ -523,10 +560,6 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                 catch (Exception e){
                 }
                 selectedItemsNum--;
-                if (x.ObjectId != 0) {
-                    if (x.Type.equals("Паспорт"))
-                        db.deletePassport(x.ObjectId);
-                }
             }
         }
         for (String index :

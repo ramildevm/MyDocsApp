@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -153,8 +154,6 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
                     e.printStackTrace();
                 }
 
-                Bitmap image = BitmapFactory.decodeFile(passport.FacePhoto);
-                binding.userPassportPhoto.setImageBitmap(image);
             }
         }
     }
@@ -178,7 +177,7 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
     }
 
     @Override
-    public void SavePhotos(int PassportId, int ItemId) {
+    public void SavePhotos(int ItemId) {
         Passport passport = model.getState().getValue();
         if (profilePhoto != null) {
             if (passport.FacePhoto!=null) {
@@ -190,7 +189,7 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             File dir = new File(imgPath);
             if(!dir.exists())
                 dir.mkdirs();
-            String imgName = "PassportProfileImage" + PassportId + System.currentTimeMillis();
+            String imgName = "PassportProfileImage" + ItemId + System.currentTimeMillis();
             File imgFile = new File(dir, imgName);
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             profilePhoto.compress(Bitmap.CompressFormat.JPEG, 100, stream);

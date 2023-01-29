@@ -102,8 +102,9 @@ public class FolderAddItemActivity extends AppCompatActivity implements ItemAdap
                     cur.getInt(4),
                     cur.getInt(5),
                     cur.getInt(6),
-                    cur.getInt(7),
-                    cur.getInt(8));
+                    cur.getString(7),
+                    cur.getInt(8),
+                    cur.getInt(9));
             if(item.FolderId == CurrentItem.Id){
                 item.isSelected = 1;
                 selectedItemsNum++;

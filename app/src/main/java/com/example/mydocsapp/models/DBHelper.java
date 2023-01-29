@@ -80,7 +80,8 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("Priority",item.Priority);
         cv.put("isHiden",item.isHiden);
         cv.put("FolderId",item.FolderId);
-        cv.put("ObjectId",item.ObjectId);
+        cv.put("DateCreation",item.DateCreation);
+        cv.put("UserId",item.UserId);
         cv.put("isSelected",item.isSelected);
         long result = db.insert("Item",null,cv);
         if (result ==-1)
@@ -97,7 +98,8 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("Priority",item.Priority);
         cv.put("isHiden",item.isHiden);
         cv.put("FolderId",item.FolderId);
-        cv.put("ObjectId",item.ObjectId);
+        cv.put("DateCreation",item.DateCreation);
+        cv.put("UserId",item.UserId);
         cv.put("isSelected",item.isSelected);
         long result = db.update("Item",cv,"id=?", new String[]{""+id});
         if (result <=0)
@@ -140,11 +142,29 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         }
     }
+
+    @SuppressLint("Range")
+    public int selectLastItemId(){
+        SQLiteDatabase db = open();
+        Cursor cur = db.rawQuery("SELECT rowid from Item order by ROWID DESC limit 1",null);
+        cur.moveToFirst();
+        int id;
+        if(cur!=null && cur.getCount()>0)
+            id = cur.getInt(0);
+        else
+            id = 0;
+        return id;
+    }
     //*********************************************************************************************
     //Passport table
     public Cursor getPassportById(int objectId) {
         SQLiteDatabase db = open();
         Cursor cursor = db.rawQuery("select * from Passport where Id=?", new String[]{""+objectId});
+        return cursor;
+    }
+    public Cursor getPassports() {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Passport", null);
         return cursor;
     }
     public Boolean deletePassport(int id){
@@ -181,6 +201,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public Boolean insertPassport(Passport passport){
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        cv.put("Id",passport.Id);
         cv.put("SeriaNomer",passport.SeriaNomer);
         cv.put("DivisionCode",passport.DivisionCode);
         cv.put("GiveDate",passport.GiveDate);
@@ -199,14 +220,6 @@ public class DBHelper extends SQLiteOpenHelper {
         else {
             return true;
         }
-    }
-    @SuppressLint("Range")
-    public String selectLastId(){
-        SQLiteDatabase db = open();
-        Cursor cur = db.rawQuery("SELECT * FROM SQLITE_SEQUENCE where name=?",new String[]{"Passport"});
-        cur.moveToFirst();
-        String id = cur.getString(cur.getColumnIndex("seq"));
-        return id;
     }
 
     //*********************************************************************************************
@@ -229,8 +242,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public Boolean updateUser(int id, User user){
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Login",user.login);
-        cv.put("Password",user.password);
+        cv.put("Login",user.Login);
+        cv.put("Password",user.Password);
         long result = db.update("User",cv,"id=?", new String[]{""+id});
         if (result <=0)
             return false;
@@ -241,8 +254,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public Boolean insertUser(User user){
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Login",user.login);
-        cv.put("Password",user.password);
+        cv.put("Login",user.Login);
+        cv.put("Password",user.Password);
+        cv.put("PremiumStatus",user.PremiumStatus);
+        cv.put("Syncing",user.Syncing);
+        cv.put("Photo",user.Photo);
         long result = db.insert("User",null,cv);
         if (result <=0)
             return false;

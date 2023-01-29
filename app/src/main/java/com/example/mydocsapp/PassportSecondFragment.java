@@ -222,33 +222,33 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
     }
 
     @Override
-    public void SavePhotos(int PassportId, int ItemId) {
+    public void SavePhotos(int ItemId) {
         Passport passport = model.getState().getValue();
         if (pagePhoto1 != null) {
             if (passport.PhotoPage1!=null) {
                 File filePath = new File(passport.PhotoPage1);
                 filePath.delete();
             }
-            passport.PhotoPage1 = savePhotoToFile(PassportId, ItemId,pagePhoto1,"PassportPagePhotoFirst");
+            passport.PhotoPage1 = savePhotoToFile(ItemId, pagePhoto1,"PassportPagePhotoFirst");
         }
         if (pagePhoto2 != null) {
             if (passport.PhotoPage2 != null) {
                 File filePath = new File(passport.PhotoPage2);
                 filePath.delete();
             }
-            passport.PhotoPage2 = savePhotoToFile(PassportId, ItemId,pagePhoto2, "PassportPagePhotoSecond");
+            passport.PhotoPage2 = savePhotoToFile(ItemId, pagePhoto2, "PassportPagePhotoSecond");
         }
         model.setState(passport);
     }
 
     @NonNull
-    private String savePhotoToFile(int PassportId, int ItemId, Bitmap pagePhoto, String fileName) {
+    private String savePhotoToFile(int ItemId, Bitmap pagePhoto, String fileName) {
         File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         String imgPath = filepath.getAbsolutePath() + "/"+ MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
         File dir = new File(imgPath);
         if(!dir.exists())
             dir.mkdirs();
-        String imgName = fileName + PassportId + System.currentTimeMillis();
+        String imgName = fileName + ItemId + System.currentTimeMillis();
         File imgFile = new File(dir, imgName);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         pagePhoto.compress(Bitmap.CompressFormat.JPEG, 100, stream);
