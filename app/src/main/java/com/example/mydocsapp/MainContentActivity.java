@@ -9,14 +9,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
@@ -36,17 +33,16 @@ import com.example.mydocsapp.interfaces.ItemAdapterActivity;
 import com.example.mydocsapp.models.DBHelper;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.ItemAdapter;
+import com.example.mydocsapp.services.CurrentItemsService;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 public class MainContentActivity extends AppCompatActivity implements ItemAdapterActivity {
     RecyclerView recyclerView;
-    String filterOption = "All";
     DBHelper db;
     boolean isSelectMode;
     boolean isSortMode = false;
@@ -55,15 +51,15 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     private RecyclerView recyclerFolderView;
     Dialog makeRenameDialog;
     ItemAdapter adapter;
+    CurrentItemsService itemsService;
 
     private User CurrentUser;
-    private Item CurrentItem;
-    private ArrayList<Item> CurrentItemsSet;
     private ArrayList<Item> CurrentFolderItemsSet;
     private boolean isTitleClicked = false;
 
     public static final int RECYCLER_ADAPTER_EVENT_CHANGE = 1;
     public static final int RECYCLER_ADAPTER_EVENT_MOVE = 2;
+    private static final int RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE = 3;
 
     public static final String APPLICATION_NAME = "MyDocs";
 
@@ -75,15 +71,12 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         registerForAR = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
-                CurrentFolderItemsSet = getItemsFromDb(CurrentItem.Id);
+                CurrentFolderItemsSet = getItemsFromDb(itemsService.getCurrentItem().Id);
                 reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
-                setInitialData();
-                reFillContentPanel(recyclerView, CurrentItemsSet);
+                itemsService.setInitialData();
+                reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
             }
         });
-        CurrentItem = null;
-        CurrentFolderItemsSet = null;
-        isTitleClicked = false;
 
         // начальная инициализация списка
         // создаем базу данных
@@ -93,17 +86,22 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         CurrentUser = new User(0, cur.getString(1), cur.getString(2),cur.getString(3),cur.getString(4), cur.getString(5));
 
         isSelectMode = false;
+
         TextView gtxt = findViewById(R.id.login_txt);
         gtxt.setText((CurrentUser.Login));
 
-        CurrentItemsSet = new ArrayList<>();
-        setInitialData();
-        setSelectedPropertyZero();
+        itemsService = new CurrentItemsService(db);
+        itemsService.setInitialData();
+        itemsService.setSelectedPropertyZero();
+
+        CurrentFolderItemsSet = null;
+        isTitleClicked = false;
+
         setViewsTagOff();
         recyclerView = findViewById(R.id.container);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         // создаем адаптер
-        adapter = new ItemAdapter(this, CurrentItemsSet, isSelectMode);
+        adapter = new ItemAdapter(this, itemsService.getCurrentItemsSet(), isSelectMode);
         //adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
         // устанавливаем для списка адаптер
         recyclerView.setAdapter(adapter);
@@ -115,14 +113,6 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         setOnClickListeners();
     }
 
-    private void setSelectedPropertyZero() {
-        for (Item x : CurrentItemsSet) {
-            int id = CurrentItemsSet.indexOf(x);
-            x.isSelected = 0;
-            CurrentItemsSet.set(id, x);
-            db.updateItem(x.Id, x);
-        }
-    }
 
     private ArrayList<String> selectedItemsSet = new ArrayList<>();
 
@@ -146,14 +136,14 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                 selectedItemsSet.remove(position + "");
                             }
                             view.setTag(item);
-                            CurrentItemsSet.set(position, item);
+                            itemsService.setItem(position, item);
                             adapter.onItemChanged(item);
 
                             ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
                         } else {
-                            CurrentItem = item;
+                            itemsService.setCurrentItem(item);
                             if (isTitleClicked) {
-                                makeRenameDialogMethod(recyclerView, CurrentItemsSet, "Rename");
+                                makeRenameDialogMethod(itemsService.getCurrentItemsSet(), "Rename");
                                 makeRenameDialog.show();
                             } else {
                                 if (item.Type.equals("Папка")) {
@@ -182,13 +172,13 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                                 @RequiresApi(api = Build.VERSION_CODES.Q)
                                                 @Override
                                                 public void onItemClick(View view, int position) {
-                                                    CurrentItem = (Item) view.getTag();
+                                                    itemsService.setCurrentItem((Item) view.getTag());
                                                     if (isTitleClicked) {
-                                                        makeRenameDialogMethod(recyclerFolderView, CurrentFolderItemsSet, "FRename");
+                                                        makeRenameDialogMethod(CurrentFolderItemsSet, "FRename");
                                                         makeRenameDialog.show();
-                                                    } else if (CurrentItem.Type.equals("Паспорт")) {
+                                                    } else if (itemsService.getCurrentItem().Type.equals("Паспорт")) {
                                                         Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
-                                                        intent.putExtra("item", CurrentItem);
+                                                        intent.putExtra("item", itemsService.getCurrentItem());
                                                         startActivity(intent);
                                                     }
                                                 }
@@ -200,8 +190,8 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                     Button flowButton = dialog.findViewById(R.id.flow_folder_button);
                                     flowButton.setOnClickListener(view1 -> {
                                         Intent i = new Intent(MainContentActivity.this, FolderAddItemActivity.class);
-                                        CurrentItem = item;
-                                        i.putExtra("item", CurrentItem);
+                                        itemsService.setCurrentItem(item);
+                                        i.putExtra("item", itemsService.getCurrentItem());
                                         registerForAR.launch(i);
                                         overridePendingTransition(R.anim.alpha, R.anim.alpha_to_zero);
                                     });
@@ -216,7 +206,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                 }
                                 else if (item.Type.equals("Паспорт")) {
                                     Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
-                                    intent.putExtra("item", CurrentItem);
+                                    intent.putExtra("item", itemsService.getCurrentItem());
                                     startActivity(intent);
                                 }
                             }
@@ -240,10 +230,10 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                             selectedItemsNum = 1;
                             ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + +selectedItemsNum);
 
-                            CurrentItemsSet.set(position, item);
+                            itemsService.setItem(position, item);
                             view.setTag(item);
 
-                            reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
+                            reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
                         }
                     }
                 })
@@ -252,7 +242,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         flowBtn.setOnClickListener(view -> openAddMenuClick(view));
     }
 
-    private void makeRenameDialogMethod(RecyclerView recyclerView, ArrayList<Item> items, String mode) {
+    private void makeRenameDialogMethod(ArrayList<Item> items, String mode) {
         makeRenameDialog = new Dialog(MainContentActivity.this);
         makeRenameDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         makeRenameDialog.setContentView(R.layout.make_rename_layout);
@@ -271,7 +261,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             editText.setText("");
         } else {
             ((Button) makeRenameDialog.findViewById(R.id.make_rename_item_btn)).setText(R.string.rename_an_item);
-            editText.append(CurrentItem.Title);
+            editText.append(itemsService.getCurrentItem().Title);
         }
         makeRenameDialog.findViewById(R.id.make_rename_item_btn).setOnClickListener(view2 -> {
             if (editText.getText().toString().equals(""))
@@ -281,23 +271,23 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                 String time = df.format(new Date());
                 db.insertItem(new Item(0, editText.getText().toString(), "Папка", null, 0, 0, 0, time,0, 0));
             } else {
-                Item item = CurrentItem;
+                Item item = itemsService.getCurrentItem();
                 item.Title = editText.getText().toString();
                 db.updateItem(item.Id, item);
             }
             if (mode.equals("Rename") | mode.equals("Make")) {
-                setInitialData();
+                itemsService.setInitialData();
                 reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, items);
             } else if (mode.equals("FRename")) {
-                CurrentFolderItemsSet = getItemsFromDb(CurrentItem.FolderId);
+                CurrentFolderItemsSet = getItemsFromDb(itemsService.getCurrentItem().FolderId);
                 reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentFolderItemsSet);
             }
             isTitleClicked = false;
-            CurrentItem = null;
+            itemsService.setCurrentItem(null);
             makeRenameDialog.dismiss();
         });
         makeRenameDialog.findViewById(R.id.cancel_btn).setOnClickListener(view12 -> {
-            CurrentItem = null;
+            itemsService.setCurrentItem(null);
             isTitleClicked = false;
             makeRenameDialog.dismiss();
         });
@@ -308,7 +298,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         super.onResume();
         SaveDbLog();
     }
-private void SaveDbLog(){
+    private void SaveDbLog(){
     Cursor cur = db.getItems();
     String it = "tems: \n";
     String ps = "passports: \n";
@@ -335,27 +325,6 @@ private void SaveDbLog(){
 
 
 }
-    private void setInitialData() {
-        CurrentItemsSet.clear();
-        Cursor cur = db.getItemsByFolder0();
-        Item item;
-        while (cur.moveToNext()) {
-            item = new Item(cur.getInt(0),
-                    cur.getString(1),
-                    cur.getString(2),
-                    cur.getString(3),
-                    cur.getInt(4),
-                    cur.getInt(5),
-                    cur.getInt(6),
-                    cur.getString(7),
-                    cur.getInt(8),
-                    cur.getInt(8));
-            CurrentItemsSet.add(item);
-        }
-        Log.d("DbData", "Items were loaded: " + CurrentItemsSet.size());
-        CurrentItem = null;
-    }
-
     private ArrayList<Item> getItemsFromDb(int id) {
         ArrayList<Item> folderItems = new ArrayList<>();
 
@@ -393,8 +362,8 @@ private void SaveDbLog(){
 
     public void goPatternClick(View view) {
         Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
-        CurrentItem = null;
-        intent.putExtra("item", CurrentItem);
+        itemsService.setCurrentItem(null);
+        intent.putExtra("item", itemsService.getCurrentItem());
         startActivity(intent);
     }
 
@@ -434,34 +403,50 @@ private void SaveDbLog(){
 
 
     public void menuMakeFolderClick(View view) {
-        makeRenameDialogMethod(recyclerView, CurrentItemsSet, "Make");
+        makeRenameDialogMethod(itemsService.getCurrentItemsSet(), "Make");
         makeRenameDialog.show();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortFolderClick(View view) {
-        ArrayList<Item> _items = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> x.Type.equals("Папка")).collect(Collectors.toList()));
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, _items);
+        if(itemsService.isFoldersAvailable)
+            view.setAlpha(0.5f);
+        else
+            view.setAlpha(1f);
+        itemsService.isFoldersAvailable = !itemsService.isFoldersAvailable;
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortCardClick(View view) {
-        ArrayList<Item> _items = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> x.Type.equals("Карта")).collect(Collectors.toList()));
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, _items);
+
+        if(itemsService.isCardsAvailable)
+            view.setAlpha(0.5f);
+        else
+            view.setAlpha(1f);
+        itemsService.isCardsAvailable = !itemsService.isCardsAvailable;
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortImageClick(View view) {
-        ArrayList<Item> _items = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> x.Type.equals("Картинка")).collect(Collectors.toList()));
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, _items);
+
+        if(itemsService.isImagesAvailable)
+            view.setAlpha(0.5f);
+        else
+            view.setAlpha(1f);
+        itemsService.isImagesAvailable = !itemsService.isImagesAvailable;
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortDocClick(View view) {
-        ArrayList<Item> _items = new ArrayList<>(CurrentItemsSet.stream()
-                .filter((x) -> !x.Type.equals("Картинка") & !x.Type.equals("Карта") & !x.Type.equals("Папка"))
-                .collect(Collectors.toList()));
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, _items);
+        if(itemsService.isDocsAvailable)
+            view.setAlpha(0.5f);
+        else
+            view.setAlpha(1f);
+        itemsService.isDocsAvailable = !itemsService.isDocsAvailable;
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
     }
 
     void reFillContentPanel(RecyclerView _recyclerView, ArrayList<Item> _items) {
@@ -482,13 +467,13 @@ private void SaveDbLog(){
                 }
                 break;
             case RECYCLER_ADAPTER_EVENT_MOVE:
-                ArrayList<Item> oldItems = CurrentItemsSet;
-                setInitialData();
+                ArrayList<Item> oldItems = itemsService.getCurrentItemsSet();
+                itemsService.setInitialData();
                 int oldPosition;
                 int newPosition;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     for (Item newItem :
-                            CurrentItemsSet) {
+                            itemsService.getCurrentItemsSet()) {
                         Item oldItem = oldItems.stream().filter(item -> item.Id == newItem.Id).findFirst().get();
                         if (oldItem != null) {
                             oldPosition = oldItems.indexOf(oldItem);
@@ -496,25 +481,33 @@ private void SaveDbLog(){
                         }
                     }
                     for (Item newItem:
-                            CurrentItemsSet) {
+                            itemsService.getCurrentItemsSet()) {
                         Item oldItem = oldItems.stream().filter(item -> item.Id == newItem.Id).findFirst().get();
                         if (oldItem != null) {
                             oldPosition = oldItems.indexOf(oldItem);
-                            newPosition = CurrentItemsSet.indexOf(newItem);
+                            newPosition = itemsService.getCurrentItemsSet().indexOf(newItem);
                             adapter.onItemMoved(oldPosition,newPosition);
                         }
                     }
                 }
                 break;
+            case(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE):
+                adapter.onItemSetChange(itemsService.getCurrentItemsSet());
+                break;
         }
     }
 
     public void sortCancelClick(View view) {
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
+        itemsService.isCardsAvailable = itemsService.isDocsAvailable=itemsService.isFoldersAvailable=itemsService.isImagesAvailable=true;
+        findViewById(R.id.flow_sort_card_btn).setAlpha(1f);
+        findViewById(R.id.flow_sort_doc_btn).setAlpha(1f);
+        findViewById(R.id.flow_sort_image_btn).setAlpha(1f);
+        findViewById(R.id.flow_sort_folder_btn).setAlpha(1f);
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
     }
 
     public void bottomPinClick(View view) {
-        for(Item x: CurrentItemsSet){
+        for(Item x: itemsService.getCurrentItemsSet()){
             if (x.isSelected == 1) {
                 x.Priority = (x.Priority == 1) ? 0 : 1;
                 x.isSelected = 0;
@@ -522,13 +515,13 @@ private void SaveDbLog(){
                 db.updateItem(x.Id, x);
             }
         }
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_MOVE, CurrentItemsSet);
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_MOVE, itemsService.getCurrentItemsSet());
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
     }
 
     public void bottomHideClick(View view) {
         for (Item x :
-                CurrentItemsSet) {
+                itemsService.getCurrentItemsSet()) {
             if (x.isSelected == 1) {
                 x.isHiden = 1;
                 x.isSelected = 0;
@@ -536,13 +529,13 @@ private void SaveDbLog(){
                 db.updateItem(x.Id, x);
             }
         }
-        setInitialData();
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
+        itemsService.setInitialData();
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
     }
 
     public void bottomDeleteClick(View view) {
-        for (Item x : CurrentItemsSet) {
+        for (Item x : itemsService.getCurrentItemsSet()) {
             if (x.isSelected == 1) {
                 db.deleteItem(x.Id);
                 try{
@@ -559,6 +552,9 @@ private void SaveDbLog(){
                 }
                 catch (Exception e){
                 }
+                if(x.Type.equals("Папка")){
+                    deleteFolderContent(x.Id);
+                }
                 selectedItemsNum--;
             }
         }
@@ -566,22 +562,45 @@ private void SaveDbLog(){
                 selectedItemsSet) {
             adapter.onItemDelete(Integer.valueOf(index));
         }
-        setInitialData();
+        itemsService.setInitialData();
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
+    }
+
+    private void deleteFolderContent(int id) {
+        Cursor cur = db.getItemsByFolder(id);
+        ArrayList<Item> folderItems = new ArrayList<>();
+        Item item;
+        while (cur.moveToNext()) {
+            item = new Item(cur.getInt(0),
+                    cur.getString(1),
+                    cur.getString(2),
+                    cur.getString(3),
+                    cur.getInt(4),
+                    cur.getInt(5),
+                    cur.getInt(6),
+                    cur.getString(7),
+                    cur.getInt(8),
+                    cur.getInt(8));
+            folderItems.add(item);
+        }
+        for (Item fitem:
+             folderItems) {
+            db.deleteItem(fitem.Id);
+        }
     }
 
     public void topSelectAllClick(View view) {
         selectedItemsNum = 0;
         for (Item x :
-                CurrentItemsSet) {
-            int newItemId = CurrentItemsSet.indexOf(x);
+                itemsService.getCurrentItemsSet()) {
+            int newItemId = itemsService.getCurrentItemsSet().indexOf(x);
             x.isSelected = 1;
-            CurrentItemsSet.set(newItemId, x);
+            itemsService.setItem(newItemId, x);
             selectedItemsNum++;
         }
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
 
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
     }
 
     public void topSelectBackClick(View view) {
@@ -589,19 +608,19 @@ private void SaveDbLog(){
         ml.setTransition(R.id.transGoSelect);
         ml.transitionToStart();
         isSelectMode = false;
-        setSelectedPropertyZero();
-        setInitialData();
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
+        itemsService.setSelectedPropertyZero();
+        itemsService.setInitialData();
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
     }
 
     @Override
     public void onBackPressed() {
-        setInitialData();
-        setSelectedPropertyZero();
+        itemsService.setInitialData();
+        itemsService.setSelectedPropertyZero();
         if (isTitleClicked) {
             isTitleClicked = false;
-            CurrentItem = null;
-            reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentItemsSet);
+            itemsService.setCurrentItem(null);
+            reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
             return;
         }
         if (isSelectMode) {

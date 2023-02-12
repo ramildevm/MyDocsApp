@@ -143,15 +143,15 @@ public class FolderAddItemActivity extends AppCompatActivity implements ItemAdap
     }
     public void saveSelectedClick(View view) {
         for (Item x: items) {
+            int flag;
             if(x.isSelected == 1) {
-                x.FolderId = CurrentItem.Id;
+                flag = CurrentItem.Id;
             }
             else{
-                x.FolderId = 0;
+                flag = 0;
             }
-            x.isSelected = 0;
             selectedItemsNum--;
-            db.updateItem(x.Id, x);
+            db.updateItemFolder(x.Id, flag);
         }
         setInitialData();
         reFillContentPanel(recyclerFolderView,items);

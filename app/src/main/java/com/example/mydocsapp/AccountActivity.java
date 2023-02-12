@@ -28,6 +28,10 @@ public class AccountActivity extends AppCompatActivity {
         NavUtils.navigateUpFromSameTask(this);
         overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
     }
+    public void changeAccountClickBack(View view) {
+        startActivity(new Intent(this, MainActivity.class));
+        overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
+    }
 
     public void goMainActivityClick(View view) {
         NavUtils.navigateUpFromSameTask(this);

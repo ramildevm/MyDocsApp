@@ -54,6 +54,8 @@ import javax.crypto.NoSuchPaddingException;
 
 public class PassportSecondFragment extends Fragment implements FragmentSaveViewModel {
 
+    private static final int BITMAP_IMAGE = 0;
+    private static final int DB_IMAGE = 1;
     FragmentPassportSecondBinding binding;
     PassportStateViewModel model;
     private Bitmap pagePhoto1;
@@ -92,6 +94,12 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
             if(model.getState().getValue().PhotoPage1!=null) {
                 intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
                 String fileName = model.getState().getValue().PhotoPage1;
+                if(pagePhoto1!=null){
+                    fileName = ImageSaveService.createImageFromBitmap(pagePhoto1,getContext());
+                    intent.putExtra("type", BITMAP_IMAGE);
+                }
+                else
+                    intent.putExtra("type", DB_IMAGE);
                 intent.putExtra("imageFile", fileName);
                 getActivity().startActivity(intent);
             }
@@ -101,6 +109,12 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
             if(model.getState().getValue().PhotoPage2!=null) {
                 intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
                 String fileName = model.getState().getValue().PhotoPage2;
+                if(pagePhoto2!=null){
+                    fileName = ImageSaveService.createImageFromBitmap(pagePhoto2,getContext());
+                    intent.putExtra("type", BITMAP_IMAGE);
+                }
+                else
+                    intent.putExtra("type", DB_IMAGE);
                 intent.putExtra("imageFile", fileName);
                 getActivity().startActivity(intent);
             }

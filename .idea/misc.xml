@@ -28,7 +28,7 @@
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_border_whitegray.xml" value="0.147" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_border_yellow.xml" value="0.2125" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_button.xml" value="0.2185" />
-        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_account.xml" value="0.152" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_account.xml" value="0.136" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_card_pattern.xml" value="0.264" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_folder_add_item.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_image.xml" value="0.13854166666666667" />
@@ -43,7 +43,7 @@
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_sign_in.xml" value="0.4" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_snils_pattern.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/folder_items_panel_layout.xml" value="0.264" />
-        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/fragment_passport_first.xml" value="0.536" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/fragment_passport_first.xml" value="0.264" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/fragment_passport_second.xml" value="0.1796875" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/item_panel_layout.xml" value="0.20625" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/items_panel_layout.xml" value="0.18541666666666667" />

@@ -114,9 +114,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void goGuestModeClick(View view) {
         Intent intent = new Intent(MainActivity.this, MainContentActivity.class);
-        User user = new User(0,getString(R.string.extra_guest),"","None","None",null);
-        db.insertUser(user);
-        startActivity(intent);
+        User user = new User(1,getString(R.string.extra_guest),"","None","None",null);
+        Boolean i = db.insertUser(user);
+        if(i)
+            startActivity(intent);
+        else {
+            Log.e("DEadProg", "CHe to ne robit");
+            this.onBackPressed();
+        }
+
         overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
     }
 

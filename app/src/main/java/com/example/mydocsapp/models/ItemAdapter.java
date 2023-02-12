@@ -95,6 +95,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         if (item.Image == null) {
             if (item.Type.equals("Папка")) {
                 holder.imageView.setVisibility(View.INVISIBLE);
+                holder.recyclerFolder.setVisibility(View.VISIBLE);
                 if (db.getItemFolderItemsCount(item.Id) > 0) {
                     ArrayList<Item> items = new ArrayList<>();
                     Cursor cur = db.getItemsByFolder(item.Id);
@@ -119,16 +120,19 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 }
             }
             else if (item.Type.equals("Паспорт")){
+                holder.recyclerFolder.setVisibility(View.INVISIBLE);
                 holder.imageView.setImageResource(R.drawable.passport_image);
                 holder.imageView.setVisibility(View.VISIBLE);
             }
             else{
+                holder.recyclerFolder.setVisibility(View.INVISIBLE);
                 holder.imageView.setImageResource(R.drawable.passport_image);
                 holder.imageView.setVisibility(View.VISIBLE);
             }
         }
         else {
             holder.imageView.setVisibility(View.VISIBLE);
+            holder.recyclerFolder.setVisibility(View.INVISIBLE);
             File outputFile = new File(item.Image+"_copy");
             File encFile = new File(item.Image);
             try {
@@ -209,6 +213,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     public void onItemDelete(int position) {
         items.remove(position);
         notifyItemRemoved(position);
+    }
+    public void onItemSetChange(ArrayList<Item> _items) {
+        items = _items;
+        notifyDataSetChanged();
     }
 
     public void onItemMoved(int oldPosition, int newPosition) {

@@ -175,13 +175,14 @@
             android:id="@+id/f_n"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="220dp"
             android:layout_marginLeft="45dp"
+            android:layout_marginTop="220dp"
+            android:fontFamily="sans-serif"
             android:text="Full name"
             android:textColor="@color/white"
             android:textSize="14dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/editTextFullName"

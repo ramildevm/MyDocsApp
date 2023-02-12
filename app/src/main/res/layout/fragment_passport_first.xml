@@ -13,7 +13,7 @@
         android:layout_height="170dp"
         android:layout_marginLeft="35dp"
         android:layout_marginTop="30dp"
-        android:background="#C4C4C4"
+        android:background="@drawable/view_round_white"
         android:tag="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,278 +27,305 @@
         app:layout_constraintEnd_toEndOf="@id/user_passport_photo"
         app:layout_constraintBottom_toBottomOf="@id/user_passport_photo"/>
 
-    <TextView
-        android:id="@+id/s_n"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="@string/series_and_number"
-        android:textColor="@color/white"
-        android:textSize="14dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/user_passport_photo"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.santalu.maskara.widget.MaskEditText
-        android:id="@+id/editTextSeriesNumber"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="55dp"
-        android:background="#C4C4C4"
-        android:digits="1234567890"
-        android:ems="10"
-        android:hint="____ ______"
-        android:paddingLeft="4dp"
-        android:textColor="#000"
-        android:textColorHint="#757575"
-        android:textSize="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/user_passport_photo"
-        app:layout_constraintTop_toTopOf="parent"
-        app:mask="#### ######" />
-
-    <TextView
-        android:id="@+id/d_c"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="140dp"
-        android:text="@string/division_code"
-        android:textColor="@color/white"
-        android:textSize="14dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/user_passport_photo"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.santalu.maskara.widget.MaskEditText
-        android:id="@+id/editTextDivisionCode"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="165dp"
-        android:background="#C4C4C4"
-        android:digits="1234567890"
-        android:ems="10"
-        android:hint="___-___"
-        android:paddingLeft="4dp"
-        android:textColor="#000"
-        android:textColorHint="#757575"
-        android:textSize="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/user_passport_photo"
-        app:layout_constraintTop_toTopOf="parent"
-        app:mask="###-###" />
-
-    <TextView
-        android:id="@+id/d_i"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="85dp"
-        android:text="@string/date_of_issue"
-        android:textColor="@color/white"
-        android:textSize="14dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/user_passport_photo"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.santalu.maskara.widget.MaskEditText
-        android:id="@+id/editTextDateIssue"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="110dp"
-        android:background="#C4C4C4"
-        android:digits="1234567890"
-        android:ems="10"
-        android:hint="@string/date_pattern"
-        android:paddingLeft="4dp"
-        android:textColor="#000"
-        android:textColorHint="#757575"
-        android:textSize="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/user_passport_photo"
-        app:layout_constraintTop_toTopOf="parent"
-        app:mask="##.##.####" />
-
-    <TextView
-        android:id="@+id/i_w"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="45dp"
-        android:layout_marginTop="220dp"
-        android:text="@string/issued_by_whom"
-        android:textColor="@color/white"
-        android:textSize="14dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/editTextIssuedWhom"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginLeft="35dp"
-        android:layout_marginTop="245dp"
-        android:layout_marginRight="35dp"
-        android:background="#C4C4C4"
-        android:ems="10"
-        android:textColor="#000"
-        android:textSize="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/f_n"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="45dp"
-        android:layout_marginTop="290dp"
-        android:text="@string/full_name"
-        android:textColor="@color/white"
-        android:textSize="14dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/editTextFullName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="35dp"
-        android:layout_marginTop="315dp"
-        android:layout_marginRight="25dp"
-        android:background="#C4C4C4"
-        android:ems="10"
-        android:textColor="#000"
-        android:textSize="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/d_b"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="45dp"
-        android:layout_marginTop="340dp"
-        android:text="@string/date_of_birth"
-        android:textColor="@color/white"
-        android:textSize="14dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.santalu.maskara.widget.MaskEditText
-        android:id="@+id/editTextDateBirth"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="35dp"
-        android:layout_marginTop="365dp"
-        android:background="#C4C4C4"
-        android:digits="1234567890"
-        android:ems="10"
-        android:hint="@string/date_pattern"
-        android:paddingLeft="4dp"
-        android:textColor="#000"
-        android:textColorHint="#757575"
-        android:textSize="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:mask="##.##.####" />
-
-    <TextView
-        android:id="@+id/gender"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="365dp"
-        android:text="@string/gender"
-        android:textColor="@color/white"
-        android:textSize="14dp"
-        app:layout_constraintEnd_toStartOf="@+id/rgroup"
-        app:layout_constraintStart_toEndOf="@id/editTextDateBirth"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <RadioGroup
-        android:id="@+id/rgroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="360dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/gender"
+        app:layout_constraintStart_toEndOf="@+id/user_passport_photo"
         app:layout_constraintTop_toTopOf="parent">
 
-        <RadioButton
-            android:id="@+id/maleCheck"
+        <TextView
+            android:id="@+id/s_n"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:buttonTint="#FFC700"
-            android:checked="true"
-            android:text="M"
+            android:layout_marginTop="30dp"
+            android:text="@string/series_and_number"
             android:textColor="@color/white"
-            android:textColorLink="#FFC700"
             android:textSize="14dp"
-            app:layout_constraintEnd_toStartOf="@+id/femaleCheck"
+            android:layout_marginLeft="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <RadioButton
-            android:id="@+id/femaleCheck"
+        <com.santalu.maskara.widget.MaskEditText
+            android:id="@+id/editTextSeriesNumber"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="55dp"
+            android:background="@drawable/view_round_white"
+            android:digits="1234567890"
+            android:ems="10"
+            android:hint="____ ______"
+            android:paddingVertical="2dp"
+            android:paddingLeft="4dp"
+            android:textColor="#000"
+            android:textColorHint="#757575"
+            android:textSize="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:mask="#### ######" />
+
+        <TextView
+            android:id="@+id/d_i"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:buttonTint="#FFC700"
-            android:text="@string/female_string"
+            android:layout_marginTop="85dp"
+            android:text="@string/date_of_issue"
+            android:layout_marginLeft="10dp"
             android:textColor="@color/white"
             android:textSize="14dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/maleCheck"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-    </RadioGroup>
 
-    <TextView
-        android:id="@+id/p_b"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="45dp"
-        android:layout_marginTop="395dp"
-        android:text="@string/place_of_birth"
-        android:textColor="@color/white"
-        android:textSize="14dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <com.santalu.maskara.widget.MaskEditText
+            android:id="@+id/editTextDateIssue"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="110dp"
+            android:background="@drawable/view_round_white"
+            android:digits="1234567890"
+            android:ems="10"
+            android:hint="@string/date_pattern"
+            android:paddingVertical="2dp"
+            android:paddingLeft="4dp"
+            android:textColor="#000"
+            android:textColorHint="#757575"
+            android:textSize="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:mask="##.##.####" />
 
-    <EditText
-        android:id="@+id/editTextPlaceBirth"
+
+        <TextView
+            android:id="@+id/d_c"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="140dp"
+            android:text="@string/division_code"
+            android:textColor="@color/white"
+            android:layout_marginLeft="10dp"
+            android:textSize="14dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.santalu.maskara.widget.MaskEditText
+            android:id="@+id/editTextDivisionCode"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="165dp"
+
+            android:background="@drawable/view_round_white"
+            android:digits="1234567890"
+            android:ems="10"
+            android:hint="___-___"
+            android:paddingVertical="2dp"
+            android:paddingLeft="4dp"
+            android:textColor="#000"
+            android:textColorHint="#757575"
+            android:textSize="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:mask="###-###" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginLeft="35dp"
-        android:layout_marginTop="420dp"
-        android:layout_marginRight="25dp"
-        android:background="#C4C4C4"
-        android:ems="10"
-        android:textColor="#000"
-        android:textSize="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/p_r"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="45dp"
-        android:layout_marginTop="465dp"
-        android:text="@string/place_of_residence"
-        android:textColor="@color/white"
-        android:textSize="14dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/user_passport_photo">
 
-    <EditText
-        android:id="@+id/editTextPlaceResidence"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginLeft="35dp"
-        android:layout_marginTop="490dp"
-        android:layout_marginRight="25dp"
-        android:background="#C4C4C4"
-        android:ems="10"
-        android:textColor="#000"
-        android:textSize="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/i_w"
+            android:layout_marginTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:text="@string/issued_by_whom"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            app:layout_constraintBottom_toTopOf="@+id/editTextIssuedWhom"
+            app:layout_constraintHeight_max="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/editTextIssuedWhom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="25dp"
+            android:background="@drawable/view_round_white"
+            android:ems="10"
+            android:padding="2dp"
+            android:textColor="#000"
+            android:textSize="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/f_n"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/i_w" />
+
+        <TextView
+            android:id="@+id/f_n"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/full_name"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            app:layout_constraintBottom_toTopOf="@+id/editTextFullName"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextIssuedWhom" />
+
+        <EditText
+            android:id="@+id/editTextFullName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="25dp"
+            android:background="@drawable/view_round_white"
+            android:ems="10"
+            android:padding="2dp"
+            android:textColor="#000"
+            android:textSize="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/d_b"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/f_n" />
+
+        <TextView
+            android:id="@+id/d_b"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:text="@string/date_of_birth"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/editTextDateBirth"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextFullName" />
+
+        <com.santalu.maskara.widget.MaskEditText
+            android:id="@+id/editTextDateBirth"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:background="@drawable/view_round_white"
+            android:digits="1234567890"
+            android:ems="10"
+            android:hint="@string/date_pattern"
+            android:padding="2dp"
+            android:paddingLeft="4dp"
+            android:textColor="#000"
+            android:textColorHint="#757575"
+            android:textSize="16dp"
+            app:layout_constraintBottom_toTopOf="@id/p_b"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/d_b"
+            app:mask="##.##.####" />
+
+        <TextView
+            android:id="@+id/gender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/gender"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextDateBirth"
+            app:layout_constraintEnd_toStartOf="@+id/rgroup"
+            app:layout_constraintStart_toEndOf="@id/editTextDateBirth"
+            app:layout_constraintTop_toTopOf="@+id/editTextDateBirth" />
+
+        <RadioGroup
+            android:id="@+id/rgroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@+id/gender"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/gender"
+            app:layout_constraintTop_toTopOf="@+id/gender">
+
+            <RadioButton
+                android:id="@+id/maleCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:buttonTint="#FFC700"
+                android:checked="true"
+                android:text="M"
+                android:textColor="@color/white"
+                android:textColorLink="#FFC700"
+                android:textSize="14dp"
+                app:layout_constraintEnd_toStartOf="@+id/femaleCheck"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <RadioButton
+                android:id="@+id/femaleCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="#FFC700"
+                android:text="@string/female_string"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/maleCheck"
+                app:layout_constraintTop_toTopOf="parent" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/p_b"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:text="@string/place_of_birth"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/editTextPlaceBirth"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextDateBirth" />
+
+        <EditText
+            android:id="@+id/editTextPlaceBirth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="25dp"
+            android:background="@drawable/view_round_white"
+            android:ems="10"
+            android:padding="2dp"
+            android:textColor="#000"
+            android:textSize="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/p_r"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/p_b" />
+
+        <TextView
+            android:id="@+id/p_r"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:text="@string/place_of_residence"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/editTextPlaceResidence"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextPlaceBirth" />
+
+        <EditText
+            android:id="@+id/editTextPlaceResidence"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="25dp"
+            android:background="@drawable/view_round_white"
+            android:ems="10"
+            android:padding="2dp"
+            android:textColor="#000"
+            android:textSize="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/p_r" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

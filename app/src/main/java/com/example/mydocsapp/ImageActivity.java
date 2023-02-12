@@ -1,20 +1,15 @@
 package com.example.mydocsapp;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.apputils.MyEncrypter;
-import com.example.mydocsapp.databinding.ActivityImageBinding;
 import com.github.chrisbanes.photoview.PhotoView;
 
 import java.io.File;
@@ -32,6 +27,7 @@ public class ImageActivity extends AppCompatActivity {
 
     private String imgFile;
     private String imgText;
+    private int type;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +36,11 @@ public class ImageActivity extends AppCompatActivity {
 
         imgFile = getIntent().getStringExtra("imageFile");
         imgText = getIntent().getStringExtra("text");
+        type = getIntent().getIntExtra("type",0);
 
         File outputFile = new File(imgFile+"_copy");
         File filePath = new File(imgFile);
+
         try {
             MyEncrypter.decryptToFile(MainPassportPatternActivity.getMy_key(), MainPassportPatternActivity.getMy_spec_key(), new FileInputStream(filePath), new FileOutputStream(outputFile));
             ((PhotoView)findViewById(R.id.image_holder)).setImageURI(Uri.fromFile(outputFile));
@@ -58,6 +56,10 @@ public class ImageActivity extends AppCompatActivity {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        outputFile.delete();
+        if(type == 0) {
+            filePath.delete();
         }
         ((TextView)findViewById(R.id.image_txt)).setText(imgText);
     }

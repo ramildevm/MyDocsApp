@@ -73,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="74dp"
-                android:onClick="goMainActivityClick"
+                android:onClick="changeAccountClickBack"
                 android:text="Change account"
                 android:textColor="@color/white"
                 android:textSize="16dp"

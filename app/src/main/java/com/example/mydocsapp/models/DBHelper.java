@@ -89,6 +89,19 @@ public class DBHelper extends SQLiteOpenHelper {
         else
             return true;
     }
+
+    public Boolean updateItemFolder(int id, int i) {
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("FolderId",i);
+        cv.put("isSelected",0);
+        long result = db.update("Item",cv,"id=?", new String[]{""+id});
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
     public Boolean updateItem(int id, Item item){
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
@@ -266,5 +279,6 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         }
     }
+
 }
 

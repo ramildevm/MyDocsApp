@@ -45,6 +45,8 @@ import javax.crypto.NoSuchPaddingException;
 
 public class PassportFirstFragment extends Fragment implements FragmentSaveViewModel {
 
+    private static final int DB_IMAGE = 1;
+    private static final int BITMAP_IMAGE = 0;
     FragmentPassportFirstBinding binding;
     PassportStateViewModel model;
     Bitmap profilePhoto = null;
@@ -107,6 +109,12 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             if(model.getState().getValue().FacePhoto!=null) {
                 intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
                 String fileName = model.getState().getValue().FacePhoto;
+                if(profilePhoto!=null){
+                    fileName = ImageSaveService.createImageFromBitmap(profilePhoto,getContext());
+                    intent.putExtra("type", BITMAP_IMAGE);
+                }
+                else
+                    intent.putExtra("type", DB_IMAGE);
                 intent.putExtra("imageFile", fileName);
                 getActivity().startActivity(intent);
             }
@@ -179,11 +187,8 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
     @Override
     public void SavePhotos(int ItemId) {
         Passport passport = model.getState().getValue();
+
         if (profilePhoto != null) {
-            if (passport.FacePhoto!=null) {
-                File filePath = new File(passport.FacePhoto);
-                filePath.delete();
-            }
             File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
             String imgPath = filepath.getAbsolutePath() + "/"+ MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
             File dir = new File(imgPath);
@@ -191,6 +196,11 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
                 dir.mkdirs();
             String imgName = "PassportProfileImage" + ItemId + System.currentTimeMillis();
             File imgFile = new File(dir, imgName);
+            if(passport.FacePhoto!=null) {
+                File filePath = new File(passport.FacePhoto);
+                filePath.delete();
+                imgFile = new File(passport.FacePhoto);
+            }
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             profilePhoto.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             InputStream is = new ByteArrayInputStream(stream.toByteArray());
