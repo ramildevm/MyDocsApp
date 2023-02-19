@@ -19,7 +19,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
-import com.example.mydocsapp.models.DBHelper;
+import com.example.mydocsapp.services.AppService;
+import com.example.mydocsapp.services.DBHelper;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
@@ -34,9 +35,6 @@ DBHelper db;
     PassportStateViewModel model;
     private FragmentSaveViewModel listenerForF1;
     private FragmentSaveViewModel listenerForF2;
-
-    private static String my_key = "r6Nuf3tD9MF0oCcA";
-    private static String my_spec_key = "yWP30I1zO92r83Kt";
 
     public static final int SELECT_USER_PHOTO = 1;
     public static final int SELECT_PAGE1_PHOTO = 2;
@@ -74,7 +72,7 @@ DBHelper db;
                 }
             }
         });
-        db = new DBHelper(this);
+        db = new DBHelper(this, AppService.getUserId());
         setDataFromDb();
 
         model = new ViewModelProvider(this).get(PassportStateViewModel.class);
@@ -153,7 +151,7 @@ DBHelper db;
         if(CurrentItem == null){
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
             String time = df.format(new Date());
-            item = new Item(0, "Паспорт" +db.selectLastItemId(), "Паспорт", null, 0,0,0, time, 0, 0);
+            item = new Item(0, "Паспорт" + db.selectLastItemId(), "Паспорт", null, 0,0,0, time, 0, 0);
             db.insertItem(item);
             int ItemId = db.selectLastItemId();
             this.Passport.Id = ItemId;
@@ -240,13 +238,6 @@ DBHelper db;
         listenerForF2 = fragment2;
     }
 
-    public static String getMy_key() {
-        return my_key;
-    }
-
-    public static String getMy_spec_key() {
-        return my_spec_key;
-    }
 
     public static class MyFragmentAdapter extends FragmentStateAdapter {
         private static int NUM_ITEMS = 2;

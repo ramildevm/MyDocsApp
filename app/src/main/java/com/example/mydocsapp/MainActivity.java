@@ -19,7 +19,8 @@ import androidx.core.content.ContextCompat;
 import com.example.mydocsapp.api.MainApi;
 import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.api.UserGetCallback;
-import com.example.mydocsapp.models.DBHelper;
+import com.example.mydocsapp.services.AppService;
+import com.example.mydocsapp.services.DBHelper;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        db = new DBHelper(this);
+        db = new DBHelper(this, AppService.getUserId());
         try {
             db.create_db();
         }

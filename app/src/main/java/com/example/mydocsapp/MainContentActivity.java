@@ -1,12 +1,18 @@
 package com.example.mydocsapp;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -16,38 +22,54 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mydocsapp.api.User;
+import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.apputils.RecyclerItemClickListener;
 import com.example.mydocsapp.interfaces.ItemAdapterActivity;
-import com.example.mydocsapp.models.DBHelper;
+import com.example.mydocsapp.models.Photo;
+import com.example.mydocsapp.services.AppService;
+import com.example.mydocsapp.services.DBHelper;
 import com.example.mydocsapp.models.Item;
-import com.example.mydocsapp.models.ItemAdapter;
+import com.example.mydocsapp.services.ItemAdapter;
 import com.example.mydocsapp.services.CurrentItemsService;
+import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.crypto.NoSuchPaddingException;
+
 public class MainContentActivity extends AppCompatActivity implements ItemAdapterActivity {
+    private static final int BITMAP_IMAGE = 0;
+    private static final int DB_IMAGE = 1;
     RecyclerView recyclerView;
     DBHelper db;
     boolean isSelectMode;
     boolean isSortMode = false;
     private int selectedItemsNum = 0;
-    private ActivityResultLauncher<Intent> registerForAR;
+    private ActivityResultLauncher<Intent> registerForARFolder;
+    private ActivityResultLauncher<Intent> registerForARImage;
     private RecyclerView recyclerFolderView;
     Dialog makeRenameDialog;
     ItemAdapter adapter;
@@ -68,22 +90,38 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_content);
 
-        registerForAR = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-                CurrentFolderItemsSet = getItemsFromDb(itemsService.getCurrentItem().Id);
-                reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
-                itemsService.setInitialData();
-                reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
-            }
+        registerForARFolder = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                    CurrentFolderItemsSet = getItemsFromDb(itemsService.getCurrentItem().Id);
+                    reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
+                    itemsService.setInitialData();
+                    reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
+        });
+        registerForARImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                Log.d("RequestCode",result.getResultCode()+"");
+                if (result.getResultCode() == RESULT_OK) {
+                    CropImage.ActivityResult cropImageResult = CropImage.getActivityResult(result.getData());
+                    if (result.getData() != null) {
+                        // Get the URI of the selected file
+                        final Uri uri = cropImageResult.getUri();
+                        try {
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                            ByteArrayOutputStream out = new ByteArrayOutputStream();
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                            Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+                            createImage(decoded);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
         });
 
         // начальная инициализация списка
         // создаем базу данных
-        db = new DBHelper(this);
+        db = new DBHelper(this, AppService.getUserId());
         Cursor cur = db.getUserById(1);
         cur.moveToFirst();
-        CurrentUser = new User(0, cur.getString(1), cur.getString(2),cur.getString(3),cur.getString(4), cur.getString(5));
+        CurrentUser = new User(0, cur.getString(1), cur.getString(2), cur.getString(3), cur.getString(4), cur.getString(5));
 
         isSelectMode = false;
 
@@ -112,7 +150,50 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         recyclerView.addItemDecoration(new com.example.mydocsapp.apputils.GridSpacingItemDecoration(spanCount, spacing, includeEdge));
         setOnClickListeners();
     }
+    private void createImage(Bitmap bitmap) {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+        String time = df.format(new Date());
 
+        int ItemId = db.selectLastItemId();
+        Item item =new Item(0, "Фото" + ItemId, "Изображение", null, 0, 0, 0, time, 0, 0);
+        db.insertItem(item);
+        ItemId = db.selectLastItemId();
+
+        File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        String imgPath = filepath.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
+        File dir = new File(imgPath);
+        if (!dir.exists())
+            dir.mkdirs();
+        String imgName = "Image" + ItemId + System.currentTimeMillis();
+        File imgFile = new File(dir, imgName);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        InputStream is = new ByteArrayInputStream(stream.toByteArray());
+        try {
+            MyEncrypter.encryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), is, new FileOutputStream(imgFile));
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String filePath = imgFile.getAbsolutePath();
+        db.insertPhoto(new Photo(ItemId,filePath));
+
+        item.Image = filePath;
+        db.updateItem(ItemId,item);
+
+        Intent intent = new Intent(MainContentActivity.this, ImageActivity.class);
+        intent.putExtra("text", item.Title);
+        intent.putExtra("type", DB_IMAGE);
+        intent.putExtra("imageFile", filePath);
+        this.startActivity(intent);
+    }
 
     private ArrayList<String> selectedItemsSet = new ArrayList<>();
 
@@ -182,6 +263,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                                         startActivity(intent);
                                                     }
                                                 }
+
                                                 @Override
                                                 public void onLongItemClick(View view, int position) {
                                                 }
@@ -192,7 +274,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                         Intent i = new Intent(MainContentActivity.this, FolderAddItemActivity.class);
                                         itemsService.setCurrentItem(item);
                                         i.putExtra("item", itemsService.getCurrentItem());
-                                        registerForAR.launch(i);
+                                        registerForARFolder.launch(i);
                                         overridePendingTransition(R.anim.alpha, R.anim.alpha_to_zero);
                                     });
 
@@ -203,10 +285,15 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
 
                                     dialog.getWindow().setWindowAnimations(R.style.PauseDialogAnimation);
                                     dialog.show();
-                                }
-                                else if (item.Type.equals("Паспорт")) {
+                                } else if (item.Type.equals("Паспорт")) {
                                     Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
                                     intent.putExtra("item", itemsService.getCurrentItem());
+                                    startActivity(intent);
+                                }else if (item.Type.equals("Изображение")) {
+                                    Intent intent = new Intent(MainContentActivity.this, ImageActivity.class);
+                                    intent.putExtra("text", item.Title);
+                                    intent.putExtra("type", DB_IMAGE);
+                                    intent.putExtra("imageFile", item.Image);
                                     startActivity(intent);
                                 }
                             }
@@ -269,7 +356,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             if (mode.equals("Make")) {
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
                 String time = df.format(new Date());
-                db.insertItem(new Item(0, editText.getText().toString(), "Папка", null, 0, 0, 0, time,0, 0));
+                db.insertItem(new Item(0, editText.getText().toString(), "Папка", null, 0, 0, 0, time, 0, 0));
             } else {
                 Item item = itemsService.getCurrentItem();
                 item.Title = editText.getText().toString();
@@ -295,36 +382,44 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
 
     @Override
     protected void onResume() {
-        super.onResume();
+        reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
         SaveDbLog();
+        super.onResume();
     }
-    private void SaveDbLog(){
-    Cursor cur = db.getItems();
-    String it = "tems: \n";
-    String ps = "passports: \n";
-    Item item;
-    while (cur.moveToNext()) {
-        item = new Item(cur.getInt(0),
-                cur.getString(1),
-                cur.getString(2),
-                cur.getString(3),
-                cur.getInt(4),
-                cur.getInt(5),
-                cur.getInt(6),
-                cur.getString(7),
-                cur.getInt(8),
-                cur.getInt(9));
-        it+= (item.Id + " " + item.Title + " " + item.FolderId+" \n");
-    }
-    cur = db.getPassports();
-    while (cur.moveToNext()) {
-        ps+= (cur.getInt(0)) + " \n";
-    }
-    Log.d("DBData", it);
-    Log.d("DBData", ps);
 
+    private void SaveDbLog() {
+        Cursor cur = db.getItems();
+        String it = "tems: \n";
+        String ps = "passports: \n";
+        String ph = "photos: \n";
+        Item item;
+        while (cur.moveToNext()) {
+            item = new Item(cur.getInt(0),
+                    cur.getString(1),
+                    cur.getString(2),
+                    cur.getString(3),
+                    cur.getInt(4),
+                    cur.getInt(5),
+                    cur.getInt(6),
+                    cur.getString(7),
+                    cur.getInt(8),
+                    cur.getInt(9));
+            it += (item.Id + " " + item.Title + " " + item.FolderId + " \n" + item.Image +"\n");
+        }
+        cur = db.getPassports();
+        while (cur.moveToNext()) {
+            ps += (cur.getInt(0)) + " \n";
+        }
+        cur = db.getPhotos();
+        while (cur.moveToNext()) {
+            ph += (cur.getInt(0)) + " \n";
+        }
+        Log.d("DBData", it);
+        Log.d("DBData", ps);
+        Log.d("DBData", ph);
 
-}
+    }
+
     private ArrayList<Item> getItemsFromDb(int id) {
         ArrayList<Item> folderItems = new ArrayList<>();
 
@@ -401,15 +496,23 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         }
     }
 
-
     public void menuMakeFolderClick(View view) {
         makeRenameDialogMethod(itemsService.getCurrentItemsSet(), "Make");
         makeRenameDialog.show();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void menuMakeImageClick(View view) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            Intent intent = CropImage.activity()
+                    .getIntent(this);
+            registerForARImage.launch(intent);
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
+        }
+    }
+
     public void sortFolderClick(View view) {
-        if(itemsService.isFoldersAvailable)
+        if (itemsService.isFoldersAvailable)
             view.setAlpha(0.5f);
         else
             view.setAlpha(1f);
@@ -417,10 +520,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortCardClick(View view) {
 
-        if(itemsService.isCardsAvailable)
+        if (itemsService.isCardsAvailable)
             view.setAlpha(0.5f);
         else
             view.setAlpha(1f);
@@ -428,10 +530,8 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortImageClick(View view) {
-
-        if(itemsService.isImagesAvailable)
+        if (itemsService.isImagesAvailable)
             view.setAlpha(0.5f);
         else
             view.setAlpha(1f);
@@ -439,9 +539,8 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortDocClick(View view) {
-        if(itemsService.isDocsAvailable)
+        if (itemsService.isDocsAvailable)
             view.setAlpha(0.5f);
         else
             view.setAlpha(1f);
@@ -480,25 +579,25 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                             adapter.onMovedItemChanged(newItem, oldPosition);
                         }
                     }
-                    for (Item newItem:
+                    for (Item newItem :
                             itemsService.getCurrentItemsSet()) {
                         Item oldItem = oldItems.stream().filter(item -> item.Id == newItem.Id).findFirst().get();
                         if (oldItem != null) {
                             oldPosition = oldItems.indexOf(oldItem);
                             newPosition = itemsService.getCurrentItemsSet().indexOf(newItem);
-                            adapter.onItemMoved(oldPosition,newPosition);
+                            adapter.onItemMoved(oldPosition, newPosition);
                         }
                     }
                 }
                 break;
-            case(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE):
+            case (RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE):
                 adapter.onItemSetChange(itemsService.getCurrentItemsSet());
                 break;
         }
     }
 
     public void sortCancelClick(View view) {
-        itemsService.isCardsAvailable = itemsService.isDocsAvailable=itemsService.isFoldersAvailable=itemsService.isImagesAvailable=true;
+        itemsService.isCardsAvailable = itemsService.isDocsAvailable = itemsService.isFoldersAvailable = itemsService.isImagesAvailable = true;
         findViewById(R.id.flow_sort_card_btn).setAlpha(1f);
         findViewById(R.id.flow_sort_doc_btn).setAlpha(1f);
         findViewById(R.id.flow_sort_image_btn).setAlpha(1f);
@@ -507,7 +606,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     }
 
     public void bottomPinClick(View view) {
-        for(Item x: itemsService.getCurrentItemsSet()){
+        for (Item x : itemsService.getCurrentItemsSet()) {
             if (x.isSelected == 1) {
                 x.Priority = (x.Priority == 1) ? 0 : 1;
                 x.isSelected = 0;
@@ -533,27 +632,31 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
     }
-
     public void bottomDeleteClick(View view) {
         for (Item x : itemsService.getCurrentItemsSet()) {
             if (x.isSelected == 1) {
                 db.deleteItem(x.Id);
-                try{
-                    File dir = Environment.getExternalStoragePublicDirectory("Pictures/"+APPLICATION_NAME+ "/Item"+x.Id);
-                    if (dir.isDirectory())
-                    {
+                try {
+                    File dir = Environment.getExternalStoragePublicDirectory("Pictures/" + APPLICATION_NAME + "/Item" + x.Id);
+                    if (dir.isDirectory()) {
                         String[] children = dir.list();
-                        for (int i = 0; i < children.length; i++)
-                        {
+                        for (int i = 0; i < children.length; i++) {
                             new File(dir, children[i]).delete();
                         }
                     }
                     dir.delete();
+                } catch (Exception e) {
                 }
-                catch (Exception e){
-                }
-                if(x.Type.equals("Папка")){
-                    deleteFolderContent(x.Id);
+                switch (x.Type){
+                    case "Папка":
+                        deleteFolderContent(x.Id);
+                        return;
+                    case "Пасспорт":
+                        db.deletePassport(x.Id);
+                        return;
+                    case "Изображение":
+                        db.deletePhoto(x.Id);
+                        return;
                 }
                 selectedItemsNum--;
             }
@@ -565,7 +668,6 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         itemsService.setInitialData();
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
     }
-
     private void deleteFolderContent(int id) {
         Cursor cur = db.getItemsByFolder(id);
         ArrayList<Item> folderItems = new ArrayList<>();
@@ -583,8 +685,8 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                     cur.getInt(8));
             folderItems.add(item);
         }
-        for (Item fitem:
-             folderItems) {
+        for (Item fitem :
+                folderItems) {
             db.deleteItem(fitem.Id);
         }
     }
@@ -640,4 +742,5 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     public void setIsTitleClicked(boolean value) {
         this.isTitleClicked = value;
     }
+
 }

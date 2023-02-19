@@ -1,24 +1,18 @@
 package com.example.mydocsapp;
 
-import static android.app.Activity.RESULT_FIRST_USER;
-import static android.content.Context.MODE_PRIVATE;
 import static com.example.mydocsapp.MainPassportPatternActivity.SELECT_PAGE1_PHOTO;
 import static com.example.mydocsapp.MainPassportPatternActivity.SELECT_PAGE2_PHOTO;
-import static com.example.mydocsapp.MainPassportPatternActivity.SELECT_USER_PHOTO;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +29,7 @@ import com.example.mydocsapp.databinding.FragmentPassportSecondBinding;
 import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
+import com.example.mydocsapp.services.AppService;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.ByteArrayInputStream;
@@ -73,6 +68,7 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         }
 
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -86,40 +82,35 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         model = new ViewModelProvider(requireActivity()).get(PassportStateViewModel.class);
 
         loadData();
-        binding.firstPassportPhoto.setOnClickListener(v->{
+        binding.firstPassportPhoto.setOnClickListener(v -> {
+            if (model.getState().getValue().PhotoPage1 == null)
+                return;
             Intent intent = new Intent(getActivity(), ImageActivity.class);
-            if(pagePhoto1!=null){
-                //TODO: create intent for bitmap
-            }
-            if(model.getState().getValue().PhotoPage1!=null) {
-                intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
-                String fileName = model.getState().getValue().PhotoPage1;
-                if(pagePhoto1!=null){
-                    fileName = ImageSaveService.createImageFromBitmap(pagePhoto1,getContext());
-                    intent.putExtra("type", BITMAP_IMAGE);
-                }
-                else
-                    intent.putExtra("type", DB_IMAGE);
-                intent.putExtra("imageFile", fileName);
-                getActivity().startActivity(intent);
-            }
+            intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
+            String fileName = model.getState().getValue().PhotoPage1;
+            if (pagePhoto1 != null) {
+                fileName = ImageSaveService.createImageFromBitmap(pagePhoto1, getContext());
+                intent.putExtra("type", BITMAP_IMAGE);
+            } else
+                intent.putExtra("type", DB_IMAGE);
+            intent.putExtra("imageFile", fileName);
+            getActivity().startActivity(intent);
         });
-        binding.secondPassportPhoto.setOnClickListener(v->{
+        binding.secondPassportPhoto.setOnClickListener(v -> {
+            if (model.getState().getValue().PhotoPage2 == null)
+                return;
             Intent intent = new Intent(getActivity(), ImageActivity.class);
-            if(model.getState().getValue().PhotoPage2!=null) {
-                intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
-                String fileName = model.getState().getValue().PhotoPage2;
-                if(pagePhoto2!=null){
-                    fileName = ImageSaveService.createImageFromBitmap(pagePhoto2,getContext());
-                    intent.putExtra("type", BITMAP_IMAGE);
-                }
-                else
-                    intent.putExtra("type", DB_IMAGE);
-                intent.putExtra("imageFile", fileName);
-                getActivity().startActivity(intent);
-            }
+            intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
+            String fileName = model.getState().getValue().PhotoPage2;
+            if (pagePhoto2 != null) {
+                fileName = ImageSaveService.createImageFromBitmap(pagePhoto2, getContext());
+                intent.putExtra("type", BITMAP_IMAGE);
+            } else
+                intent.putExtra("type", DB_IMAGE);
+            intent.putExtra("imageFile", fileName);
+            getActivity().startActivity(intent);
         });
-        binding.loadPage1PhotoBtn.setOnClickListener(v->{
+        binding.loadPage1PhotoBtn.setOnClickListener(v -> {
             if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = CropImage.activity()
                         .getIntent(getContext());
@@ -128,7 +119,7 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
             }
         });
-        binding.loadPage2PhotoBtn.setOnClickListener(v->{
+        binding.loadPage2PhotoBtn.setOnClickListener(v -> {
             if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = CropImage.activity()
                         .getIntent(getContext());
@@ -140,21 +131,22 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         return binding.getRoot();
     }
 
-    public boolean getPhotoOption(){
+    public boolean getPhotoOption() {
         return binding.usePhotoOption.isChecked();
     }
+
     private void loadData() {
         Passport passport = model.getState().getValue();
         //photo load
         File outputFile;
         File encFile;
-        if(passport.PhotoPage1 != null) {
+        if (passport.PhotoPage1 != null) {
             if (passport.PhotoPage1.length() != 0) {
                 binding.firstPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
-                outputFile = new File(passport.PhotoPage1+"_copy");
+                outputFile = new File(passport.PhotoPage1 + "_copy");
                 encFile = new File(passport.PhotoPage1);
                 try {
-                    MyEncrypter.decryptToFile(((MainPassportPatternActivity)getActivity()).getMy_key(), ((MainPassportPatternActivity)getActivity()).getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
+                    MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
                     binding.firstPassportPhoto.setImageURI(Uri.fromFile(outputFile));
 
                     outputFile.delete();
@@ -173,13 +165,13 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
                 }
             }
         }
-        if(passport.PhotoPage2 != null) {
+        if (passport.PhotoPage2 != null) {
             if (passport.PhotoPage2.length() != 0) {
                 binding.secondPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
-                outputFile = new File(passport.PhotoPage2+"_copy");
+                outputFile = new File(passport.PhotoPage2 + "_copy");
                 encFile = new File(passport.PhotoPage2);
                 try {
-                    MyEncrypter.decryptToFile(((MainPassportPatternActivity)getActivity()).getMy_key(), ((MainPassportPatternActivity)getActivity()).getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
+                    MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
                     binding.secondPassportPhoto.setImageURI(Uri.fromFile(outputFile));
 
                     outputFile.delete();
@@ -199,8 +191,8 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
             }
         }
 
-        if(((MainPassportPatternActivity)getActivity()).getCurrentItem()!=null)
-            binding.usePhotoOption.setChecked(((MainPassportPatternActivity)getActivity()).getCurrentItem().Image!=null);
+        if (((MainPassportPatternActivity) getActivity()).getCurrentItem() != null)
+            binding.usePhotoOption.setChecked(((MainPassportPatternActivity) getActivity()).getCurrentItem().Image != null);
     }
 
     @Override
@@ -215,7 +207,7 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
                     Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
-                    switch (requestCode){
+                    switch (requestCode) {
                         case SELECT_PAGE1_PHOTO:
                             loadPassportPage1(decoded);
                             break;
@@ -239,11 +231,11 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
     public void SavePhotos(int ItemId) {
         Passport passport = model.getState().getValue();
         if (pagePhoto1 != null) {
-            if (passport.PhotoPage1!=null) {
+            if (passport.PhotoPage1 != null) {
                 File filePath = new File(passport.PhotoPage1);
                 filePath.delete();
             }
-            passport.PhotoPage1 = savePhotoToFile(ItemId, pagePhoto1,"PassportPagePhotoFirst");
+            passport.PhotoPage1 = savePhotoToFile(ItemId, pagePhoto1, "PassportPagePhotoFirst");
         }
         if (pagePhoto2 != null) {
             if (passport.PhotoPage2 != null) {
@@ -258,9 +250,9 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
     @NonNull
     private String savePhotoToFile(int ItemId, Bitmap pagePhoto, String fileName) {
         File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        String imgPath = filepath.getAbsolutePath() + "/"+ MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
+        String imgPath = filepath.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
         File dir = new File(imgPath);
-        if(!dir.exists())
+        if (!dir.exists())
             dir.mkdirs();
         String imgName = fileName + ItemId + System.currentTimeMillis();
         File imgFile = new File(dir, imgName);
@@ -268,7 +260,7 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         pagePhoto.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         InputStream is = new ByteArrayInputStream(stream.toByteArray());
         try {
-            MyEncrypter.encryptToFile(((MainPassportPatternActivity)getActivity()).getMy_key(), ((MainPassportPatternActivity)getActivity()).getMy_spec_key(), is, new FileOutputStream(imgFile));
+            MyEncrypter.encryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), is, new FileOutputStream(imgFile));
         } catch (NoSuchPaddingException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
@@ -289,6 +281,7 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         binding.firstPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
         binding.firstPassportPhoto.setImageBitmap(bitmap);
     }
+
     private void loadPassportPage2(Bitmap bitmap) {
         pagePhoto2 = bitmap;
         bitmap = ImageSaveService.scaleDown(bitmap, ImageSaveService.dpToPx(getContext(), binding.secondPassportPhoto.getWidth()), true);

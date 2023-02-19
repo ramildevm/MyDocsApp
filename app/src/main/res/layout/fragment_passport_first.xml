@@ -30,6 +30,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/user_passport_photo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/user_passport_photo"
         app:layout_constraintTop_toTopOf="parent">
@@ -38,11 +39,11 @@
             android:id="@+id/s_n"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="30dp"
             android:text="@string/series_and_number"
             android:textColor="@color/white"
             android:textSize="14dp"
-            android:layout_marginLeft="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -69,9 +70,9 @@
             android:id="@+id/d_i"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="85dp"
             android:text="@string/date_of_issue"
-            android:layout_marginLeft="10dp"
             android:textColor="@color/white"
             android:textSize="14dp"
             app:layout_constraintStart_toStartOf="parent"
@@ -101,10 +102,10 @@
             android:id="@+id/d_c"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="140dp"
             android:text="@string/division_code"
             android:textColor="@color/white"
-            android:layout_marginLeft="10dp"
             android:textSize="14dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -131,6 +132,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
@@ -138,10 +140,10 @@
 
         <TextView
             android:id="@+id/i_w"
-            android:layout_marginTop="20dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="35dp"
+            android:layout_marginTop="20dp"
             android:text="@string/issued_by_whom"
             android:textColor="@color/white"
             android:textSize="14dp"
@@ -196,10 +198,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="35dp"
+            android:layout_marginTop="10dp"
             android:text="@string/date_of_birth"
             android:textColor="@color/white"
             android:textSize="14dp"
-            android:layout_marginTop="10dp"
             app:layout_constraintBottom_toTopOf="@+id/editTextDateBirth"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editTextFullName" />
@@ -278,10 +280,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="35dp"
+            android:layout_marginTop="10dp"
             android:text="@string/place_of_birth"
             android:textColor="@color/white"
             android:textSize="14dp"
-            android:layout_marginTop="10dp"
             app:layout_constraintBottom_toTopOf="@+id/editTextPlaceBirth"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editTextDateBirth" />
@@ -305,10 +307,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="35dp"
+            android:layout_marginTop="10dp"
             android:text="@string/place_of_residence"
             android:textColor="@color/white"
             android:textSize="14dp"
-            android:layout_marginTop="10dp"
             app:layout_constraintBottom_toTopOf="@+id/editTextPlaceResidence"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editTextPlaceBirth" />

@@ -1,15 +1,15 @@
 package com.example.mydocsapp;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.motion.widget.MotionLayout;
 
 import com.example.mydocsapp.apputils.MyEncrypter;
+import com.example.mydocsapp.services.AppService;
 import com.github.chrisbanes.photoview.PhotoView;
 
 import java.io.File;
@@ -42,7 +42,7 @@ public class ImageActivity extends AppCompatActivity {
         File filePath = new File(imgFile);
 
         try {
-            MyEncrypter.decryptToFile(MainPassportPatternActivity.getMy_key(), MainPassportPatternActivity.getMy_spec_key(), new FileInputStream(filePath), new FileOutputStream(outputFile));
+            MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(filePath), new FileOutputStream(outputFile));
             ((PhotoView)findViewById(R.id.image_holder)).setImageURI(Uri.fromFile(outputFile));
         } catch (NoSuchPaddingException e) {
             e.printStackTrace();
@@ -62,8 +62,30 @@ public class ImageActivity extends AppCompatActivity {
             filePath.delete();
         }
         ((TextView)findViewById(R.id.image_txt)).setText(imgText);
+        (findViewById(R.id.menubar_options)).setOnClickListener(v -> {
+            if (v.getTag().equals("off")) {
+                MotionLayout ml = findViewById(R.id.motion_layout);
+                ml.setTransition(R.id.transOptionMenu);
+                ml.transitionToEnd();
+                v.setTag("on");
+            } else if (v.getTag().equals("on")) {
+                MotionLayout ml = findViewById(R.id.motion_layout);
+                ml.setTransition(R.id.transOptionMenu);
+                ml.transitionToStart();
+                v.setTag("off");
+            }
+        });
     }
+
     public void goBackClick(View view){
         onBackPressed();
+    }
+
+    public void saveAsClick(View view) {
+
+    }
+
+    public void changeImageClick(View view) {
+
     }
 }

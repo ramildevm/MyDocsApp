@@ -1,4 +1,4 @@
-package com.example.mydocsapp.models;
+package com.example.mydocsapp.services;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -10,6 +10,9 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.mydocsapp.api.User;
+import com.example.mydocsapp.models.Item;
+import com.example.mydocsapp.models.Passport;
+import com.example.mydocsapp.models.Photo;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,10 +25,12 @@ public class DBHelper extends SQLiteOpenHelper {
     private static String DB_NAME = "UserDB.db";
     private static final int SCHEMA = 1; // версия базы данных
     private Context myContext;
+    private int UserId;
 
-    public DBHelper(Context context) {
+    public DBHelper(Context context, int userId) {
         super(context, DB_NAME, null, SCHEMA);
         this.myContext = context;
+        this.UserId = userId;
         context.getFilesDir().mkdir();
         DB_PATH = context.getFilesDir().getPath() + DB_NAME;
     }
@@ -123,27 +128,27 @@ public class DBHelper extends SQLiteOpenHelper {
     }
     public Cursor getItems(){
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 order by Priority desc, id asc",null);
+        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and UserId=? order by Priority desc, id asc",new String[]{this.UserId+""});
         return cursor;
     }
     public Cursor getItemsByFolder(int id){
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=? order by Priority desc, id asc",new String[]{""+id});
+        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=? and UserId=? order by Priority desc, id asc",new String[]{""+id,UserId+""});
         return cursor;
     }
     public Cursor getItemsByFolder0(){
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=0 order by Priority desc, id asc", null);
+        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=0 and UserId=? order by Priority desc, id asc", new String[]{this.UserId+""});
         return cursor;
     }
     public Cursor getItemsByFolderIdForAdding(int id){
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=0 or FolderId=? order by Priority desc, id asc",new String[]{""+id});
+        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and UserId=? and FolderId=0 or FolderId=? order by Priority desc, id asc",new String[]{UserId+"",""+id});
         return cursor;
     }
     public int getItemFolderItemsCount(int id){
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where FolderId=? order by Priority desc, id asc", new String[]{""+id});
+        Cursor cursor = db.rawQuery("select * from Item where FolderId=? and UserId=? order by Priority desc, id asc", new String[]{""+id, UserId +""});
         return cursor.getCount();
     }
     public Boolean deleteItem(int id){
@@ -273,6 +278,52 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("Syncing",user.Syncing);
         cv.put("Photo",user.Photo);
         long result = db.insert("User",null,cv);
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
+
+    //*********************************************************************************************
+    //Photo table
+
+    public Cursor getPhotoById(int objectId) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Photo where Id=?", new String[]{""+objectId});
+        return cursor;
+    }
+    public Cursor getPhotos() {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Photo", null);
+        return cursor;
+    }
+    public Boolean deletePhoto(int id){
+        SQLiteDatabase db = open();
+        long result = db.delete("Photo","id=?", new String[]{""+id});
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
+    public Boolean updatePhoto(int id, Photo photo){
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("Path",photo.Path);
+        long result = db.update("Photo",cv,"id=?", new String[]{""+id});
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
+    public Boolean insertPhoto(Photo photo){
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("Id",photo.Id);
+        cv.put("Path",photo.Path);
+        long result = db.insert("Photo",null,cv);
         if (result <=0)
             return false;
         else {

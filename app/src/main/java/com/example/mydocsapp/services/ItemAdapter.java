@@ -1,9 +1,8 @@
-package com.example.mydocsapp.models;
+package com.example.mydocsapp.services;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -18,11 +17,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.mydocsapp.MainPassportPatternActivity;
 import com.example.mydocsapp.R;
 import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.interfaces.ItemAdapterActivity;
+import com.example.mydocsapp.models.Item;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,7 +51,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     public ItemAdapter(Context context, List<Item> items, boolean isSelectMode) {
         this.context = context;
-        this.db = new DBHelper(context);
+        this.db = new DBHelper(context, AppService.getUserId());
         this.items = items;
         this.inflater = LayoutInflater.from(context);
         this.isSelectMode = isSelectMode;
@@ -136,7 +135,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             File outputFile = new File(item.Image+"_copy");
             File encFile = new File(item.Image);
             try {
-                MyEncrypter.decryptToFile(MainPassportPatternActivity.getMy_key(), MainPassportPatternActivity.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
+                MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
                 Bitmap image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(outputFile));
                 image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 150), true);
                 holder.imageView.setImageBitmap(image);
@@ -164,7 +163,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             holder.icoImg.setImageResource(R.drawable.ic_image);
         else
             holder.icoImg.setImageResource(R.drawable.ic_document);
-
 
         holder.itemPanel.setTag(item);
         holder.selectBtn.setTag(item);

@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +25,7 @@ import com.example.mydocsapp.databinding.FragmentPassportFirstBinding;
 import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
+import com.example.mydocsapp.services.AppService;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.ByteArrayInputStream;
@@ -105,19 +105,18 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             }
         });
         binding.userPassportPhoto.setOnClickListener(v -> {
+            if (model.getState().getValue().FacePhoto == null)
+                return;
             Intent intent = new Intent(getActivity(), ImageActivity.class);
-            if(model.getState().getValue().FacePhoto!=null) {
-                intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
-                String fileName = model.getState().getValue().FacePhoto;
-                if(profilePhoto!=null){
-                    fileName = ImageSaveService.createImageFromBitmap(profilePhoto,getContext());
-                    intent.putExtra("type", BITMAP_IMAGE);
-                }
-                else
-                    intent.putExtra("type", DB_IMAGE);
-                intent.putExtra("imageFile", fileName);
-                getActivity().startActivity(intent);
-            }
+            intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
+            String fileName = model.getState().getValue().FacePhoto;
+            if (profilePhoto != null) {
+                fileName = ImageSaveService.createImageFromBitmap(profilePhoto, getContext());
+                intent.putExtra("type", BITMAP_IMAGE);
+            } else
+                intent.putExtra("type", DB_IMAGE);
+            intent.putExtra("imageFile", fileName);
+            getActivity().startActivity(intent);
         });
         return binding.getRoot();
     }
@@ -137,14 +136,14 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             binding.femaleCheck.setChecked(true);
         binding.editTextPlaceBirth.setText(passport.BirthPlace);
         binding.editTextPlaceResidence.setText(passport.ResidencePlace);
-        if (passport.FacePhoto!=null) {
+        if (passport.FacePhoto != null) {
             if (!passport.FacePhoto.isEmpty()) {
                 binding.userPassportPhoto.setTag(1);
                 binding.userPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
-                File outputFile = new File(passport.FacePhoto+"_copy");
+                File outputFile = new File(passport.FacePhoto + "_copy");
                 File encFile = new File(passport.FacePhoto);
                 try {
-                    MyEncrypter.decryptToFile(((MainPassportPatternActivity)getActivity()).getMy_key(), ((MainPassportPatternActivity)getActivity()).getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
+                    MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
                     binding.userPassportPhoto.setImageURI(Uri.fromFile(outputFile));
 
                     outputFile.delete();
@@ -187,16 +186,15 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
     @Override
     public void SavePhotos(int ItemId) {
         Passport passport = model.getState().getValue();
-
         if (profilePhoto != null) {
             File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            String imgPath = filepath.getAbsolutePath() + "/"+ MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
+            String imgPath = filepath.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
             File dir = new File(imgPath);
-            if(!dir.exists())
+            if (!dir.exists())
                 dir.mkdirs();
             String imgName = "PassportProfileImage" + ItemId + System.currentTimeMillis();
             File imgFile = new File(dir, imgName);
-            if(passport.FacePhoto!=null) {
+            if (passport.FacePhoto != null) {
                 File filePath = new File(passport.FacePhoto);
                 filePath.delete();
                 imgFile = new File(passport.FacePhoto);
@@ -205,7 +203,7 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             profilePhoto.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             InputStream is = new ByteArrayInputStream(stream.toByteArray());
             try {
-                MyEncrypter.encryptToFile(((MainPassportPatternActivity)getActivity()).getMy_key(), ((MainPassportPatternActivity)getActivity()).getMy_spec_key(), is, new FileOutputStream(imgFile));
+                MyEncrypter.encryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), is, new FileOutputStream(imgFile));
             } catch (NoSuchPaddingException e) {
                 e.printStackTrace();
             } catch (NoSuchAlgorithmException e) {

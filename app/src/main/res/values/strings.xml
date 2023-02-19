@@ -46,4 +46,7 @@
     <string name="sort_by_string">Sort by</string>
     <string name="load_image">Load image</string>
     <string name="passport_first_photo_usage">Use first photo as item image</string>
+    <string name="save_as">Save as</string>
+    <string name="change_photo">Change photo</string>
+    <string name="type_folder">Папка</string>
 </resources>

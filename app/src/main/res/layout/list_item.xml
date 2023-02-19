@@ -59,7 +59,7 @@
     <ImageView
         android:id="@+id/image_panel"
         android:layout_width="150dp"
-        android:layout_height="130dp"
+        android:layout_height="150dp"
         app:layout_constraintBottom_toBottomOf="@+id/title_txt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

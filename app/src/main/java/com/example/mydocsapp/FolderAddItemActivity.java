@@ -18,9 +18,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mydocsapp.apputils.RecyclerItemClickListener;
 import com.example.mydocsapp.interfaces.ItemAdapterActivity;
-import com.example.mydocsapp.models.DBHelper;
+import com.example.mydocsapp.services.AppService;
+import com.example.mydocsapp.services.DBHelper;
 import com.example.mydocsapp.models.Item;
-import com.example.mydocsapp.models.ItemAdapter;
+import com.example.mydocsapp.services.ItemAdapter;
 
 import java.util.ArrayList;
 
@@ -47,7 +48,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements ItemAdap
                 ml.transitionToEnd();
             }
         }, 100);
-        db = new DBHelper(this);
+        db = new DBHelper(this, AppService.getUserId());
         setInitialData();
         recyclerFolderView = (RecyclerView) findViewById(R.id.container);
 

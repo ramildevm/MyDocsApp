@@ -1,11 +1,8 @@
 package com.example.mydocsapp.services;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
-import com.example.mydocsapp.interfaces.IItemsService;
-import com.example.mydocsapp.models.DBHelper;
 import com.example.mydocsapp.models.Item;
 
 import java.util.ArrayList;

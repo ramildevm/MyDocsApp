@@ -1,9 +1,7 @@
-package com.example.mydocsapp.models;
+package com.example.mydocsapp.services;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -13,13 +11,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.mydocsapp.MainPassportPatternActivity;
 import com.example.mydocsapp.R;
 import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.apputils.MyEncrypter;
+import com.example.mydocsapp.models.Item;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,7 +26,6 @@ import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.crypto.NoSuchPaddingException;
@@ -67,7 +63,7 @@ public class FolderItemAdapter extends RecyclerView.Adapter<FolderItemAdapter.Vi
             File outputFile = new File(item.Image+"_copy");
             File encFile = new File(item.Image);
             try {
-                MyEncrypter.decryptToFile(MainPassportPatternActivity.getMy_key(), MainPassportPatternActivity.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
+                MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
                 Bitmap image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(outputFile));
                 image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 50), true);
                 holder.imageView.setImageBitmap(image);

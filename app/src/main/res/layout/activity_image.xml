@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:id="@+id/motion_layout"
     android:layout_height="match_parent"
+    app:layoutDescription="@xml/activity_image_scene"
     tools:context=".ImageActivity">
     <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/image_holder"
@@ -14,6 +16,42 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <LinearLayout
+        android:id="@+id/pattern_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0.85"
+        android:layout_margin="5dp"
+        android:background="@drawable/rounded_border_gray_85"
+        android:orientation="vertical"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_panel">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="10dp"
+            android:padding="5dp"
+            android:text="@string/save_as"
+            android:textColor="#fff"
+            android:onClick="saveAsClick"
+            android:textSize="24dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="10dp"
+            android:padding="5dp"
+            android:onClick="changeImageClick"
+            android:text="@string/change_photo"
+            android:textColor="#fff"
+            android:textSize="24dp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_panel"
         android:layout_width="match_parent"
@@ -59,9 +97,11 @@
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:layout_margin="7dp"
-            android:src="@drawable/ic_more_btn"
-            android:scaleY="1.3"
+            android:layout_marginEnd="316dp"
+            android:tag="off"
             android:scaleX="1.3"
+            android:scaleY="1.3"
+            android:src="@drawable/ic_more_btn"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/image_txt"
@@ -69,4 +109,4 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.motion.widget.MotionLayout>
