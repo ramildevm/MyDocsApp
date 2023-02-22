@@ -67,7 +67,7 @@ public class CardPatternActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        db = new DBHelper(this, AppService.getUserId());
+        db = new DBHelper(this, AppService.getUserId(this));
         getExtraData(getIntent());
         LoadData();
         setOnClickEvents();

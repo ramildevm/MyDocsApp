@@ -54,4 +54,11 @@
     <string name="card_number">Номер карты</string>
     <string name="valid_until">Годен до</string>
     <string name="card">Карта</string>
+    <string name="change_account">Сменить аккаунт</string>
+    <string name="account_settings">Настройки аккаунта</string>
+    <string name="syncing">Синхронизация</string>
+    <string name="hidden_files">Скрытые файлы</string>
+    <string name="my_templates">Мои шаблоны</string>
+    <string name="premium">Премиум</string>
+    <string name="settings">Настройки</string>
 </resources>

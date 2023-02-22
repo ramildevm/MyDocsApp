@@ -56,7 +56,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     public ItemAdapter(Context context, List<Item> items, boolean isSelectMode) {
         this.context = context;
-        this.db = new DBHelper(context, AppService.getUserId());
+        this.db = new DBHelper(context, AppService.getUserId(context));
         this.items = items;
         this.inflater = LayoutInflater.from(context);
         this.isSelectMode = isSelectMode;
@@ -221,11 +221,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             }
         });
         if (item.Type.equals("Папка"))
-        holder.folderContentBack.postDelayed(() -> {
+        holder.folderContentBack.post(() -> {
             Blurry.with(context)
                     .radius(6)
                     .onto((ViewGroup) holder.folderContentBack);
-        },700);
+        });
         holder.titleView.setTag(item);
     }
 

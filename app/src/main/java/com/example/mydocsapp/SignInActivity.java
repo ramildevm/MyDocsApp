@@ -29,7 +29,7 @@ public class SignInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        db = new DBHelper(this, AppService.getUserId());
+        db = new DBHelper(this, AppService.getUserId(this));
     }
 
     public void cancelBtnClick(View view) {
@@ -75,22 +75,25 @@ public class SignInActivity extends AppCompatActivity {
 
     private void fromDB(String login, String password) {
         Cursor cur = db.getUserByLogin(login);
-        cur.moveToNext();
         if(cur!=null){
             Toast msg = Toast.makeText(SignInActivity.this, R.string.error_ligin_in_use, Toast.LENGTH_SHORT);
             msg.show();
             return;
         }
         db.insertUser(new User(0,login,password,"None","None",null));
-        AppService.setUserId(db.selectLastUserId());
+        AppService.setUserId(db.selectLastUserId(),this);
         Toast msg = Toast.makeText(SignInActivity.this, R.string.result_successful_user_adding, Toast.LENGTH_SHORT);
         msg.show();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear().commit();
-        editor.putString("Login",cur.getString(1));
+        editor.putString("Login",login);
         editor.apply();
+
+        cur = db.getUserByLogin(login);
+        cur.moveToFirst();
+        AppService.setUserId(cur.getInt(0),this);
 
         Intent intent = new Intent(SignInActivity.this, MainContentActivity.class);
         startActivity(intent);

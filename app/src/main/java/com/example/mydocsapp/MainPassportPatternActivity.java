@@ -72,7 +72,7 @@ DBHelper db;
                 }
             }
         });
-        db = new DBHelper(this, AppService.getUserId());
+        db = new DBHelper(this, AppService.getUserId(this));
         setDataFromDb();
 
         model = new ViewModelProvider(this).get(PassportStateViewModel.class);
@@ -82,6 +82,7 @@ DBHelper db;
         model.setState(this.Passport);
 
         if(CurrentItem  == null) {
+            findViewById(R.id.top_panel_arrow).setVisibility(View.VISIBLE);
             (findViewById(R.id.passport_txt)).setOnClickListener(v -> {
                 if (v.getTag().equals("off")) {
                     MotionLayout ml = findViewById(R.id.motion_layout);

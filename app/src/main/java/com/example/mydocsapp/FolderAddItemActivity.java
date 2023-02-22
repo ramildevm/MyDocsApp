@@ -48,7 +48,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements ItemAdap
                 ml.transitionToEnd();
             }
         }, 100);
-        db = new DBHelper(this, AppService.getUserId());
+        db = new DBHelper(this, AppService.getUserId(this));
         setInitialData();
         recyclerFolderView = (RecyclerView) findViewById(R.id.container);
 

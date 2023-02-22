@@ -21,7 +21,7 @@ public class AccountActivity extends AppCompatActivity {
         setContentView(R.layout.activity_account);
 
         TextView gtxt = findViewById(R.id.login_txt);
-        int userId = AppService.getUserId();
+        int userId = AppService.getUserId(this);
         DBHelper db = new DBHelper(this, userId);
         Cursor cur = db.getUserById(userId);
         cur.moveToNext();

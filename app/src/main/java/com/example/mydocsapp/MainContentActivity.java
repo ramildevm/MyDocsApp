@@ -117,7 +117,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
 
         // начальная инициализация списка
         // создаем базу данных
-        db = new DBHelper(this, AppService.getUserId());
+        db = new DBHelper(this, AppService.getUserId(this));
 
         setCurrentUserFromDB();
         //setCurrentUserFromAPI();
@@ -151,9 +151,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     }
 
     private void setCurrentUserFromDB() {
-        Cursor cur = db.getUserById(AppService.getUserId());
+        Cursor cur = db.getUserById(AppService.getUserId(this));
         cur.moveToFirst();
-        CurrentUser = new User(AppService.getUserId(), cur.getString(1), cur.getString(2), cur.getString(3), cur.getString(4), cur.getString(5));
+        CurrentUser = new User(AppService.getUserId(this), cur.getString(1), cur.getString(2), cur.getString(3), cur.getString(4), cur.getString(5));
     }
     private void setCurrentUserFromAPI() {
         Cursor cur = db.getUserById(1);

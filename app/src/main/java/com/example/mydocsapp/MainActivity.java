@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        db = new DBHelper(this, AppService.getUserId());
+        db = new DBHelper(this, AppService.getUserId(this));
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String name = preferences.getString("Login", "");
         if(!name.equalsIgnoreCase(""))
@@ -45,17 +45,16 @@ public class MainActivity extends AppCompatActivity {
             cur.moveToNext();
             int id = cur.getInt(0);
             if(id!=0){
-                AppService.setUserId(id);
+                AppService.setUserId(id, this);
                 Intent intent =new Intent(MainActivity.this, MainContentActivity.class);
                 startActivity(intent);
             }
             else{
-                AppService.setUserId(id);
+                AppService.setUserId(id, this);
                 Intent intent = new Intent(MainActivity.this, MainContentActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
             }
-
         }
         try {
             db.create_db();
@@ -95,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void fromDB(String login, String password) {
         Cursor cur = db.getUserByLogin(login);
-        cur.moveToNext();
         if(cur == null){
             Toast msg = Toast.makeText(MainActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT);
             msg.show();
@@ -109,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("Login",cur.getString(1));
         editor.apply();
 
-        AppService.setUserId(cur.getInt(0));
+        AppService.setUserId(cur.getInt(0),this);
         Intent intent =new Intent(MainActivity.this, MainContentActivity.class);
         startActivity(intent);
     }
@@ -160,13 +158,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goGuestModeClick(View view) {
-        AppService.setUserId(1);
-
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear().commit();
         editor.putString("Login","гость");
         editor.apply();
+        AppService.setUserId(1,this);
 
         Intent intent = new Intent(MainActivity.this, MainContentActivity.class);
         startActivity(intent);
