@@ -20,13 +20,15 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".ImageActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".MainContentActivity" />
         <activity
             android:name=".FolderAddItemActivity"
             android:exported="false" />
         <activity
             android:name=".CardPatternActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".MainContentActivity" />
         <activity
             android:name=".SnilsPatternActivity"
             android:exported="false"

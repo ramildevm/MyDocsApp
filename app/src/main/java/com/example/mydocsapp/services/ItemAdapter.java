@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,11 +18,14 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.mydocsapp.R;
 import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.interfaces.ItemAdapterActivity;
 import com.example.mydocsapp.models.Item;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,6 +46,7 @@ import jp.wasabeef.blurry.Blurry;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
+    private static final String PAYLOAD_DELETE_MODE = "PAYLOAD_DELETE_MODE";
     private final LayoutInflater inflater;
     private Context context;
     private List<Item> items;
@@ -83,6 +88,17 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                         holder.selectBtn.setVisibility(View.INVISIBLE);
                     }
                 }
+                else if(payload.equals(PAYLOAD_DELETE_MODE)){
+                    if (isSelectMode) {
+                        holder.selectBtn.setVisibility(View.VISIBLE);
+                        if (item.isSelected == 1)
+                            holder.selectBtn.setBackgroundResource(R.drawable.selected_circle);
+                        else
+                            holder.selectBtn.setBackgroundResource(R.drawable.unselected_circle);
+                    } else {
+                        holder.selectBtn.setVisibility(View.INVISIBLE);
+                    }
+                }
             }
         } else
             super.onBindViewHolder(holder, position, payloads);
@@ -91,6 +107,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ItemAdapter.ViewHolder holder, int position) {
         Item item = items.get(position);
+        int radius = context.getResources().getDimensionPixelSize(R.dimen.corner_radius_14);
         if (item.Image == null) {
             if (item.Type.equals("Папка")) {
                 holder.imageView.setVisibility(View.INVISIBLE);
@@ -120,12 +137,17 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             }
             else if (item.Type.equals("Паспорт")){
                 holder.recyclerFolder.setVisibility(View.INVISIBLE);
-                holder.imageView.setImageResource(R.drawable.passport_image);
+                Glide.with(context).load(R.drawable.passport_image).transform(new RoundedCorners(radius)).into(holder.imageView);
+                holder.imageView.setVisibility(View.VISIBLE);
+            }
+            else if (item.Type.equals("Карта")){
+                holder.recyclerFolder.setVisibility(View.INVISIBLE);
+                Glide.with(context).load(R.drawable.image_credit_card).transform(new RoundedCorners(radius)).into(holder.imageView);
                 holder.imageView.setVisibility(View.VISIBLE);
             }
             else{
                 holder.recyclerFolder.setVisibility(View.INVISIBLE);
-                holder.imageView.setImageResource(R.drawable.passport_image);
+                Glide.with(context).load(R.drawable.passport_image).transform(new RoundedCorners(radius)).into(holder.imageView);
                 holder.imageView.setVisibility(View.VISIBLE);
             }
         }
@@ -138,7 +160,14 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
                 Bitmap image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(outputFile));
                 image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 150), true);
+                int sizeInDP = 3;
+                int marginInDp = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, sizeInDP, this.context.getResources()
+                                .getDisplayMetrics());
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.imageView.getLayoutParams();
+                params.leftMargin = marginInDp; params.topMargin = marginInDp; params.rightMargin = marginInDp; params.bottomMargin=marginInDp;
                 holder.imageView.setImageBitmap(image);
+                //Glide.with(context).load(image).transform(new RoundedCorners(radius)).into(holder.imageView);
                 outputFile.delete();
             } catch (NoSuchPaddingException e) {
                 e.printStackTrace();
@@ -159,6 +188,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             holder.icoImg.setImageResource(R.drawable.ic_folder);
         else if (item.Type.equals("Паспорт"))
             holder.icoImg.setImageResource(R.drawable.ic_personalcard);
+        else if (item.Type.equals("Карта"))
+            holder.icoImg.setImageResource(R.drawable.ic_card);
         else if (item.Type.equals("Изображение"))
             holder.icoImg.setImageResource(R.drawable.ic_image);
         else
@@ -189,13 +220,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 return true;
             }
         });
-        holder.folderContentBack.post(() -> {
+        if (item.Type.equals("Папка"))
+        holder.folderContentBack.postDelayed(() -> {
             Blurry.with(context)
-                    .radius(4)
+                    .radius(6)
                     .onto((ViewGroup) holder.folderContentBack);
-        });
+        },700);
         holder.titleView.setTag(item);
-
     }
 
     public void setSelectMode(Boolean value) {
@@ -231,7 +262,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     }
     public void onMovedItemChanged(Item item, int position) {
         items.set(position,item);
-        notifyItemChanged(position);
+        notifyItemChanged(position, PAYLOAD_DELETE_MODE);
     }
     public void onItemChanged(Item item) {
         Item newItem;

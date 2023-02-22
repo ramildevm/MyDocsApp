@@ -51,7 +51,6 @@ public class CurrentItemsService  {
                     cur.getInt(8));
             CurrentItemsSet.add(item);
         }
-        Log.d("DbData", "Items were loaded: " + CurrentItemsSet.size());
         CurrentItem = null;
     }
 
@@ -60,7 +59,7 @@ public class CurrentItemsService  {
             if (!isFoldersAvailable)
                 CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Папка"))).collect(Collectors.toList()));
             if(!isDocsAvailable)
-                CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Пасспорт"))).collect(Collectors.toList()));
+                CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Паспорт"))).collect(Collectors.toList()));
             if(!isImagesAvailable)
                 CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Изображение"))).collect(Collectors.toList()));
             if(!isCardsAvailable)

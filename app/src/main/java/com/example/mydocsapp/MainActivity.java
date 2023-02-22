@@ -2,10 +2,13 @@ package com.example.mydocsapp;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
@@ -26,14 +29,34 @@ import java.io.IOException;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-
     DBHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         db = new DBHelper(this, AppService.getUserId());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String name = preferences.getString("Login", "");
+        if(!name.equalsIgnoreCase(""))
+        {
+            Cursor cur = db.getUserByLogin(name);
+            cur.moveToNext();
+            int id = cur.getInt(0);
+            if(id!=0){
+                AppService.setUserId(id);
+                Intent intent =new Intent(MainActivity.this, MainContentActivity.class);
+                startActivity(intent);
+            }
+            else{
+                AppService.setUserId(id);
+                Intent intent = new Intent(MainActivity.this, MainContentActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
+            }
+
+        }
         try {
             db.create_db();
         }
@@ -41,10 +64,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e("SQLError",e.getMessage());
             e.printStackTrace();
         }
-        try {
-            db.deleteUser(1);
-        }
-        catch (Exception e){}
     }
     private void changeButtonBack(View view, int backSetId, int duration){
         view.setBackground(ContextCompat.getDrawable(this,backSetId));
@@ -62,18 +81,45 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loginMethod() {
-        String login = ((TextView)findViewById(R.id.editTextLogin)).getText().toString().replaceAll(" ", "");
-        String password = ((TextView)findViewById(R.id.editTextPassword)).getText().toString().replaceAll(" ", "");
-        if(login.length() == 0 | password.length()==0){
+        String login = ((TextView)findViewById(R.id.editTextLogin)).getText().toString();
+        String password = ((TextView)findViewById(R.id.editTextPassword)).getText().toString();
+        if(login.isEmpty() | password.isEmpty()){
             Toast msg = Toast.makeText(MainActivity.this, R.string.error_not_all_fields_filled, Toast.LENGTH_SHORT);
             msg.show();
             return;
         }
+        fromDB(login, password);
+
+        //fromAPI(login, password);
+    }
+
+    private void fromDB(String login, String password) {
+        Cursor cur = db.getUserByLogin(login);
+        cur.moveToNext();
+        if(cur == null){
+            Toast msg = Toast.makeText(MainActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT);
+            msg.show();
+            return;
+        }
+        cur.moveToFirst();
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear().commit();
+        editor.putString("Login",cur.getString(1));
+        editor.apply();
+
+        AppService.setUserId(cur.getInt(0));
+        Intent intent =new Intent(MainActivity.this, MainContentActivity.class);
+        startActivity(intent);
+    }
+
+    private void fromAPI(String login, String password) {
         MainApi.GetUser(login, new UserGetCallback() {
             @Override
             public void onResult(User user) {
                 if(user != null) {
-                    if (!password.equals(user.Password.replaceAll(" ", "")) && !password.isEmpty()) {
+                    if (!password.equals(user.Password) && !password.isEmpty()) {
                         Toast msg = Toast.makeText(MainActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
                         msg.show();
                     } else {
@@ -114,22 +160,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goGuestModeClick(View view) {
+        AppService.setUserId(1);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear().commit();
+        editor.putString("Login","гость");
+        editor.apply();
+
         Intent intent = new Intent(MainActivity.this, MainContentActivity.class);
-        User user = new User(1,getString(R.string.extra_guest),"","None","None",null);
-        Boolean i = db.insertUser(user);
-        if(i)
-            startActivity(intent);
-        else {
-            Log.e("DEadProg", "CHe to ne robit");
-            this.onBackPressed();
-        }
-
+        startActivity(intent);
         overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
-    }
-
-    private void intentPutUserExtras(Intent intent, User user) {
-        intent.putExtra("user_login",user.Login);
-        intent.putExtra("user_password",user.Password);
     }
 
     public void switchLangClick(View view) {

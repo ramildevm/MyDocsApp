@@ -23,6 +23,7 @@ import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.databinding.FragmentPassportFirstBinding;
 import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
+import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
 import com.example.mydocsapp.services.AppService;
@@ -108,8 +109,10 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             if (model.getState().getValue().FacePhoto == null)
                 return;
             Intent intent = new Intent(getActivity(), ImageActivity.class);
-            intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
+            Item item = ((MainPassportPatternActivity) getActivity()).getCurrentItem();
+            intent.putExtra("text", item.Title);
             String fileName = model.getState().getValue().FacePhoto;
+            intent.putExtra("item", item);
             if (profilePhoto != null) {
                 fileName = ImageSaveService.createImageFromBitmap(profilePhoto, getContext());
                 intent.putExtra("type", BITMAP_IMAGE);

@@ -21,11 +21,12 @@
         android:id="@+id/pattern_container"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
+        android:alpha="85"
         android:background="@drawable/rounded_border_gray_85"
         android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="parent">
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:layout_width="wrap_content"
@@ -49,8 +50,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/file_add_inn"
             android:onClick="goInnClick"
+            android:text="@string/file_add_inn"
             android:textColor="#FFC700"
             android:textSize="24dp"
             android:textStyle="bold" />
@@ -59,14 +60,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/file_add_policy"
             android:onClick="goPolicyClick"
+            android:text="@string/file_add_policy"
             android:textColor="#FFC700"
             android:textSize="24dp"
             android:textStyle="bold" />
 
 
     </LinearLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_panel"
         android:layout_width="match_parent"
@@ -81,11 +83,11 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="11dp"
-            android:src="@drawable/left_arrow"
-            android:rotation="180"
-            android:scaleY="1.3"
-            android:scaleX="1.3"
             android:onClick="goBackMainPageClick"
+            android:rotation="180"
+            android:scaleX="1.3"
+            android:scaleY="1.3"
+            android:src="@drawable/left_arrow"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toLeftOf="@id/passport_txt"
             app:layout_constraintStart_toStartOf="parent"
@@ -97,8 +99,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="5dp"
-            android:text="@string/file_add_passport"
             android:tag="off"
+            android:text="@string/file_add_passport"
             android:textColor="#FFC700"
             android:textIsSelectable="false"
             android:textSize="24dp"
@@ -108,14 +110,28 @@
             app:layout_constraintStart_toEndOf="@+id/menubar_Back"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/top_panel_arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleX="1.5"
+            android:scaleY="0.5"
+            android:text=" ∨"
+            android:textColor="#FFC700"
+            android:textIsSelectable="false"
+            android:textSize="22dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/passport_txt"
+            app:layout_constraintStart_toEndOf="@+id/passport_txt" />
+
         <ImageView
             android:id="@+id/menubar_options"
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:layout_margin="7dp"
-            android:src="@drawable/ic_more_btn"
-            android:scaleY="1.3"
             android:scaleX="1.3"
+            android:scaleY="1.3"
+            android:src="@drawable/ic_more_btn"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/passport_txt"

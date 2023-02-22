@@ -61,7 +61,6 @@ import java.util.Locale;
 import javax.crypto.NoSuchPaddingException;
 
 public class MainContentActivity extends AppCompatActivity implements ItemAdapterActivity {
-    private static final int BITMAP_IMAGE = 0;
     private static final int DB_IMAGE = 1;
     RecyclerView recyclerView;
     DBHelper db;
@@ -119,9 +118,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         // начальная инициализация списка
         // создаем базу данных
         db = new DBHelper(this, AppService.getUserId());
-        Cursor cur = db.getUserById(1);
-        cur.moveToFirst();
-        CurrentUser = new User(0, cur.getString(1), cur.getString(2), cur.getString(3), cur.getString(4), cur.getString(5));
+
+        setCurrentUserFromDB();
+        //setCurrentUserFromAPI();
 
         isSelectMode = false;
 
@@ -150,6 +149,18 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         recyclerView.addItemDecoration(new com.example.mydocsapp.apputils.GridSpacingItemDecoration(spanCount, spacing, includeEdge));
         setOnClickListeners();
     }
+
+    private void setCurrentUserFromDB() {
+        Cursor cur = db.getUserById(AppService.getUserId());
+        cur.moveToFirst();
+        CurrentUser = new User(AppService.getUserId(), cur.getString(1), cur.getString(2), cur.getString(3), cur.getString(4), cur.getString(5));
+    }
+    private void setCurrentUserFromAPI() {
+        Cursor cur = db.getUserById(1);
+        cur.moveToFirst();
+        CurrentUser = new User(0, cur.getString(1), cur.getString(2), cur.getString(3), cur.getString(4), cur.getString(5));
+    }
+
     private void createImage(Bitmap bitmap) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
         String time = df.format(new Date());
@@ -191,6 +202,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         Intent intent = new Intent(MainContentActivity.this, ImageActivity.class);
         intent.putExtra("text", item.Title);
         intent.putExtra("type", DB_IMAGE);
+        intent.putExtra("item", itemsService.getCurrentItem());
         intent.putExtra("imageFile", filePath);
         this.startActivity(intent);
     }
@@ -261,6 +273,17 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                                         Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
                                                         intent.putExtra("item", itemsService.getCurrentItem());
                                                         startActivity(intent);
+                                                    } else if (itemsService.getCurrentItem().Type.equals("Карта")) {
+                                                        Intent intent = new Intent(MainContentActivity.this, CardPatternActivity.class);
+                                                        intent.putExtra("item", itemsService.getCurrentItem());
+                                                        startActivity(intent);
+                                                    }else if (item.Type.equals("Изображение")) {
+                                                        Intent intent = new Intent(MainContentActivity.this, ImageActivity.class);
+                                                        intent.putExtra("text", item.Title);
+                                                        intent.putExtra("type", DB_IMAGE);
+                                                        intent.putExtra("item", itemsService.getCurrentItem());
+                                                        intent.putExtra("imageFile", item.Image);
+                                                        startActivity(intent);
                                                     }
                                                 }
 
@@ -289,10 +312,15 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                     Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
                                     intent.putExtra("item", itemsService.getCurrentItem());
                                     startActivity(intent);
+                                } else if (item.Type.equals("Карта")) {
+                                    Intent intent = new Intent(MainContentActivity.this, CardPatternActivity.class);
+                                    intent.putExtra("item", itemsService.getCurrentItem());
+                                    startActivity(intent);
                                 }else if (item.Type.equals("Изображение")) {
                                     Intent intent = new Intent(MainContentActivity.this, ImageActivity.class);
                                     intent.putExtra("text", item.Title);
                                     intent.putExtra("type", DB_IMAGE);
+                                    intent.putExtra("item", itemsService.getCurrentItem());
                                     intent.putExtra("imageFile", item.Image);
                                     startActivity(intent);
                                 }
@@ -381,44 +409,11 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     }
 
     @Override
-    protected void onResume() {
+    protected void onRestart() {
+        super.onRestart();
         reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
-        SaveDbLog();
-        super.onResume();
     }
 
-    private void SaveDbLog() {
-        Cursor cur = db.getItems();
-        String it = "tems: \n";
-        String ps = "passports: \n";
-        String ph = "photos: \n";
-        Item item;
-        while (cur.moveToNext()) {
-            item = new Item(cur.getInt(0),
-                    cur.getString(1),
-                    cur.getString(2),
-                    cur.getString(3),
-                    cur.getInt(4),
-                    cur.getInt(5),
-                    cur.getInt(6),
-                    cur.getString(7),
-                    cur.getInt(8),
-                    cur.getInt(9));
-            it += (item.Id + " " + item.Title + " " + item.FolderId + " \n" + item.Image +"\n");
-        }
-        cur = db.getPassports();
-        while (cur.moveToNext()) {
-            ps += (cur.getInt(0)) + " \n";
-        }
-        cur = db.getPhotos();
-        while (cur.moveToNext()) {
-            ph += (cur.getInt(0)) + " \n";
-        }
-        Log.d("DBData", it);
-        Log.d("DBData", ps);
-        Log.d("DBData", ph);
-
-    }
 
     private ArrayList<Item> getItemsFromDb(int id) {
         ArrayList<Item> folderItems = new ArrayList<>();
@@ -501,6 +496,10 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         makeRenameDialog.show();
     }
 
+    public void menuMakeCardClick(View view) {
+        Intent intent = new Intent(MainContentActivity.this, CardPatternActivity.class);
+        startActivity(intent);
+    }
     public void menuMakeImageClick(View view) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Intent intent = CropImage.activity()
@@ -514,18 +513,21 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     public void sortFolderClick(View view) {
         if (itemsService.isFoldersAvailable)
             view.setAlpha(0.5f);
-        else
+        else {
+            itemsService.setInitialData();
             view.setAlpha(1f);
+        }
         itemsService.isFoldersAvailable = !itemsService.isFoldersAvailable;
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
     }
 
     public void sortCardClick(View view) {
-
         if (itemsService.isCardsAvailable)
             view.setAlpha(0.5f);
-        else
+        else {
+            itemsService.setInitialData();
             view.setAlpha(1f);
+        }
         itemsService.isCardsAvailable = !itemsService.isCardsAvailable;
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
     }
@@ -533,8 +535,10 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     public void sortImageClick(View view) {
         if (itemsService.isImagesAvailable)
             view.setAlpha(0.5f);
-        else
+        else {
+            itemsService.setInitialData();
             view.setAlpha(1f);
+        }
         itemsService.isImagesAvailable = !itemsService.isImagesAvailable;
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
     }
@@ -542,8 +546,10 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     public void sortDocClick(View view) {
         if (itemsService.isDocsAvailable)
             view.setAlpha(0.5f);
-        else
+        else {
+            itemsService.setInitialData();
             view.setAlpha(1f);
+        }
         itemsService.isDocsAvailable = !itemsService.isDocsAvailable;
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
     }
@@ -553,7 +559,6 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         adapter = new ItemAdapter(this, _items, isSelectMode);
         // устанавливаем для списка адаптер
         _recyclerView.setAdapter(adapter);
-        SaveDbLog();
     }
 
     void reFillContentPanel(int mode, ArrayList<Item> _items) {

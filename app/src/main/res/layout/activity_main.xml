@@ -64,10 +64,13 @@
         <EditText
             android:id="@+id/editTextLogin"
             android:transitionName="@string/log_in"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:textSize="26dp"
+            android:padding="2dp"
+            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890_"
+            android:inputType="textFilter"
+            android:textSize="22dp"
             android:textColor="#000"
             android:ems="10"
             android:background="@drawable/rounded_border_white" />
@@ -85,9 +88,20 @@
         <EditText
             android:id="@+id/editTextPassword"
             android:transitionName="@string/password"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:textSize="22dp"
+            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890_"
+            android:textColor="#000"
+            android:ems="10"
+            android:background="@drawable/rounded_border_white"
+            android:inputType="textPassword" />
+        <EditText
+            android:transitionName="@string/fake_line"
+            android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:visibility="invisible"
             android:textSize="26dp"
             android:textColor="#000"
             android:ems="10"

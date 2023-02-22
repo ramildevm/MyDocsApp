@@ -73,12 +73,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="74dp"
+                android:layout_marginLeft="10dp"
                 android:onClick="changeAccountClickBack"
-                android:text="Change account"
+                android:text="@string/change_account"
                 android:textColor="@color/white"
-                android:textSize="16dp"
+                android:textSize="18dp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/account_photo_image"
                 app:layout_constraintTop_toTopOf="@id/account_photo_image" />
 
@@ -117,7 +118,7 @@
                 android:layout_gravity="center"
                 android:layout_marginStart="10dp"
                 android:gravity="center"
-                android:text="Account settings"
+                android:text="@string/account_settings"
                 android:textColor="@color/white"
                 android:textSize="20dp"
                 android:textStyle="bold" />
@@ -140,7 +141,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginStart="10dp"
-                android:text="Syncing"
+                android:text="@string/syncing"
                 android:textColor="@color/white"
                 android:textSize="20dp"
                 android:textStyle="bold" />
@@ -163,7 +164,7 @@
                 android:layout_gravity="center"
                 android:textStyle="bold"
                 android:gravity="center"
-                android:text="Hidden files"
+                android:text="@string/hidden_files"
                 android:layout_marginStart="10dp"
                 android:textColor="@color/white"
                 android:textSize="20dp" />
@@ -184,7 +185,7 @@
                 android:layout_gravity="center"
                 android:textStyle="bold"
                 android:gravity="center"
-                android:text="My templates"
+                android:text="@string/my_templates"
                 android:layout_marginStart="10dp"
                 android:textColor="@color/white"
                 android:textSize="20dp" />
@@ -206,7 +207,7 @@
                 android:layout_gravity="center"
                 android:textStyle="bold"
                 android:gravity="center"
-                android:text="Premium"
+                android:text="@string/premium"
                 android:textColor="@color/white"
                 android:textSize="20dp" />
 
@@ -233,7 +234,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:onClick="goSettingsClick"
-        android:text="Settings"
+        android:text="@string/settings"
         android:textColor="@color/white"
         android:textSize="20dp"
         android:textStyle="bold"

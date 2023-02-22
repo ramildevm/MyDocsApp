@@ -27,6 +27,7 @@ import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.databinding.FragmentPassportSecondBinding;
 import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
+import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
 import com.example.mydocsapp.services.AppService;
@@ -82,11 +83,13 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         model = new ViewModelProvider(requireActivity()).get(PassportStateViewModel.class);
 
         loadData();
+        Item item = ((MainPassportPatternActivity) getActivity()).getCurrentItem();
         binding.firstPassportPhoto.setOnClickListener(v -> {
             if (model.getState().getValue().PhotoPage1 == null)
                 return;
             Intent intent = new Intent(getActivity(), ImageActivity.class);
-            intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
+            intent.putExtra("text", item.Title);
+            intent.putExtra("item", item);
             String fileName = model.getState().getValue().PhotoPage1;
             if (pagePhoto1 != null) {
                 fileName = ImageSaveService.createImageFromBitmap(pagePhoto1, getContext());
@@ -100,7 +103,8 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
             if (model.getState().getValue().PhotoPage2 == null)
                 return;
             Intent intent = new Intent(getActivity(), ImageActivity.class);
-            intent.putExtra("text", ((MainPassportPatternActivity) getActivity()).getCurrentItem().Title);
+            intent.putExtra("text", item.Title);
+            intent.putExtra("item", item);
             String fileName = model.getState().getValue().PhotoPage2;
             if (pagePhoto2 != null) {
                 fileName = ImageSaveService.createImageFromBitmap(pagePhoto2, getContext());

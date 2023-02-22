@@ -8,6 +8,7 @@
     android:id="@+id/item_panel_child"
     android:layout_margin="10dp"
     android:layout_width="160dp"
+    android:clipToOutline="true"
     android:layout_height="195dp"
     android:background="@drawable/item_layout_bg"
     android:translationZ="3dp"
@@ -36,6 +37,24 @@
         </androidx.recyclerview.widget.RecyclerView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <ImageView
+            android:id="@+id/image_panel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/item_panel_child_child"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="5dp"
+        android:translationZ="5dp"
+        android:background="@drawable/item_layout_trans_bg"
+        android:clipToOutline="true"/>
     <ImageView
         android:id="@+id/select_btn"
         android:layout_width="35dp"
@@ -54,14 +73,6 @@
         android:visibility="invisible"
         android:background="@drawable/select_pin_btn"
         android:onClick="itemSelectBtnClick"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-    <ImageView
-        android:id="@+id/image_panel"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        app:layout_constraintBottom_toBottomOf="@+id/title_txt"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
     <ImageView
@@ -88,6 +99,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -46,4 +46,12 @@
     <string name="sort_by_string">Сортировать</string>
     <string name="load_image">Загрузить изображение</string>
     <string name="passport_first_photo_usage">Использовать первое фото как изображения документа</string>
+    <string name="change_photo">Поменять изображение</string>
+    <string name="save_as">Экспортировать</string>
+    <string name="error_ligin_in_use">Логин уже используется</string>
+    <string name="fake_line">fake line</string>
+    <string name="cvv">CVV</string>
+    <string name="card_number">Номер карты</string>
+    <string name="valid_until">Годен до</string>
+    <string name="card">Карта</string>
 </resources>

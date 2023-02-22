@@ -1,5 +1,6 @@
 package com.example.mydocsapp;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -7,8 +8,10 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
+import androidx.core.app.NavUtils;
 
 import com.example.mydocsapp.apputils.MyEncrypter;
+import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.services.AppService;
 import com.github.chrisbanes.photoview.PhotoView;
 
@@ -28,15 +31,14 @@ public class ImageActivity extends AppCompatActivity {
     private String imgFile;
     private String imgText;
     private int type;
+    private Item CurrentItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
 
-        imgFile = getIntent().getStringExtra("imageFile");
-        imgText = getIntent().getStringExtra("text");
-        type = getIntent().getIntExtra("type",0);
+        getExtraData(getIntent());
 
         File outputFile = new File(imgFile+"_copy");
         File filePath = new File(imgFile);
@@ -76,11 +78,23 @@ public class ImageActivity extends AppCompatActivity {
             }
         });
     }
+    private void getExtraData(Intent intent) {
+        imgFile = intent.getStringExtra("imageFile");
+        imgText = intent.getStringExtra("text");
+        type = intent.getIntExtra("type",0);
+        CurrentItem= intent.getParcelableExtra("item");
+    }
 
     public void goBackClick(View view){
         onBackPressed();
     }
 
+    @Override
+    public void onBackPressed() {
+        if(CurrentItem.Type.equals("Изображение"))
+            NavUtils.navigateUpFromSameTask(this);
+        super.onBackPressed();
+    }
     public void saveAsClick(View view) {
 
     }

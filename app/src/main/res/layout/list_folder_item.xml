@@ -21,19 +21,21 @@
             android:id="@+id/folder_content_back"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:clipToOutline="true"
+            android:background="@drawable/rounded_transparent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" >
+            <ImageView
+                android:id="@+id/image_panel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-        <ImageView
-            android:id="@+id/image_panel"
-            android:layout_width="match_parent"
-            android:layout_marginHorizontal="3dp"
-            android:layout_height="50dp"
-            app:layout_constraintBottom_toBottomOf="@+id/bottom_panel"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottom_panel"
             android:layout_width="match_parent"

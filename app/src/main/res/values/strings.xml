@@ -24,7 +24,6 @@
     <string name="division_code">Division code</string>
     <string name="date_of_issue">Date of issue</string>
     <string name="issued_by_whom">Issued by whom</string>
-    <string name="full_name">Full name</string>
     <string name="date_of_birth">Date of birth</string>
     <string name="gender">Gender</string>
     <string name="place_of_birth">Place of birth</string>
@@ -48,5 +47,18 @@
     <string name="passport_first_photo_usage">Use first photo as item image</string>
     <string name="save_as">Save as</string>
     <string name="change_photo">Change photo</string>
-    <string name="type_folder">Папка</string>
+    <string name="error_ligin_in_use">Login is already in use!</string>
+    <string name="fake_line">fake line</string>
+    <string name="card_number">Card number</string>
+    <string name="full_name">Full Name</string>
+    <string name="valid_until">Valid until</string>
+    <string name="cvv">CVV</string>
+    <string name="card">Card</string>
+    <string name="change_account">Change account</string>
+    <string name="account_settings">Account settings</string>
+    <string name="syncing">Syncing</string>
+    <string name="hidden_files">Hidden files</string>
+    <string name="my_templates">My templates</string>
+    <string name="premium">Premium</string>
+    <string name="settings">Settings</string>
 </resources>

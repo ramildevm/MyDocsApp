@@ -188,34 +188,6 @@ DBHelper db;
     @Override
     protected void onResume() {
         super.onResume();
-        SaveDbLog();
-    }
-    private void SaveDbLog(){
-        Cursor cur = db.getItems();
-        String it = "passport\nitems: \n";
-        String ps = "passports: \n";
-        Item item;
-        while (cur.moveToNext()) {
-            item = new Item(cur.getInt(0),
-                    cur.getString(1),
-                    cur.getString(2),
-                    cur.getString(3),
-                    cur.getInt(4),
-                    cur.getInt(5),
-                    cur.getInt(6),
-                    cur.getString(7),
-                    cur.getInt(8),
-                    cur.getInt(9));
-            it+= (item.Id + " " + item.Title + " " + item.FolderId+" \n");
-        }
-        cur = db.getPassports();
-        while (cur.moveToNext()) {
-            ps+= (cur.getInt(0)) + " \n";
-        }
-        Log.d("DBData", it);
-        Log.d("DBData", ps);
-
-
     }
     public void goInnClick(View view) {
         startActivity(new Intent(MainPassportPatternActivity.this, INNPatternActivity.class));

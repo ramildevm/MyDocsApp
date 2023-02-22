@@ -246,6 +246,7 @@
         android:id="@+id/flow_add_card_btn"
         android:layout_width="45dp"
         android:layout_height="45dp"
+        android:onClick="menuMakeCardClick"
         app:layout_constraintEnd_toEndOf="@id/flow_button"
         app:layout_constraintBottom_toBottomOf="@id/flow_button"
         app:layout_constraintStart_toStartOf="@id/flow_button"

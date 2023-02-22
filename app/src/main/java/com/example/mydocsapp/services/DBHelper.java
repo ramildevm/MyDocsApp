@@ -6,10 +6,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.mydocsapp.api.User;
+import com.example.mydocsapp.models.CreditCard;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.Photo;
@@ -39,6 +39,12 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion,  int newVersion) { }
 
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        db.execSQL("pragma foreign_keys = on");
+    }
+
     public void create_db() throws IOException{
         File file = new File(DB_PATH);
         if (!file.exists()) {
@@ -59,21 +65,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public SQLiteDatabase open()throws SQLException {
         return SQLiteDatabase.openDatabase(DB_PATH, null, SQLiteDatabase.OPEN_READWRITE);
     }
-    private boolean checkDataBase() {
-        SQLiteDatabase checkDB = null;
-        try {
-            String myPath = DB_PATH;
-            File file = new File(myPath);
-            file.setWritable(true);
-            if (file.exists() && !file.isDirectory())
-                checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READWRITE);
-        } catch (SQLiteException e) {
-        }
-        if (checkDB != null) {
-            checkDB.close();
-        }
-        return checkDB != null ? true : false;
-    }
     //*********************************************************************************************
     //Item table
     public Boolean insertItem( Item item){
@@ -86,7 +77,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("isHiden",item.isHiden);
         cv.put("FolderId",item.FolderId);
         cv.put("DateCreation",item.DateCreation);
-        cv.put("UserId",item.UserId);
+        cv.put("UserId",UserId);
         cv.put("isSelected",item.isSelected);
         long result = db.insert("Item",null,cv);
         if (result ==-1)
@@ -117,7 +108,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("isHiden",item.isHiden);
         cv.put("FolderId",item.FolderId);
         cv.put("DateCreation",item.DateCreation);
-        cv.put("UserId",item.UserId);
+        cv.put("UserId",UserId);
         cv.put("isSelected",item.isSelected);
         long result = db.update("Item",cv,"id=?", new String[]{""+id});
         if (result <=0)
@@ -153,12 +144,13 @@ public class DBHelper extends SQLiteOpenHelper {
     }
     public Boolean deleteItem(int id){
         SQLiteDatabase db = open();
-        long result = db.delete("Item","id=?", new String[]{""+id});
-        if (result <=0)
-            return false;
-        else {
+        //long result = db.delete("Item","id=?", new String[]{""+id});
+        db.execSQL("delete from Item where Id="+id);
+//        if (result <=0)
+//            return false;
+//        else {
             return true;
-        }
+//        }
     }
 
     @SuppressLint("Range")
@@ -248,6 +240,18 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("select * from User where Id=?", new String[]{""+objectId});
         return cursor;
     }
+    public Cursor getUserByLogin(String login) {
+        SQLiteDatabase db = open();
+        Cursor cur = db.rawQuery("select count(*) from User where Login=?", new String[]{login});
+        if (cur != null) {
+            cur.moveToFirst();                    // Always one row returned.
+            if (cur.getInt(0) == 0) {               // Zero count means empty table.
+                return null;
+            }
+        }
+        cur = db.rawQuery("select * from User where Login=?", new String[]{login});
+        return cur;
+    }
     public Boolean deleteUser(int id){
         SQLiteDatabase db = open();
         long result = db.delete("User","id=?", new String[]{""+id});
@@ -285,19 +289,20 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
+    public int selectLastUserId() {
+        SQLiteDatabase db = open();
+        Cursor cur = db.rawQuery("SELECT rowid from User order by ROWID DESC limit 1",null);
+        cur.moveToFirst();
+        int id;
+        if(cur!=null && cur.getCount()>0)
+            id = cur.getInt(0);
+        else
+            id = 0;
+        return id;
+    }
     //*********************************************************************************************
     //Photo table
 
-    public Cursor getPhotoById(int objectId) {
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Photo where Id=?", new String[]{""+objectId});
-        return cursor;
-    }
-    public Cursor getPhotos() {
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Photo", null);
-        return cursor;
-    }
     public Boolean deletePhoto(int id){
         SQLiteDatabase db = open();
         long result = db.delete("Photo","id=?", new String[]{""+id});
@@ -324,6 +329,53 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("Id",photo.Id);
         cv.put("Path",photo.Path);
         long result = db.insert("Photo",null,cv);
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
+    //*********************************************************************************************
+    //CreditCard table
+    public Cursor getCreditCardById(int objectId) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from CreditCard where Id=?", new String[]{""+objectId});
+        return cursor;
+    }
+    public Boolean deleteCreditCard(int id){
+        SQLiteDatabase db = open();
+        long result = db.delete("CreditCard","id=?", new String[]{""+id});
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
+    public Boolean updateCreditCard(int id, CreditCard creditCard){
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("Number",creditCard.Number);
+        cv.put("FIO",creditCard.FIO);
+        cv.put("ExpiryDate",creditCard.ExpiryDate);
+        cv.put("CVV",creditCard.CVV);
+        cv.put("PhotoPage1",creditCard.PhotoPage1);
+        long result = db.update("CreditCard",cv,"id=?", new String[]{""+id});
+        if (result <=0)
+            return false;
+        else {
+            return true;
+        }
+    }
+    public Boolean insertCreditCard(CreditCard creditCard){
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("Id",creditCard.Id);
+        cv.put("Number",creditCard.Number);
+        cv.put("FIO",creditCard.FIO);
+        cv.put("ExpiryDate",creditCard.ExpiryDate);
+        cv.put("CVV",creditCard.CVV);
+        cv.put("PhotoPage1",creditCard.PhotoPage1);
+        long result = db.insert("CreditCard",null,cv);
         if (result <=0)
             return false;
         else {
