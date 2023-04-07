@@ -53,16 +53,19 @@ public class CurrentItemsService  {
         }
         CurrentItem = null;
     }
-
     public ArrayList<Item> getCurrentItemsSet() {
+        return CurrentItemsSet;
+    }
+    public ArrayList<Item> getSortedCurrentItemsSet() {
+        setInitialData();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             if (!isFoldersAvailable)
                 CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Папка"))).collect(Collectors.toList()));
-            if(!isDocsAvailable)
+            if (!isDocsAvailable)
                 CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Паспорт"))).collect(Collectors.toList()));
-            if(!isImagesAvailable)
+            if (!isImagesAvailable)
                 CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Изображение"))).collect(Collectors.toList()));
-            if(!isCardsAvailable)
+            if (!isCardsAvailable)
                 CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Карта"))).collect(Collectors.toList()));
         }
         return CurrentItemsSet;

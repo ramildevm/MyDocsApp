@@ -61,4 +61,9 @@
     <string name="my_templates">My templates</string>
     <string name="premium">Premium</string>
     <string name="settings">Settings</string>
+    <string name="error_input_password">Enter the password!</string>
+    <string name="save_changes">Save changes?</string>
+    <string name="do_you_want_save">Do you want to save changes?</string>
+    <string name="save">Save</string>
+    <string name="exit">Exit</string>
 </resources>

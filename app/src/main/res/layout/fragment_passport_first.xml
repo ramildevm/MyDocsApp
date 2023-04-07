@@ -11,12 +11,13 @@
         android:id="@+id/user_passport_photo"
         android:layout_width="140dp"
         android:layout_height="170dp"
-        android:layout_marginLeft="35dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="28dp"
         android:background="@drawable/view_round_white"
         android:tag="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <Button
         android:id="@+id/load_profile_photo_btn"
         android:layout_width="140dp"
@@ -28,6 +29,7 @@
         app:layout_constraintBottom_toBottomOf="@id/user_passport_photo"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/right_top_panel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@+id/user_passport_photo"
@@ -66,6 +68,16 @@
             app:layout_constraintTop_toTopOf="parent"
             app:mask="#### ######" />
 
+        <ImageView
+            android:id="@+id/copy1"
+            android:onClick="copyTextClick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_documentcopy"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextSeriesNumber"
+            app:layout_constraintEnd_toEndOf="@+id/editTextSeriesNumber"
+            app:layout_constraintTop_toTopOf="@+id/editTextSeriesNumber" />
+
         <TextView
             android:id="@+id/d_i"
             android:layout_width="wrap_content"
@@ -97,6 +109,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/copy2"
+            android:onClick="copyTextClick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_documentcopy"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextDateIssue"
+            app:layout_constraintEnd_toEndOf="@+id/editTextDateIssue"
+            app:layout_constraintTop_toTopOf="@+id/editTextDateIssue" />
 
         <TextView
             android:id="@+id/d_c"
@@ -129,6 +150,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:mask="###-###" />
+
+        <ImageView
+            android:id="@+id/copy3"
+            android:onClick="copyTextClick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_documentcopy"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextDivisionCode"
+            app:layout_constraintEnd_toEndOf="@+id/editTextDivisionCode"
+            app:layout_constraintTop_toTopOf="@+id/editTextDivisionCode" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -160,12 +192,22 @@
             android:background="@drawable/view_round_white"
             android:ems="10"
             android:padding="2dp"
+            android:paddingEnd="24dp"
             android:maxLength="100"
             android:textColor="#000"
             android:textSize="16dp"
             app:layout_constraintBottom_toTopOf="@+id/f_n"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/i_w" />
+        <ImageView
+            android:id="@+id/copy4"
+            android:onClick="copyTextClick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_documentcopy"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextIssuedWhom"
+            app:layout_constraintEnd_toEndOf="@+id/editTextIssuedWhom"
+            app:layout_constraintTop_toTopOf="@+id/editTextIssuedWhom" />
 
         <TextView
             android:id="@+id/f_n"
@@ -188,12 +230,22 @@
             android:background="@drawable/view_round_white"
             android:ems="10"
             android:padding="2dp"
+            android:paddingEnd="24dp"
             android:maxLength="100"
             android:textColor="#000"
             android:textSize="16dp"
             app:layout_constraintBottom_toTopOf="@+id/d_b"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/f_n" />
+        <ImageView
+            android:id="@+id/copy5"
+            android:onClick="copyTextClick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_documentcopy"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextFullName"
+            app:layout_constraintEnd_toEndOf="@+id/editTextFullName"
+            app:layout_constraintTop_toTopOf="@+id/editTextFullName" />
 
         <TextView
             android:id="@+id/d_b"
@@ -226,6 +278,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/d_b"
             app:mask="##.##.####" />
+        <ImageView
+            android:id="@+id/copy6"
+            android:onClick="copyTextClick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_documentcopy"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextDateBirth"
+            app:layout_constraintEnd_toEndOf="@+id/editTextDateBirth"
+            app:layout_constraintTop_toTopOf="@+id/editTextDateBirth" />
 
         <TextView
             android:id="@+id/gender"
@@ -298,12 +359,22 @@
             android:background="@drawable/view_round_white"
             android:ems="10"
             android:padding="2dp"
+            android:paddingEnd="24dp"
             android:maxLength="100"
             android:textColor="#000"
             android:textSize="16dp"
             app:layout_constraintBottom_toTopOf="@+id/p_r"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/p_b" />
+        <ImageView
+            android:id="@+id/copy7"
+            android:onClick="copyTextClick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_documentcopy"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextPlaceBirth"
+            app:layout_constraintEnd_toEndOf="@+id/editTextPlaceBirth"
+            app:layout_constraintTop_toTopOf="@+id/editTextPlaceBirth" />
 
         <TextView
             android:id="@+id/p_r"
@@ -326,12 +397,22 @@
             android:background="@drawable/view_round_white"
             android:ems="10"
             android:padding="2dp"
+            android:paddingEnd="24dp"
             android:textColor="#000"
             android:maxLength="100"
             android:textSize="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/p_r" />
+        <ImageView
+            android:id="@+id/copy8"
+            android:onClick="copyTextClick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_documentcopy"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextPlaceResidence"
+            app:layout_constraintEnd_toEndOf="@+id/editTextPlaceResidence"
+            app:layout_constraintTop_toTopOf="@+id/editTextPlaceResidence" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

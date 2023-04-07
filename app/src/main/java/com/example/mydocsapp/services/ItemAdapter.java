@@ -47,12 +47,14 @@ import jp.wasabeef.blurry.Blurry;
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     private static final String PAYLOAD_DELETE_MODE = "PAYLOAD_DELETE_MODE";
+    public static final String PAYLOAD_SELECT_MODE = "PAYLOAD_SELECT_MODE";
     private final LayoutInflater inflater;
     private Context context;
     private List<Item> items;
     private boolean isSelectMode;
     private DBHelper db;
-    public static final String PAYLOAD_SELECT_MODE = "PAYLOAD_SELECT_MODE";
+
+    private Boolean isSetChange = false;
 
     public ItemAdapter(Context context, List<Item> items, boolean isSelectMode) {
         this.context = context;
@@ -89,14 +91,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                     }
                 }
                 else if(payload.equals(PAYLOAD_DELETE_MODE)){
-                    if (isSelectMode) {
-                        holder.selectBtn.setVisibility(View.VISIBLE);
-                        if (item.isSelected == 1)
-                            holder.selectBtn.setBackgroundResource(R.drawable.selected_circle);
-                        else
-                            holder.selectBtn.setBackgroundResource(R.drawable.unselected_circle);
+                    if (item.Type.equals("Папка")) {
+                        holder.imageView.setVisibility(View.INVISIBLE);
+                        holder.recyclerFolder.setVisibility(View.VISIBLE);
                     } else {
-                        holder.selectBtn.setVisibility(View.INVISIBLE);
+                        holder.imageView.setVisibility(View.VISIBLE);
+                        holder.recyclerFolder.setVisibility(View.INVISIBLE);
                     }
                 }
             }
@@ -190,8 +190,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             holder.icoImg.setImageResource(R.drawable.ic_personalcard);
         else if (item.Type.equals("Карта"))
             holder.icoImg.setImageResource(R.drawable.ic_card);
-        else if (item.Type.equals("Изображение"))
+        else if (item.Type.equals("Изображение")) {
+            holder.imageView.setVisibility(View.VISIBLE);
+            holder.recyclerFolder.setVisibility(View.INVISIBLE);
             holder.icoImg.setImageResource(R.drawable.ic_image);
+        }
         else
             holder.icoImg.setImageResource(R.drawable.ic_document);
 
@@ -220,12 +223,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 return true;
             }
         });
-        if (item.Type.equals("Папка"))
+        if (item.Type.equals("Папка") & !isSetChange)
         holder.folderContentBack.post(() -> {
             Blurry.with(context)
                     .radius(6)
                     .onto((ViewGroup) holder.folderContentBack);
         });
+        isSetChange = false;
         holder.titleView.setTag(item);
     }
 
@@ -239,13 +243,21 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     }
 
 
-    public void onItemDelete(int position) {
+    public void onItemDelete(Item item) {
+        int position;
+        if(items.contains(item))
+            position = items.indexOf(item);
+        else
+            return;
         items.remove(position);
         notifyItemRemoved(position);
     }
     public void onItemSetChange(ArrayList<Item> _items) {
-        items = _items;
-        notifyDataSetChanged();
+        if(items!=null) {
+            isSetChange = true;
+            items = _items;
+            notifyDataSetChanged();
+        }
     }
 
     public void onItemMoved(int oldPosition, int newPosition) {
@@ -281,6 +293,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         else
             notifyItemChanged(position, PAYLOAD_SELECT_MODE);
     }
+
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final ImageView imageView;

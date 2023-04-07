@@ -8,15 +8,21 @@
     app:layoutDescription="@xml/activity_passport_scene"
     tools:context=".MainPassportPatternActivity">
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/frame_container"
+    <ScrollView
+        android:id="@+id/scrollview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/active_page_image1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/active_page_image1"
-        app:layout_constraintTop_toBottomOf="@+id/top_panel" />
+        app:layout_constraintTop_toBottomOf="@+id/top_panel">
 
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/frame_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+    </ScrollView>
     <LinearLayout
         android:id="@+id/pattern_container"
         android:layout_width="180dp"
@@ -117,11 +123,11 @@
             android:scaleX="1.5"
             android:scaleY="0.5"
             android:text=" ∨"
-            android:visibility="gone"
             android:textColor="#FFC700"
             android:textIsSelectable="false"
             android:textSize="22dp"
             android:textStyle="bold"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/passport_txt"
             app:layout_constraintStart_toEndOf="@+id/passport_txt" />
 
@@ -147,7 +153,6 @@
         android:layout_marginLeft="300dp"
         android:layout_marginRight="5dp"
         android:background="@drawable/bottom_navigation_circle_from_white_to_yellow"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/active_page_image2"
         app:layout_constraintStart_toStartOf="parent" />
@@ -163,4 +168,17 @@
         app:layout_constraintStart_toEndOf="@id/active_page_image1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/confirm_button"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_margin="15dp"
+            android:background="@drawable/ic_check_btn"
+            android:onClick="saveBtnClick"
+            android:tag="off"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+
 </androidx.constraintlayout.motion.widget.MotionLayout>

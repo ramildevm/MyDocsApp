@@ -9,7 +9,7 @@
     <string name="go_guest_mode">Продолжить как гость</string>
     <string name="go_back">Выйти</string>
     <string name="error_not_all_fields_filled">Не все поля заполнены!</string>
-    <string name="error_passwords_are_not_same">Пароли не совпадают!</string>
+    <string name="error_passwords_are_not_same">Пароль неверный!</string>
     <string name="error_user_doesnt_exists">Пользователь с таким логином не найден!</string>
     <string name="extra_guest">гость</string>
     <string name="confirm_password">Подтвердите пароль:</string>
@@ -61,4 +61,9 @@
     <string name="my_templates">Мои шаблоны</string>
     <string name="premium">Премиум</string>
     <string name="settings">Настройки</string>
+    <string name="error_input_password">Введите пароль!</string>
+    <string name="save_changes">Сохранить изменения?</string>
+    <string name="do_you_want_save">Вы хотите сохранить изменения?</string>
+    <string name="save">Сохранить</string>
+    <string name="exit">Выйти</string>
 </resources>

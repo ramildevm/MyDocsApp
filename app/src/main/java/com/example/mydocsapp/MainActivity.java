@@ -100,7 +100,16 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         cur.moveToFirst();
-
+        if(password.isEmpty()){
+            Toast msg = Toast.makeText(MainActivity.this, R.string.error_input_password, Toast.LENGTH_SHORT);
+            msg.show();
+            return;
+        }
+        if (!password.equals(cur.getString(2))) {
+            Toast msg = Toast.makeText(MainActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
+            msg.show();
+            return;
+        }
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear().commit();

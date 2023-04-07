@@ -2,7 +2,14 @@
 <resources>
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
+
+        <!-- your app branding color for the app bar -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="android:navigationBarColor">@color/primary</item>
+        <item name="colorPrimaryDark" >@color/primary</item>
         <item name="android:windowContentTransitions">true</item>
         <item name="android:forceDarkAllowed">false</item>
     </style>
+
+    <color name="primary">#757575</color>
 </resources>

@@ -69,7 +69,7 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         }
 
     }
-
+    public void copyTextClick(View view){}
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

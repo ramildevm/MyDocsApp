@@ -207,7 +207,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         this.startActivity(intent);
     }
 
-    private ArrayList<String> selectedItemsSet = new ArrayList<>();
+    private ArrayList<Item> selectedItemsSet = new ArrayList<>();
 
     private void setOnClickListeners() {
         recyclerView.addOnItemTouchListener(
@@ -222,11 +222,11 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                             if (item.isSelected == 0) {
                                 item.isSelected = 1;
                                 selectedItemsNum++;
-                                selectedItemsSet.add(position + "");
+                                selectedItemsSet.add(item);
                             } else {
                                 item.isSelected = 0;
                                 selectedItemsNum--;
-                                selectedItemsSet.remove(position + "");
+                                selectedItemsSet.remove(item);
                             }
                             view.setTag(item);
                             itemsService.setItem(position, item);
@@ -331,8 +331,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                     @Override
                     public void onLongItemClick(View view, int position) {
                         if (!isSortMode) {
+                            Item item = (Item) view.getTag();
                             selectedItemsSet = new ArrayList<>();
-                            selectedItemsSet.add(position + "");
+                            selectedItemsSet.add(item);
                             if (findViewById(R.id.container).getAlpha() == 0.5f)
                                 return;
                             MotionLayout ml = findViewById(R.id.motion_layout);
@@ -340,7 +341,6 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                             ml.transitionToEnd();
                             isSelectMode = true;
 
-                            Item item = (Item) view.getTag();
                             item.isSelected = 1;
                             selectedItemsNum = 1;
                             ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + +selectedItemsNum);
@@ -413,7 +413,6 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         super.onRestart();
         reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
     }
-
 
     private ArrayList<Item> getItemsFromDb(int id) {
         ArrayList<Item> folderItems = new ArrayList<>();
@@ -509,7 +508,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
         }
     }
-
+    //сортировка
     public void sortFolderClick(View view) {
         if (itemsService.isFoldersAvailable)
             view.setAlpha(0.5f);
@@ -518,9 +517,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             view.setAlpha(1f);
         }
         itemsService.isFoldersAvailable = !itemsService.isFoldersAvailable;
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getSortedCurrentItemsSet());
     }
-
+    //сортировка
     public void sortCardClick(View view) {
         if (itemsService.isCardsAvailable)
             view.setAlpha(0.5f);
@@ -529,9 +528,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             view.setAlpha(1f);
         }
         itemsService.isCardsAvailable = !itemsService.isCardsAvailable;
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getSortedCurrentItemsSet());
     }
-
+    //сортировка
     public void sortImageClick(View view) {
         if (itemsService.isImagesAvailable)
             view.setAlpha(0.5f);
@@ -540,9 +539,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             view.setAlpha(1f);
         }
         itemsService.isImagesAvailable = !itemsService.isImagesAvailable;
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getSortedCurrentItemsSet());
     }
-
+    //сортировка
     public void sortDocClick(View view) {
         if (itemsService.isDocsAvailable)
             view.setAlpha(0.5f);
@@ -551,7 +550,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             view.setAlpha(1f);
         }
         itemsService.isDocsAvailable = !itemsService.isDocsAvailable;
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getSortedCurrentItemsSet());
     }
 
     void reFillContentPanel(RecyclerView _recyclerView, ArrayList<Item> _items) {
@@ -560,7 +559,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         // устанавливаем для списка адаптер
         _recyclerView.setAdapter(adapter);
     }
-
+    //прорисовка
     void reFillContentPanel(int mode, ArrayList<Item> _items) {
         adapter.setSelectMode(isSelectMode);
         switch (mode) {
@@ -596,11 +595,11 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                 }
                 break;
             case (RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE):
-                adapter.onItemSetChange(itemsService.getCurrentItemsSet());
+                adapter.onItemSetChange(_items);
                 break;
         }
     }
-
+    //сортировка
     public void sortCancelClick(View view) {
         itemsService.isCardsAvailable = itemsService.isDocsAvailable = itemsService.isFoldersAvailable = itemsService.isImagesAvailable = true;
         findViewById(R.id.flow_sort_card_btn).setAlpha(1f);
@@ -666,9 +665,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                 selectedItemsNum--;
             }
         }
-        for (String index :
+        for (Item delItem :
                 selectedItemsSet) {
-            adapter.onItemDelete(Integer.valueOf(index));
+            adapter.onItemDelete(delItem);
         }
         itemsService.setInitialData();
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);

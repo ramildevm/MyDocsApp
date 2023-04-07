@@ -1,6 +1,8 @@
 package com.example.mydocsapp;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -8,13 +10,20 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -23,6 +32,7 @@ import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.databinding.FragmentPassportFirstBinding;
 import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
+import com.example.mydocsapp.interfaces.PassportActivity;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
@@ -59,7 +69,32 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
 
         }
     }
-
+    public void copyTextClick(View view){
+        ViewParent parent = view.getParent();
+        if (parent instanceof ConstraintLayout) {
+            ConstraintLayout constraintLayout = (ConstraintLayout) parent;
+            // Get the ConstraintSet object for the layout
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(constraintLayout);
+            // Get the IDs of the views that are referenced by the constraint for textView1's end edge
+            int referencedId = constraintSet.getConstraint(view.getId()).layout.endToEnd;
+            // Get the view that is referenced by the constraint
+            EditText linkedView = binding.getRoot().findViewById(referencedId);
+            copyToClipboard(linkedView);
+        }
+    }
+    public void copyToClipboard(EditText editText) {
+        // Get the text from the EditText
+        String text = editText.getText().toString().trim();
+        // Get the system clipboard manager
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(getContext().CLIPBOARD_SERVICE);
+        // Create a ClipData object to hold the text to be copied
+        ClipData clip = ClipData.newPlainText("text", text);
+        // Copy the text to the clipboard
+        clipboard.setPrimaryClip(clip);
+        // Show a Toast message to indicate that the text has been copied
+        Toast.makeText(getContext(), "Text copied to clipboard", Toast.LENGTH_SHORT).show();
+    }
     private void loadProfileImage(Bitmap bitmap) {
         profilePhoto = bitmap;
         bitmap = ImageSaveService.scaleDown(bitmap, ImageSaveService.dpToPx(getContext(), binding.userPassportPhoto.getWidth()), true);
@@ -121,6 +156,27 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             intent.putExtra("imageFile", fileName);
             getActivity().startActivity(intent);
         });
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                ((PassportActivity)getActivity()).setIsChanged(true);
+
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        };
+        binding.editTextSeriesNumber.addTextChangedListener(textWatcher);
+        binding.editTextFullName.addTextChangedListener(textWatcher);
+        binding.editTextDivisionCode.addTextChangedListener(textWatcher);
+        binding.editTextDateIssue.addTextChangedListener(textWatcher);
+        binding.editTextDateBirth.addTextChangedListener(textWatcher);
+        binding.editTextIssuedWhom.addTextChangedListener(textWatcher);
+        binding.editTextPlaceBirth.addTextChangedListener(textWatcher);
+        binding.editTextPlaceResidence.addTextChangedListener(textWatcher);
         return binding.getRoot();
     }
 
@@ -190,8 +246,9 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
     public void SavePhotos(int ItemId) {
         Passport passport = model.getState().getValue();
         if (profilePhoto != null) {
-            File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            String imgPath = filepath.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
+            File rootDir = getContext().getApplicationContext().getFilesDir();
+            //File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
             File dir = new File(imgPath);
             if (!dir.exists())
                 dir.mkdirs();
@@ -201,6 +258,13 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
                 File filePath = new File(passport.FacePhoto);
                 filePath.delete();
                 imgFile = new File(passport.FacePhoto);
+
+            }
+            try {
+                imgFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.d("MyDocsAppPassport1",e.getMessage());
             }
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             profilePhoto.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -209,16 +273,22 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
                 MyEncrypter.encryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), is, new FileOutputStream(imgFile));
             } catch (NoSuchPaddingException e) {
                 e.printStackTrace();
+                Log.d("MyDocsAppPassport2",e.getMessage());
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
+                Log.d("MyDocsAppPassport3",e.getMessage());
             } catch (InvalidAlgorithmParameterException e) {
                 e.printStackTrace();
+                Log.d("MyDocsAppPassport4",e.getMessage());
             } catch (InvalidKeyException e) {
                 e.printStackTrace();
+                Log.d("MyDocsAppPassport5",e.getMessage());
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.d("MyDocsAppPassport6",e.getMessage());
             }
             passport.FacePhoto = imgFile.getAbsolutePath();
+            Log.d("MyDocsAppPassport",passport.FacePhoto);
         }
         model.setState(passport);
     }
