@@ -5,10 +5,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -57,6 +59,33 @@ public class ImageSaveService {
         Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
         input.close();
         return compressImage(bitmap);//Mass compression again
+    }
+
+    public static Uri bitmapToUri(Bitmap bitmap, Context context) throws FileNotFoundException {
+        // Save the bitmap to a temporary file
+        String fileName = "temp_image.png";
+        File tempFile = new File(context.getExternalCacheDir(), fileName);
+        try (FileOutputStream out = new FileOutputStream(tempFile)) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        tempFile.delete();
+        // Insert the image into the MediaStore and return the content Uri
+        return Uri.parse(MediaStore.Images.Media.insertImage(context.getContentResolver(), tempFile.getAbsolutePath(), fileName, null));
+    }
+    public static Bitmap fileToBitmap(File file) {
+        Bitmap bitmap = null;
+
+        try {
+            // Decode the file into a bitmap
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bitmap;
     }
     public static String createImageFromBitmap(Bitmap bitmap, Context context) {
         String fileName = "myImage";//no .png or .jpg needed

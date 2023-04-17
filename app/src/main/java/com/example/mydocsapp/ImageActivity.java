@@ -91,6 +91,7 @@ public class ImageActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        if(CurrentItem!=null)
         if(CurrentItem.Type.equals("Изображение"))
             NavUtils.navigateUpFromSameTask(this);
         super.onBackPressed();

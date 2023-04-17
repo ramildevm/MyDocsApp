@@ -66,4 +66,6 @@
     <string name="do_you_want_save">Do you want to save changes?</string>
     <string name="save">Save</string>
     <string name="exit">Exit</string>
+    <string name="text_copied">Text copied to clipboard</string>
+    <string name="crop">Crop</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.example.mydocsapp;
 
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -87,14 +89,22 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Pa
         model.setState(this.Passport);
 
         if (CurrentItem == null) {
-            findViewById(R.id.top_panel_arrow).setVisibility(View.VISIBLE);
+            findViewById(R.id.arrow_image_view).setVisibility(View.VISIBLE);
             (findViewById(R.id.passport_txt)).setOnClickListener(v -> {
                 if (v.getTag().equals("off")) {
+                    ImageView arrowImageView = findViewById(R.id.arrow_image_view);
+                    ObjectAnimator animator = ObjectAnimator.ofFloat(arrowImageView, View.ROTATION_X, 0f, 180f);
+                    animator.setDuration(600); // set animation duration in milliseconds
+                    animator.start();
                     MotionLayout ml = findViewById(R.id.motion_layout);
                     ml.setTransition(R.id.transTop);
                     ml.transitionToEnd();
                     v.setTag("on");
                 } else if (v.getTag().equals("on")) {
+                    ImageView arrowImageView = findViewById(R.id.arrow_image_view);
+                    ObjectAnimator animator = ObjectAnimator.ofFloat(arrowImageView, View.ROTATION_X, 180f, 0f);
+                    animator.setDuration(600); // set animation duration in milliseconds
+                    animator.start();
                     MotionLayout ml = findViewById(R.id.motion_layout);
                     ml.setTransition(R.id.transTop);
                     ml.transitionToStart();
@@ -140,7 +150,7 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Pa
                     "",
                     "",
                     "",
-                    "",
+                    "M",
                     "",
                     "",
                     null,
@@ -168,7 +178,6 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Pa
             public void onClick(DialogInterface dialog, int which) {
                 // Add your save code here
                 savePassportMethod();
-                onBackPressed();
                 dialog.dismiss(); // Close the dialog window
             }
         });
@@ -234,6 +243,7 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Pa
             db.updatePassport(CurrentItem.Id, this.Passport);
             db.updateItem(CurrentItem.Id, CurrentItem);
         }
+        onBackPressed();
     }
 
     @Override
@@ -265,7 +275,6 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Pa
 
     public void saveBtnClick(View view) {
         savePassportMethod();
-        onBackPressed();
     }
 
     @Override

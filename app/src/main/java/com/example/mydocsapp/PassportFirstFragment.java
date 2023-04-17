@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -93,7 +94,7 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
         // Copy the text to the clipboard
         clipboard.setPrimaryClip(clip);
         // Show a Toast message to indicate that the text has been copied
-        Toast.makeText(getContext(), "Text copied to clipboard", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), R.string.text_copied, Toast.LENGTH_SHORT).show();
     }
     private void loadProfileImage(Bitmap bitmap) {
         profilePhoto = bitmap;
@@ -155,6 +156,12 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
                 intent.putExtra("type", DB_IMAGE);
             intent.putExtra("imageFile", fileName);
             getActivity().startActivity(intent);
+        });
+        binding.maleCheck.setOnCheckedChangeListener((compoundButton, b) -> {
+            ((PassportActivity)getContext()).setIsChanged(true);
+        });
+        binding.femaleCheck.setOnCheckedChangeListener((compoundButton, b) -> {
+            ((PassportActivity)getContext()).setIsChanged(true);
         });
         TextWatcher textWatcher = new TextWatcher() {
             @Override
@@ -246,8 +253,8 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
     public void SavePhotos(int ItemId) {
         Passport passport = model.getState().getValue();
         if (profilePhoto != null) {
-            File rootDir = getContext().getApplicationContext().getFilesDir();
             //File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            File rootDir = getContext().getApplicationContext().getFilesDir();
             String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
             File dir = new File(imgPath);
             if (!dir.exists())

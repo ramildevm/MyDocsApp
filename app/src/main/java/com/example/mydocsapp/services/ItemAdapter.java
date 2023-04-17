@@ -25,7 +25,6 @@ import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.interfaces.ItemAdapterActivity;
 import com.example.mydocsapp.models.Item;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,6 +37,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import javax.crypto.NoSuchPaddingException;
 
@@ -166,6 +166,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                                 .getDisplayMetrics());
                 ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.imageView.getLayoutParams();
                 params.leftMargin = marginInDp; params.topMargin = marginInDp; params.rightMargin = marginInDp; params.bottomMargin=marginInDp;
+
                 holder.imageView.setImageBitmap(image);
                 //Glide.with(context).load(image).transform(new RoundedCorners(radius)).into(holder.imageView);
                 outputFile.delete();
@@ -194,6 +195,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             holder.imageView.setVisibility(View.VISIBLE);
             holder.recyclerFolder.setVisibility(View.INVISIBLE);
             holder.icoImg.setImageResource(R.drawable.ic_image);
+        }
+        else if (item.Type.equals("Альбом")) {
+            holder.imageView.setVisibility(View.VISIBLE);
+            holder.recyclerFolder.setVisibility(View.INVISIBLE);
+            holder.icoImg.setImageResource(R.drawable.ic_image_collection);
         }
         else
             holder.icoImg.setImageResource(R.drawable.ic_document);

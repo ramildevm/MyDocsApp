@@ -303,6 +303,11 @@ public class DBHelper extends SQLiteOpenHelper {
     //*********************************************************************************************
     //Photo table
 
+    public Cursor getPhotos(int id) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Photo where CollectionId=?", new String[]{""+id});
+        return cursor;
+    }
     public Boolean deletePhoto(int id){
         SQLiteDatabase db = open();
         long result = db.delete("Photo","id=?", new String[]{""+id});
@@ -316,6 +321,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
         cv.put("Path",photo.Path);
+        cv.put("CollectionId",photo.Path);
         long result = db.update("Photo",cv,"id=?", new String[]{""+id});
         if (result <=0)
             return false;
@@ -326,8 +332,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public Boolean insertPhoto(Photo photo){
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Id",photo.Id);
         cv.put("Path",photo.Path);
+        cv.put("CollectionId",photo.CollectionId);
         long result = db.insert("Photo",null,cv);
         if (result <=0)
             return false;

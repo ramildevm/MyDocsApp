@@ -304,7 +304,7 @@
         app:constraintSetEnd="@id/end2"
         app:constraintSetStart="@+id/start"
         app:autoTransition="none"
-        app:duration="350">
+        app:duration="200">
     </Transition>
     <Transition
         android:id="@+id/trans4"

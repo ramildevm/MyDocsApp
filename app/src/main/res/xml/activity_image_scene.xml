@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ConstraintSet android:id="@+id/start">
-        <Constraint android:id="@+id/image_holder" />
         <Constraint
             android:id="@+id/pattern_container"
             android:layout_width="wrap_content"
@@ -17,7 +16,6 @@
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
-        <Constraint android:id="@id/image_holder" />
         <Constraint
             android:id="@+id/pattern_container"
             android:layout_width="wrap_content"
@@ -32,4 +30,5 @@
         app:constraintSetEnd="@id/end"
         android:id="@+id/transOptionMenu"
         app:constraintSetStart="@+id/start" />
+
 </MotionScene>

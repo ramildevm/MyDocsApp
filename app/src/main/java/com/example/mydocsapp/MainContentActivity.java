@@ -2,6 +2,7 @@ package com.example.mydocsapp;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -36,12 +37,12 @@ import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.apputils.RecyclerItemClickListener;
 import com.example.mydocsapp.interfaces.ItemAdapterActivity;
+import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Photo;
 import com.example.mydocsapp.services.AppService;
-import com.example.mydocsapp.services.DBHelper;
-import com.example.mydocsapp.models.Item;
-import com.example.mydocsapp.services.ItemAdapter;
 import com.example.mydocsapp.services.CurrentItemsService;
+import com.example.mydocsapp.services.DBHelper;
+import com.example.mydocsapp.services.ItemAdapter;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.ByteArrayInputStream;
@@ -62,6 +63,8 @@ import javax.crypto.NoSuchPaddingException;
 
 public class MainContentActivity extends AppCompatActivity implements ItemAdapterActivity {
     private static final int DB_IMAGE = 1;
+    private static final int SESSION_MODE_CREATE = 1;
+    private static final int SESSION_MODE_OPEN = 2;
     RecyclerView recyclerView;
     DBHelper db;
     boolean isSelectMode;
@@ -69,6 +72,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     private int selectedItemsNum = 0;
     private ActivityResultLauncher<Intent> registerForARFolder;
     private ActivityResultLauncher<Intent> registerForARImage;
+    private ActivityResultLauncher<Intent> registerForARImageCollection;
     private RecyclerView recyclerFolderView;
     Dialog makeRenameDialog;
     ItemAdapter adapter;
@@ -83,6 +87,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     private static final int RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE = 3;
 
     public static final String APPLICATION_NAME = "MyDocs";
+    private ArrayList<Bitmap> bitmapList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +101,6 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                     reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
         });
         registerForARImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                Log.d("RequestCode",result.getResultCode()+"");
                 if (result.getResultCode() == RESULT_OK) {
                     CropImage.ActivityResult cropImageResult = CropImage.getActivityResult(result.getData());
                     if (result.getData() != null) {
@@ -113,6 +117,28 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                         }
                     }
                 }
+        });
+        registerForARImageCollection = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result->{
+            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                // get selected image URIs
+                ClipData clipData = result.getData().getClipData();
+                if (clipData != null) {
+                    if (clipData.getItemCount() > 1) {
+                        // multiple images selected
+                        for (int i = 0; i < clipData.getItemCount(); i++) {
+                            Uri uri = clipData.getItemAt(i).getUri();
+                            try {
+                                // convert selected image to bitmap
+                                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                                // add bitmap to array
+                                bitmapList.add(bitmap);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         // начальная инициализация списка
@@ -170,8 +196,9 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         db.insertItem(item);
         ItemId = db.selectLastItemId();
 
-        File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        String imgPath = filepath.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
+        File rootDir = getApplicationContext().getFilesDir();
+        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
+
         File dir = new File(imgPath);
         if (!dir.exists())
             dir.mkdirs();
@@ -194,7 +221,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             e.printStackTrace();
         }
         String filePath = imgFile.getAbsolutePath();
-        db.insertPhoto(new Photo(ItemId,filePath));
+        db.insertPhoto(new Photo(ItemId,filePath,0));
 
         item.Image = filePath;
         db.updateItem(ItemId,item);
@@ -317,11 +344,16 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
                                     intent.putExtra("item", itemsService.getCurrentItem());
                                     startActivity(intent);
                                 }else if (item.Type.equals("Изображение")) {
-                                    Intent intent = new Intent(MainContentActivity.this, ImageActivity.class);
-                                    intent.putExtra("text", item.Title);
-                                    intent.putExtra("type", DB_IMAGE);
-                                    intent.putExtra("item", itemsService.getCurrentItem());
-                                    intent.putExtra("imageFile", item.Image);
+                                    Intent intent = new Intent(MainContentActivity.this, ImageCollectionActivity.class);
+                                    intent.putExtra("userId",CurrentUser.Id);
+                                    intent.putExtra("mode",SESSION_MODE_OPEN);
+                                    intent.putExtra("item",item);
+                                    startActivity(intent);
+                                }else if (item.Type.equals("Альбом")) {
+                                    Intent intent = new Intent(MainContentActivity.this, ImageCollectionActivity.class);
+                                    intent.putExtra("userId",CurrentUser.Id);
+                                    intent.putExtra("mode",SESSION_MODE_OPEN);
+                                    intent.putExtra("item",item);
                                     startActivity(intent);
                                 }
                             }
@@ -501,13 +533,16 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
     }
     public void menuMakeImageClick(View view) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Intent intent = CropImage.activity()
-                    .getIntent(this);
-            registerForARImage.launch(intent);
+            Intent intent = new Intent(this,ImageCollectionActivity.class);
+            intent.putExtra("userId",CurrentUser.Id);
+            intent.putExtra("mode",SESSION_MODE_CREATE);
+            startActivity(intent);
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
         }
     }
+
+
     //сортировка
     public void sortFolderClick(View view) {
         if (itemsService.isFoldersAvailable)
