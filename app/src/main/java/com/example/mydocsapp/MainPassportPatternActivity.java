@@ -221,22 +221,18 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Pa
             db.insertPassport(this.Passport);
 
             listenerForF1.SavePhotos(ItemId);
+            itemImagePath = this.Passport.FacePhoto;
             if (listenerForF2 != null) {
                 listenerForF2.SavePhotos(ItemId);
-                if (((PassportSecondFragment) listenerForF2).getPhotoOption())
-                    itemImagePath = this.Passport.PhotoPage1;
             }
             db.updatePassport(ItemId, this.Passport);
             item.Image = itemImagePath;
             db.updateItem(ItemId, item);
         } else {
             listenerForF1.SavePhotos(CurrentItem.Id);
+            itemImagePath = this.Passport.FacePhoto;
             if (listenerForF2 != null) {
                 listenerForF2.SavePhotos(CurrentItem.Id);
-                if (((PassportSecondFragment) listenerForF2).getPhotoOption())
-                    itemImagePath = this.Passport.PhotoPage1;
-                else
-                    CurrentItem.Image = null;
             }
             if (listenerForF2 != null)
                 CurrentItem.Image = itemImagePath;

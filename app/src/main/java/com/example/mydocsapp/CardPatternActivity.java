@@ -306,7 +306,7 @@ public class CardPatternActivity extends AppCompatActivity {
     private void SavePhotos(int ItemId) {
         if (firstPagePhoto != null) {
             File rootDir = getApplicationContext().getFilesDir();
-            String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
+            String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME+"/"+ AppService.getUserId(this) + "/Item" + ItemId + "/";
             File dir = new File(imgPath);
             if (!dir.exists())
                 dir.mkdirs();

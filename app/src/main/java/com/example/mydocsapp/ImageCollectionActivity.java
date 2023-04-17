@@ -211,7 +211,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
 
     private String createPhoto(Bitmap bitmap, int index) {
         File rootDir = getApplicationContext().getFilesDir();
-        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + CurrentItem.Id + "/";
+        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME +"/"+ AppService.getUserId(this)+ "/Item" + CurrentItem.Id + "/";
         File dir = new File(imgPath);
         if (!dir.exists())
             dir.mkdirs();
@@ -297,6 +297,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
 
     private void changeArrowColor() {
         if (imagesService.getSize() != 1) {
+            binding.goPreviousBtn.setVisibility(View.VISIBLE);
             if (binding.viewPager2.getCurrentItem() == 0) {
                 binding.goPreviousBtn.setImageResource(R.drawable.right_arrow_white);
                 binding.goNextBtn.setImageResource(R.drawable.right_arrow_yellow);
@@ -315,6 +316,19 @@ public class ImageCollectionActivity extends AppCompatActivity {
 
     public void goBackClick(View view) {
         onBackPressed();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(CurrentItem!=null) {
+            if (imagesService.getSize() == 1) {
+                CurrentItem.Type = "Изображение";
+            } else if (imagesService.getSize() > 1) {
+                CurrentItem.Type = "Альбом";
+            }
+            db.updateItem(CurrentItem.Id,CurrentItem);
+        }
+        super.onBackPressed();
     }
 
     public void saveCropImage(View view) {

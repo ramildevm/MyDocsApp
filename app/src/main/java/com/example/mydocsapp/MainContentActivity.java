@@ -197,7 +197,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         ItemId = db.selectLastItemId();
 
         File rootDir = getApplicationContext().getFilesDir();
-        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
+        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME+"/"+ AppService.getUserId(this) + "/Item" + ItemId + "/";
 
         File dir = new File(imgPath);
         if (!dir.exists())
@@ -683,7 +683,7 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
             if (x.isSelected == 1) {
                 db.deleteItem(x.Id);
                 try {
-                    File dir = Environment.getExternalStoragePublicDirectory("Pictures/" + APPLICATION_NAME + "/Item" + x.Id);
+                    File dir = Environment.getExternalStoragePublicDirectory("Pictures/" + APPLICATION_NAME+"/"+ AppService.getUserId(this) + "/Item" + x.Id);
                     if (dir.isDirectory()) {
                         String[] children = dir.list();
                         for (int i = 0; i < children.length; i++) {

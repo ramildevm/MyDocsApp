@@ -135,9 +135,6 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
         return binding.getRoot();
     }
 
-    public boolean getPhotoOption() {
-        return binding.usePhotoOption.isChecked();
-    }
 
     private void loadData() {
         Passport passport = model.getState().getValue();
@@ -194,9 +191,6 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
                 }
             }
         }
-
-        if (((MainPassportPatternActivity) getActivity()).getCurrentItem() != null)
-            binding.usePhotoOption.setChecked(((MainPassportPatternActivity) getActivity()).getCurrentItem().Image != null);
     }
 
     @Override
@@ -253,8 +247,8 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
 
     @NonNull
     private String savePhotoToFile(int ItemId, Bitmap pagePhoto, String fileName) {
-        File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        String imgPath = filepath.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
+        File rootDir = getContext().getApplicationContext().getFilesDir();
+        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME +"/"+ AppService.getUserId(getContext())+"/"+ "/Item" + ItemId + "/";
         File dir = new File(imgPath);
         if (!dir.exists())
             dir.mkdirs();

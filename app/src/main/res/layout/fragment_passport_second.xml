@@ -30,20 +30,8 @@
             app:layout_constraintStart_toStartOf="@id/first_passport_photo"
             app:layout_constraintEnd_toEndOf="@id/first_passport_photo"
             app:layout_constraintTop_toBottomOf="@id/first_passport_photo"
-            app:layout_constraintBottom_toTopOf="@+id/use_photo_option"
-            />
-
-
-        <CheckBox
-            android:id="@+id/use_photo_option"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="@string/passport_first_photo_usage"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/second_passport_photo"
-            app:layout_constraintTop_toBottomOf="@+id/load_page1_photo_btn" />
+            />
 
         <ImageView
             android:id="@+id/second_passport_photo"
@@ -56,7 +44,7 @@
             android:tag="0"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/use_photo_option"
+            app:layout_constraintTop_toBottomOf="@+id/load_page1_photo_btn"
             app:layout_constraintBottom_toTopOf="@+id/load_page2_photo_btn"
             />
         <Button

@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
@@ -25,6 +27,26 @@ public class ImageSaveService {
     public static int dpToPx(Context context, int dp) {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
+    public static Bitmap addStrokeToBitmap(Bitmap bitmap, int strokeColor, int strokeWidth) {
+        int width = bitmap.getWidth() + strokeWidth * 2;
+        int height = bitmap.getHeight() + strokeWidth * 2;
+        Bitmap resultBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(resultBitmap);
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+
+        // Draw the stroke
+        paint.setColor(strokeColor);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(strokeWidth);
+        canvas.drawRect(0, 0, width, height, paint);
+
+        // Draw the original bitmap
+        canvas.drawBitmap(bitmap, strokeWidth, strokeWidth, null);
+
+        return resultBitmap;
     }
     public static Bitmap getBitmapFormUri(Activity ac, Uri uri) throws FileNotFoundException, IOException {
         InputStream input = ac.getContentResolver().openInputStream(uri);

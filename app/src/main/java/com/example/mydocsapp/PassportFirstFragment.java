@@ -255,7 +255,7 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
         if (profilePhoto != null) {
             //File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
             File rootDir = getContext().getApplicationContext().getFilesDir();
-            String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
+            String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME +"/"+ AppService.getUserId(getContext())+ "/Item" + ItemId + "/";
             File dir = new File(imgPath);
             if (!dir.exists())
                 dir.mkdirs();

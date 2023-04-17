@@ -3,6 +3,8 @@ package com.example.mydocsapp.services;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.TypedValue;
@@ -25,6 +27,7 @@ import com.example.mydocsapp.apputils.ImageSaveService;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.interfaces.ItemAdapterActivity;
 import com.example.mydocsapp.models.Item;
+import com.example.mydocsapp.models.Photo;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,7 +40,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 import javax.crypto.NoSuchPaddingException;
 
@@ -154,22 +156,75 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         else {
             holder.imageView.setVisibility(View.VISIBLE);
             holder.recyclerFolder.setVisibility(View.INVISIBLE);
-            File outputFile = new File(item.Image+"_copy");
-            File encFile = new File(item.Image);
+            File outputFile;
+            File encFile;
             try {
-                MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
-                Bitmap image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(outputFile));
-                image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 150), true);
-                int sizeInDP = 3;
-                int marginInDp = (int) TypedValue.applyDimension(
-                        TypedValue.COMPLEX_UNIT_DIP, sizeInDP, this.context.getResources()
-                                .getDisplayMetrics());
-                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.imageView.getLayoutParams();
-                params.leftMargin = marginInDp; params.topMargin = marginInDp; params.rightMargin = marginInDp; params.bottomMargin=marginInDp;
+                float offset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14, context.getResources().getDisplayMetrics());
+                Bitmap combinedBitmap;
+                Bitmap image;
+                if(item.Type.equals("Альбом")) {
+                    ArrayList<Bitmap> photos = new ArrayList<>();
+                    Cursor cur = db.getPhotos(item.Id);
+                    while(cur.moveToNext()) {
+                        Photo photo = new Photo(0,cur.getString(1),0);
+                        outputFile = new File(photo.Path+"_copy");
+                        encFile = new File(photo.Path);
+                        MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
+                        image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(outputFile));
+                        image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 150), true);
+                        int sizeInDP = 3;
+                        int marginInDp = (int) TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP, sizeInDP, this.context.getResources()
+                                        .getDisplayMetrics());
+                        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.imageView.getLayoutParams();
+                        params.leftMargin = marginInDp;
+                        params.topMargin = marginInDp;
+                        params.rightMargin = marginInDp;
+                        params.bottomMargin = marginInDp;
+                        photos.add(image);
+                        outputFile.delete();
+                    }
+                    Bitmap photoFirst = photos.get(0);
+                    if(photos.size()==1){
+                        image = photoFirst;
+                    }
+                    else {
+                        int width = ImageSaveService.dpToPx(context, 157);
+                        int height = ImageSaveService.dpToPx(context, 190);
+                        float offsetFirst = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, context.getResources().getDisplayMetrics());
+                        int length = (photos.size() > 2) ? 3 : photos.size();
+                        combinedBitmap = Bitmap.createBitmap(height-Math.round(offset*2), width-Math.round(offset*2), Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(combinedBitmap);
+                        canvas.drawBitmap(photoFirst, offsetFirst, 0, null);
+                        for (int i = 1; i < length; i++) {
+                            Bitmap photo = photos.get(i);
+                            photo = ImageSaveService.addStrokeToBitmap(photo, Color.BLACK,2);
+                            canvas.drawBitmap(photo, offsetFirst+offset * i, offset * i, null);
+                        }
+                        image = combinedBitmap;
+                    }
+                }
+                else{
+                    outputFile = new File(item.Image+"_copy");
+                    encFile = new File(item.Image);
+                    MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
+                    image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(outputFile));
+                    image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 150), true);
+                    int sizeInDP = 3;
+                    int marginInDp = (int) TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP, sizeInDP, this.context.getResources()
+                                    .getDisplayMetrics());
+                    ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.imageView.getLayoutParams();
+                    params.leftMargin = marginInDp;
+                    params.topMargin = marginInDp;
+                    params.rightMargin = marginInDp;
+                    params.bottomMargin = marginInDp;
+                    outputFile.delete();
+                }
 
                 holder.imageView.setImageBitmap(image);
                 //Glide.with(context).load(image).transform(new RoundedCorners(radius)).into(holder.imageView);
-                outputFile.delete();
+
             } catch (NoSuchPaddingException e) {
                 e.printStackTrace();
             } catch (NoSuchAlgorithmException e) {

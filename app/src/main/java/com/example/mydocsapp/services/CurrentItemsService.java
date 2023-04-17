@@ -64,7 +64,7 @@ public class CurrentItemsService  {
             if (!isDocsAvailable)
                 CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Паспорт"))).collect(Collectors.toList()));
             if (!isImagesAvailable)
-                CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Изображение"))).collect(Collectors.toList()));
+                CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Изображение")|x.Type.equals("Альбом"))).collect(Collectors.toList()));
             if (!isCardsAvailable)
                 CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Карта"))).collect(Collectors.toList()));
         }
