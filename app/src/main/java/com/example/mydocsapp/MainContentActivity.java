@@ -234,6 +234,13 @@ public class MainContentActivity extends AppCompatActivity implements ItemAdapte
         this.startActivity(intent);
     }
 
+    @Override
+    protected void onResume() {
+        itemsService.setInitialData();
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE,itemsService.getCurrentItemsSet());
+        super.onResume();
+    }
+
     private ArrayList<Item> selectedItemsSet = new ArrayList<>();
 
     private void setOnClickListeners() {

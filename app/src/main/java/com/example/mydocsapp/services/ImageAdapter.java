@@ -43,6 +43,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         images.set(index, bitmap);
         notifyItemChanged(index);
     }
+
+    public void onItemDelete(int index) {
+        images.remove(index);
+        notifyItemRemoved(index);
+    }
+
     static class ImageViewHolder extends RecyclerView.ViewHolder {
         PhotoView imageView;
 

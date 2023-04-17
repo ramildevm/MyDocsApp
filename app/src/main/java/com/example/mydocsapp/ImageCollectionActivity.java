@@ -48,13 +48,16 @@ import javax.crypto.NoSuchPaddingException;
 public class ImageCollectionActivity extends AppCompatActivity {
     private static final int SESSION_MODE_CREATE = 1;
     private static final int SESSION_MODE_OPEN = 2;
+    private static final int CREATE_PHOTO_MODE_CHANGE = 100;
+    private static final int CREATE_PHOTO_MODE_ADD = 200;
     private ActivityResultLauncher<Intent> registerForARImageCollection;
+    private ActivityResultLauncher<Intent> registerForARImageChange;
+    private ActivityResultLauncher<Intent> registerForARImageAddCollection;
     ImageCollectionService imagesService;
     ImageAdapter imageAdapter;
     ActivityImageCollectionBinding binding;
     private int SessionMode;
     private Item CurrentItem;
-    int ItemId;
     DBHelper db;
     private ArrayList<Photo> photoList;
 
@@ -69,14 +72,26 @@ public class ImageCollectionActivity extends AppCompatActivity {
         imagesService = new ImageCollectionService();
         photoList = new ArrayList<>();
         db = new DBHelper(this,getIntent().getIntExtra("userId",0));
+        registerForARImageChange = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                Uri imageUri = result.getData().getData();
+                try {
+                    Bitmap bitmap = ImageSaveService.getBitmapFormUri(this,imageUri);
+                    imagesService.set(imagesService.getCurrentImage(), bitmap);
+                    imageAdapter.onItemChange(imagesService.getCurrentImage(), bitmap);
+                    changePhotoFile(bitmap);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         registerForARImageCollection = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                 // get selected image URIs
                 ClipData clipData = result.getData().getClipData();
                 if (clipData != null) {
                     // multiple images selected
-                    Item item = createItem(clipData.getItemCount());
-                    ItemId = db.selectLastItemId();
+                    CurrentItem = createItem(clipData.getItemCount());
                     for (int i = 0; i < clipData.getItemCount(); i++) {
                         Uri uri = clipData.getItemAt(i).getUri();
                         try {
@@ -84,20 +99,45 @@ public class ImageCollectionActivity extends AppCompatActivity {
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                             String filePath = createPhoto(bitmap, i);
                             if(i==0)
-                                item.Image=filePath;
+                                CurrentItem.Image=filePath;
                             // add bitmap to array
                             imagesService.add(bitmap);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
-                    db.updateItem(ItemId,item);
+                    fillPhotoArray(CurrentItem.Id);
+                    db.updateItem(CurrentItem.Id,CurrentItem);
                     imageAdapter = new ImageAdapter(imagesService.get());
                     binding.viewPager2.setAdapter(imageAdapter);
                     changeArrowColor();
                 }
             } else {
                 onBackPressed();
+            }
+        });
+        registerForARImageAddCollection = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                // get selected image URIs
+                ClipData clipData = result.getData().getClipData();
+                if (clipData != null) {
+                    // multiple images selected
+                    for (int i = 0; i < clipData.getItemCount(); i++) {
+                        Uri uri = clipData.getItemAt(i).getUri();
+                        try {
+                            // convert selected image to bitmap
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                            createPhoto(bitmap, i);
+                            // add bitmap to array
+                            imagesService.add(bitmap);
+                            imageAdapter.notifyItemInserted(imagesService.getSize());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    fillPhotoArray(CurrentItem.Id);
+                    changeArrowColor();
+                }
             }
         });
         binding.viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -119,6 +159,13 @@ public class ImageCollectionActivity extends AppCompatActivity {
             }
         });
         binding.goNextBtn.setOnClickListener(v -> {
+            if(imagesService.getCurrentImage()==imagesService.getSize()-1){
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                registerForARImageAddCollection.launch(intent);
+                return;
+            }
             binding.viewPager2.setCurrentItem(binding.viewPager2.getCurrentItem() + 1, true);
             changeArrowColor();
         });
@@ -129,14 +176,46 @@ public class ImageCollectionActivity extends AppCompatActivity {
         createSession();
     }
 
+    private void changePhotoFile(Bitmap bitmap) {
+        Photo photo = photoList.get(imagesService.getCurrentImage());
+        File imgFile = new File(photo.Path);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        InputStream is = new ByteArrayInputStream(stream.toByteArray());
+        try {
+            MyEncrypter.encryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), is, new FileOutputStream(imgFile));
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void fillPhotoArray(int itemId) {
+        Cursor cur = db.getPhotos(itemId);
+        photoList = new ArrayList<>();
+        Photo photo;
+        while (cur.moveToNext()) {
+            photo = new Photo(cur.getInt(0),
+                    cur.getString(1),
+                    cur.getInt(2));
+            photoList.add(photo);
+        }
+    }
+
     private String createPhoto(Bitmap bitmap, int index) {
         File rootDir = getApplicationContext().getFilesDir();
-        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + ItemId + "/";
-
+        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/Item" + CurrentItem.Id + "/";
         File dir = new File(imgPath);
         if (!dir.exists())
             dir.mkdirs();
-        String imgName = "Image" + index + System.currentTimeMillis();
+        String imgName = "Image" + index+"_" + System.currentTimeMillis();
         File imgFile = new File(dir, imgName);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -155,7 +234,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         String filePath = imgFile.getAbsolutePath();
-        Photo photo = new Photo(0,filePath,ItemId);
+        Photo photo = new Photo(0,filePath,CurrentItem.Id);
         db.insertPhoto(photo);
         return filePath;
     }
@@ -163,11 +242,14 @@ public class ImageCollectionActivity extends AppCompatActivity {
     private Item createItem(int count) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
         String time = df.format(new Date());
-        ItemId = db.selectLastItemId();
+        int ItemId = db.selectLastItemId();
         String name = (count>1)?"Альбом":"Фото";
         String type = (count>1)?"Альбом":"Изображение";
         Item item =new Item(0, name + ItemId, type, null, 0, 0, 0, time, 0, 0);
         db.insertItem(item);
+        ItemId = db.selectLastItemId();
+        item.Id = ItemId;
+        CurrentItem = item;
         return item;
     }
 
@@ -179,13 +261,9 @@ public class ImageCollectionActivity extends AppCompatActivity {
             registerForARImageCollection.launch(intent);
         }
         else if(SessionMode==SESSION_MODE_OPEN){
-            Cursor cur = db.getPhotos(CurrentItem.Id);
-            Photo photo;
-            while (cur.moveToNext()) {
-                photo = new Photo(cur.getInt(0),
-                        cur.getString(1),
-                        cur.getInt(2));
-
+            fillPhotoArray(CurrentItem.Id);
+            for (Photo photo :
+                    photoList) {
                 File outputFile = new File(photo.Path+"_copy");
                 File filePath = new File(photo.Path);
                 try {
@@ -204,7 +282,6 @@ public class ImageCollectionActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 imagesService.add(ImageSaveService.fileToBitmap(outputFile));
-                photoList.add(photo);
                 outputFile.delete();
             }
             imageAdapter = new ImageAdapter(imagesService.get());
@@ -224,14 +301,15 @@ public class ImageCollectionActivity extends AppCompatActivity {
                 binding.goPreviousBtn.setImageResource(R.drawable.right_arrow_white);
                 binding.goNextBtn.setImageResource(R.drawable.right_arrow_yellow);
             } else if (binding.viewPager2.getCurrentItem() == imagesService.getSize() - 1) {
-                binding.goNextBtn.setImageResource(R.drawable.right_arrow_white);
+                binding.goNextBtn.setImageResource(R.drawable.ic_round_add_photo_alternate_24);
                 binding.goPreviousBtn.setImageResource(R.drawable.right_arrow_yellow);
             } else {
                 binding.goNextBtn.setImageResource(R.drawable.right_arrow_yellow);
                 binding.goPreviousBtn.setImageResource(R.drawable.right_arrow_yellow);
             }
         } else {
-            binding.bottomArrows.setAlpha(0);
+            binding.goPreviousBtn.setVisibility(View.GONE);
+            binding.goNextBtn.setImageResource(R.drawable.ic_round_add_photo_alternate_24);
         }
     }
 
@@ -244,6 +322,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
         binding.imageCropper.setImageBitmap(bitmap);
         imagesService.set(imagesService.getCurrentImage(), bitmap);
         imageAdapter.onItemChange(imagesService.getCurrentImage(), bitmap);
+        changePhotoFile(bitmap);
         goCropBackClick(new View(this));
     }
 
@@ -267,6 +346,8 @@ public class ImageCollectionActivity extends AppCompatActivity {
     }
 
     public void menuChangeImageClick(View view) {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        registerForARImageChange.launch(intent);
     }
 
     public void menuSaveAsClick(View view) {
@@ -288,6 +369,26 @@ public class ImageCollectionActivity extends AppCompatActivity {
     }
 
     public void menuDeleteBtnClick(View view) {
-
+        Photo photo = photoList.get(imagesService.getCurrentImage());
+        if(imagesService.getSize()==1){
+            db.deletePhoto(photo.Id);
+            db.deleteItem(photo.CollectionId);
+            File file = new File(photo.Path);
+            file.delete();
+            onBackPressed();
+            return;
+        }
+        if(imagesService.getCurrentImage()==0)
+        {
+            CurrentItem.Image = photoList.get(1).Path;
+            db.updateItem(CurrentItem.Id,CurrentItem);
+        }
+        File file = new File(photo.Path);
+        file.delete();
+        photoList.remove(imagesService.getCurrentImage());
+        db.deletePhoto(photo.Id);
+        imageAdapter.onItemDelete(imagesService.getCurrentImage());
+        changeArrowColor();
+        menuOptionsBtnClick(binding.menubarOptions);
     }
 }

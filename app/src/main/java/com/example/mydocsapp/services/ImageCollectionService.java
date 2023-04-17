@@ -33,4 +33,8 @@ public class ImageCollectionService {
     public int getSize() {
         return bitmapList.size();
     }
+
+    public void remove(int index) {
+        this.bitmapList.remove(index);
+    }
 }
