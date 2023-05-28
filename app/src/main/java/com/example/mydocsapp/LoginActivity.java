@@ -44,13 +44,13 @@ public class LoginActivity extends AppCompatActivity {
             Cursor cur = db.getUserByLogin(name);
             cur.moveToNext();
             int id = cur.getInt(0);
+            AppService.setUserId(id, this);
+            AppService.setHideMode(false);
             if(id!=0){
-                AppService.setUserId(id, this);
                 Intent intent =new Intent(LoginActivity.this, MainContentActivity.class);
                 startActivity(intent);
             }
             else{
-                AppService.setUserId(id, this);
                 Intent intent = new Intent(LoginActivity.this, MainContentActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
@@ -173,7 +173,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString("Login","гость");
         editor.apply();
         AppService.setUserId(1,this);
-
+        AppService.setHideMode(false);
         Intent intent = new Intent(LoginActivity.this, MainContentActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);

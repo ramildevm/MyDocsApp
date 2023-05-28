@@ -6,15 +6,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,32 +30,20 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mydocsapp.api.User;
-import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.apputils.RecyclerItemClickListener;
 import com.example.mydocsapp.interfaces.IItemAdapterActivity;
 import com.example.mydocsapp.models.Item;
-import com.example.mydocsapp.models.Photo;
 import com.example.mydocsapp.services.AppService;
 import com.example.mydocsapp.services.CurrentItemsService;
 import com.example.mydocsapp.services.DBHelper;
 import com.example.mydocsapp.services.ItemAdapter;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
-
-import javax.crypto.NoSuchPaddingException;
 
 public class MainContentActivity extends AppCompatActivity implements IItemAdapterActivity {
     private static final int DB_IMAGE = 1;
@@ -88,7 +77,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         setContentView(R.layout.activity_main_content);
 
         registerForARFolder = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                    CurrentFolderItemsSet = getFolderItemsFromDb(itemsService.getCurrentItem().Id);
+                    CurrentFolderItemsSet = itemsService.getFolderItemsFromDb(itemsService.getCurrentItem().Id);
                     reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
                     itemsService.setInitialData();
                     reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
@@ -99,10 +88,8 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         setCurrentUserFromDB();
         //setCurrentUserFromAPI();
         isSelectMode = false;
-        TextView topTxt = findViewById(R.id.login_txt);
-        topTxt.setText((CurrentUser.Login));
 
-        itemsService = new CurrentItemsService(db);
+        itemsService = new CurrentItemsService(db, AppService.isHideMode());
         itemsService.setInitialData();
         itemsService.setSelectedPropertyZero();
 
@@ -123,6 +110,29 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         boolean includeEdge = true;
         recyclerView.addItemDecoration(new com.example.mydocsapp.apputils.GridSpacingItemDecoration(spanCount, spacing, includeEdge));
         setOnClickListeners();
+        setWindowParams();
+    }
+
+    private void setWindowParams() {
+        TextView topTxt = findViewById(R.id.login_txt);
+        if(AppService.isHideMode()){
+            topTxt.setText(R.string.hidden_files);
+            ((TextView)findViewById(R.id.bottom_hide_return_txt)).setText(R.string.return_string);
+            ((ImageView)findViewById(R.id.bottom_hide_return_btn)).setImageResource(R.drawable.return_btn);
+            ImageView BtnMaimMenu = ((ImageView)findViewById(R.id.menubar_main_list));
+            BtnMaimMenu.setImageResource(R.drawable.right_arrow_white);
+            BtnMaimMenu.setScaleX(1.3f);
+            BtnMaimMenu.setScaleY(1.3f);
+            BtnMaimMenu.setRotation(180);
+            ((Button)findViewById(R.id.flow_button)).setBackgroundResource(R.drawable.ic_create_new_folder);
+            findViewById(R.id.flow_button).setOnClickListener(v->{
+                makeRenameDialogMethod(itemsService.getCurrentItemsSet(), "Make");
+                makeRenameDialog.show();
+            });
+        }
+        else{
+            topTxt.setText((CurrentUser.Login));
+        }
     }
 
     private void setCurrentUserFromDB() {
@@ -134,53 +144,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         Cursor cur = db.getUserById(1);
         cur.moveToFirst();
         CurrentUser = new User(0, cur.getString(1), cur.getString(2), cur.getString(3), cur.getString(4), cur.getString(5));
-    }
-
-    private void createImage(Bitmap bitmap) {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
-        String time = df.format(new Date());
-
-        int ItemId = db.selectLastItemId();
-        Item item =new Item(0, "Фото" + ItemId, "Изображение", null, 0, 0, 0, time, 0, 0);
-        db.insertItem(item);
-        ItemId = db.selectLastItemId();
-
-        File rootDir = getApplicationContext().getFilesDir();
-        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME+"/"+ AppService.getUserId(this) + "/Item" + ItemId + "/";
-
-        File dir = new File(imgPath);
-        if (!dir.exists())
-            dir.mkdirs();
-        String imgName = "Image" + ItemId + System.currentTimeMillis();
-        File imgFile = new File(dir, imgName);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        InputStream is = new ByteArrayInputStream(stream.toByteArray());
-        try {
-            MyEncrypter.encryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), is, new FileOutputStream(imgFile));
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String filePath = imgFile.getAbsolutePath();
-        db.insertPhoto(new Photo(ItemId,filePath,0));
-
-        item.Image = filePath;
-        db.updateItem(ItemId,item);
-
-        Intent intent = new Intent(MainContentActivity.this, ImageActivity.class);
-        intent.putExtra("text", item.Title);
-        intent.putExtra("type", DB_IMAGE);
-        intent.putExtra("item", itemsService.getCurrentItem());
-        intent.putExtra("imageFile", filePath);
-        this.startActivity(intent);
     }
 
     @Override
@@ -241,7 +204,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                     TextView text = dialog.findViewById(R.id.title_folder_txt);
                                     text.setText(item.Title);
 
-                                    CurrentFolderItemsSet = getFolderItemsFromDb(item.Id);
+                                    CurrentFolderItemsSet = itemsService.getFolderItemsFromDb(item.Id);
 
                                     recyclerFolderView = dialog.findViewById(R.id.folder_container);
 
@@ -382,7 +345,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             if (mode.equals("Make")) {
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
                 String time = df.format(new Date());
-                db.insertItem(new Item(0, editText.getText().toString(), "Папка", null, 0, 0, 0, time, 0, 0));
+                db.insertItem(new Item(0, editText.getText().toString(), "Папка", null, 0, AppService.isHideMode()?1:0, 0, time, 0, 0));
             } else {
                 Item item = itemsService.getCurrentItem();
                 item.Title = editText.getText().toString();
@@ -392,7 +355,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                 itemsService.setInitialData();
                 reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, items);
             } else if (mode.equals("FRename")) {
-                CurrentFolderItemsSet = getFolderItemsFromDb(itemsService.getCurrentItem().FolderId);
+                CurrentFolderItemsSet = itemsService.getFolderItemsFromDb(itemsService.getCurrentItem().FolderId);
                 reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, CurrentFolderItemsSet);
             }
             isTitleClicked = false;
@@ -405,27 +368,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             makeRenameDialog.dismiss();
         });
     }
-
-    private ArrayList<Item> getFolderItemsFromDb(int id) {
-        ArrayList<Item> folderItems = new ArrayList<>();
-        Cursor cur = db.getItemsByFolder(id);
-        Item item;
-        while (cur.moveToNext()) {
-            item = new Item(cur.getInt(0),
-                    cur.getString(1),
-                    cur.getString(2),
-                    cur.getString(3),
-                    cur.getInt(4),
-                    cur.getInt(5),
-                    cur.getInt(6),
-                    cur.getString(7),
-                    cur.getInt(8),
-                    cur.getInt(9));
-            folderItems.add(item);
-        }
-        return folderItems;
-    }
-
     private void setViewsTagOff() {
         if (findViewById(R.id.checkTranitionState).getAlpha() == 0.0) {
             findViewById(R.id.flow_button).setTag("off");
@@ -436,7 +378,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     }
 
     public void goAccountClick(View view) {
-        startActivity(new Intent(MainContentActivity.this, AccountActivity.class));
+        startActivity(new Intent(MainContentActivity.this, MainMenuActivity.class));
         overridePendingTransition(R.anim.slide_in_left, R.anim.alpha_out);
     }
 
@@ -622,10 +564,16 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     }
 
     public void bottomHideClick(View view) {
-        for (Item x :
-                itemsService.getCurrentItemsSet()) {
+        for (Item x : selectedItemsSet) {
+            if(x.Type.equals("Папка")){
+                List<Item> itemList = itemsService.getFolderItemsFromDb(x.Id);
+                for (Item item : itemList) {
+                    item.isHiden = item.isHiden==1?0:1;
+                    db.updateItem(item.Id, item);
+                }
+            }
             if (x.isSelected == 1) {
-                x.isHiden = 1;
+                x.isHiden = x.isHiden==1?0:1;
                 x.isSelected = 0;
                 selectedItemsNum--;
                 db.updateItem(x.Id, x);
@@ -703,7 +651,11 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         } else if (isSortMode) {
             openSortMenuClick(findViewById(R.id.menubar_options));
         } else
-            NavUtils.navigateUpFromSameTask(this);
+        {
+            startActivity(new Intent(MainContentActivity.this, MainMenuActivity.class));
+            overridePendingTransition(R.anim.slide_in_left, R.anim.alpha_out);
+        }
+
     }
 
     @Override

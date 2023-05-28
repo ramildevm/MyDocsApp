@@ -12,7 +12,7 @@
 
     <application
         android:allowBackup="true"
-        android:hardwareAccelerated="false"
+        android:hardwareAccelerated="true"
         android:icon="@drawable/ic_mydocs_logo"
         android:label="@string/app_name"
         android:largeHeap="true"
@@ -21,9 +21,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity
-            android:name="com.example.mydocsapp.HidenItemActivity"
-            android:exported="false" />
         <activity
             android:name="com.example.mydocsapp.SyncActivity"
             android:exported="false" />
@@ -64,10 +61,9 @@
         <activity
             android:name="com.example.mydocsapp.MainContentActivity"
             android:exported="false"
-            android:parentActivityName="com.example.mydocsapp.LoginActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name="com.example.mydocsapp.AccountActivity"
+            android:name="com.example.mydocsapp.MainMenuActivity"
             android:exported="false"
             android:parentActivityName="com.example.mydocsapp.MainContentActivity" />
         <activity

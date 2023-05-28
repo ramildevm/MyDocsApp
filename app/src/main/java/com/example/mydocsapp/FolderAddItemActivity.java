@@ -93,7 +93,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
 
     private void setInitialData() {
         items.clear();
-        Cursor cur = db.getItemsByFolderIdForAdding(CurrentItem.Id);
+        Cursor cur = db.getItemsByFolderIdForAdding(CurrentItem.Id,AppService.isHideMode()?1:0);
         Item item;
         while(cur.moveToNext()){
             item = new Item(cur.getInt(0),

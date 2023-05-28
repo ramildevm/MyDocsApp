@@ -17,7 +17,9 @@
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/ic_baseline_library_add_check_24.xml" value="0.1665" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/ic_baseline_rotate_right_24.xml" value="0.2335" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/ic_baseline_translate_24.xml" value="0.203" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/ic_cancel.xml" value="0.2445" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/ic_check_btn.xml" value="0.152" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/ic_create_new_folder.xml" value="0.176" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/ic_documentcopy.xml" value="0.13" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/ic_hide_folder_btn.xml" value="0.1935" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/ic_image.xml" value="0.2335" />
@@ -35,6 +37,7 @@
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/item_layout_white_bg.xml" value="0.21" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/left_arrow.xml" value="0.126" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/main_button_click_set.xml" value="0.147" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/right_arrow_white.xml" value="0.2565" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/right_arrow_yellow.xml" value="0.172" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_border.xml" value="0.203" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_border_gray.xml" value="0.147" />
@@ -49,15 +52,16 @@
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/drawable/rounded_transparent_folder.xml" value="0.2105" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_account.xml" value="0.1" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_card_pattern.xml" value="0.2" />
-        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_folder_add_item.xml" value="0.25416666666666665" />
-        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_hiden_item.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_folder_add_item.xml" value="0.2" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_hiden_item.xml" value="0.2" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_image.xml" value="0.264" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_image_collection.xml" value="0.23854166666666668" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_images_crop.xml" value="0.1" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_inn_pattern.xml" value="0.264" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_login.xml" value="0.1" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_main.xml" value="0.2" />
-        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_main_content.xml" value="0.25" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_main_content.xml" value="0.2" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_main_menu.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_main_page.xml" value="0.264" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_main_passport_pattern.xml" value="0.28703703703703703" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/activity_policy_pattern.xml" value="0.25416666666666665" />
@@ -79,6 +83,7 @@
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/layout/template_layout.xml" value="1.3544973544973544" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/xml/activity_folder_add_item_scene.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/xml/activity_main_content_options_scene.xml" value="0.18802083333333333" />
+        <entry key="..\:/Users/ramil/AndroidStudioProjects/MyDocsApp/app/src/main/res/xml/activity_main_hide_content_scene.xml" value="0.25416666666666665" />
       </map>
     </option>
   </component>

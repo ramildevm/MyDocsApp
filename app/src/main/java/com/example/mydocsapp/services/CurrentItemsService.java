@@ -1,7 +1,6 @@
 package com.example.mydocsapp.services;
 
 import android.database.Cursor;
-import android.util.Log;
 
 import com.example.mydocsapp.models.Item;
 
@@ -16,8 +15,10 @@ public class CurrentItemsService  {
     public boolean isCardsAvailable;
     public boolean isImagesAvailable;
     DBHelper db;
+    private boolean isHidenItems;
 
-    public CurrentItemsService(DBHelper _db){
+    public CurrentItemsService(DBHelper _db, boolean _isHidenItems){
+        isHidenItems = _isHidenItems;
         isCardsAvailable = true;
         isImagesAvailable = true;
         isDocsAvailable = true;
@@ -36,7 +37,7 @@ public class CurrentItemsService  {
     }
     public void setInitialData() {
         CurrentItemsSet.clear();
-        Cursor cur = db.getItemsByFolder0();
+        Cursor cur = isHidenItems?db.getHiddenItemsByFolder0(): db.getItemsByFolder0();
         Item item;
         while (cur.moveToNext()) {
             item = new Item(cur.getInt(0),
@@ -71,6 +72,25 @@ public class CurrentItemsService  {
             dbItems.add(item);
         }
         return dbItems;
+    }
+    public ArrayList<Item> getFolderItemsFromDb(int id) {
+        ArrayList<Item> folderItems = new ArrayList<>();
+        Cursor cur = db.getItemsByFolder(id,AppService.isHideMode()?1:0);
+        Item item;
+        while (cur.moveToNext()) {
+            item = new Item(cur.getInt(0),
+                    cur.getString(1),
+                    cur.getString(2),
+                    cur.getString(3),
+                    cur.getInt(4),
+                    cur.getInt(5),
+                    cur.getInt(6),
+                    cur.getString(7),
+                    cur.getInt(8),
+                    cur.getInt(9));
+            folderItems.add(item);
+        }
+        return folderItems;
     }
     public ArrayList<Item> getCurrentItemsSet() {
         return CurrentItemsSet;

@@ -15,6 +15,6 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public void goBackAccountClick(View view) {
-        startActivity(new Intent(SettingsActivity.this, AccountActivity.class));
+        startActivity(new Intent(SettingsActivity.this, MainMenuActivity.class));
     }
 }

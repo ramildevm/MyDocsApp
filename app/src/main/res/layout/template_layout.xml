@@ -37,7 +37,7 @@
             android:onClick="bottomPinClick"
             android:src="@drawable/bottom_pin_btn"
             app:layout_constraintBottom_toTopOf="@id/bottom_pin_txt"
-            app:layout_constraintEnd_toStartOf="@id/bottom_hide_btn"
+            app:layout_constraintEnd_toStartOf="@id/bottom_hide_return_btn"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
         <TextView
@@ -51,24 +51,24 @@
             app:layout_constraintTop_toBottomOf="@+id/bottom_pin_btn" />
 
         <ImageView
-            android:id="@+id/bottom_hide_btn"
+            android:id="@+id/bottom_hide_return_btn"
             android:layout_width="50dp"
             android:layout_height="37dp"
             android:onClick="bottomHideClick"
             android:src="@drawable/bottom_hide_btn"
-            app:layout_constraintBottom_toTopOf="@id/bottom_hide_txt"
+            app:layout_constraintBottom_toTopOf="@id/bottom_hide_return_txt"
             app:layout_constraintEnd_toStartOf="@id/bottom_delete_btn"
             app:layout_constraintStart_toEndOf="@id/bottom_pin_btn"
             app:layout_constraintTop_toTopOf="parent" />
         <TextView
-            android:id="@+id/bottom_hide_txt"
+            android:id="@+id/bottom_hide_return_txt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Hide"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/bottom_hide_btn"
-            app:layout_constraintStart_toStartOf="@+id/bottom_hide_btn"
-            app:layout_constraintTop_toBottomOf="@+id/bottom_hide_btn" />
+            app:layout_constraintEnd_toEndOf="@+id/bottom_hide_return_btn"
+            app:layout_constraintStart_toStartOf="@+id/bottom_hide_return_btn"
+            app:layout_constraintTop_toBottomOf="@+id/bottom_hide_return_btn" />
 
         <ImageView
             android:id="@+id/bottom_delete_btn"
@@ -78,7 +78,7 @@
             android:src="@drawable/bottom_delete_btn"
             app:layout_constraintBottom_toTopOf="@id/bottom_delete_txt"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/bottom_hide_btn"
+            app:layout_constraintStart_toEndOf="@id/bottom_hide_return_btn"
             app:layout_constraintTop_toTopOf="parent" />
         <TextView
             android:id="@+id/bottom_delete_txt"

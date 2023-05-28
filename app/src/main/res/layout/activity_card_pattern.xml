@@ -89,27 +89,16 @@
             app:layout_constraintStart_toStartOf="@id/card_photo"
             app:layout_constraintEnd_toEndOf="@id/card_photo"
             app:layout_constraintTop_toBottomOf="@id/card_photo"
-            app:layout_constraintBottom_toTopOf="@+id/bottom_card_panel"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_panel"
             />
-
-        <androidx.cardview.widget.CardView
-            android:id="@id/bottom_card_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_margin="15dp"
-            app:cardCornerRadius="10dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/load_page1_photo_btn">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/bottom_panel"
                 android:layout_width="match_parent"
                 android:paddingBottom="25dp"
-                android:background="@color/gray80"
                 android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/load_page1_photo_btn"
                 tools:layout_editor_absoluteX="-90dp">
-
                 <TextView
                     android:id="@+id/c_n"
                     android:layout_width="wrap_content"
@@ -122,7 +111,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <EditText
+                <com.santalu.maskara.widget.MaskEditText
                     android:id="@+id/editTextCardNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -130,12 +119,14 @@
                     android:background="@drawable/rounded_border_white"
                     android:ems="10"
                     android:hint="0000 0000 0000 0000"
+                    app:mask="#### #### #### ####"
                     android:maxLength="50"
                     android:padding="2dp"
                     android:paddingEnd="24dp"
                     android:textColor="#000"
                     android:textColorHint="@color/gray"
                     android:textSize="16dp"
+                    android:inputType="number"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/c_n" />
 
@@ -206,16 +197,17 @@
                     android:layout_marginLeft="25dp"
                     android:background="@drawable/rounded_border_white"
                     android:digits="1234567890"
-                    android:ems="10"
+                    app:mask="##.##.####"
                     android:hint="@string/date_pattern"
                     android:paddingVertical="2dp"
                     android:paddingLeft="4dp"
                     android:textColor="#000"
+                    android:inputType="number"
                     android:textColorHint="#757575"
                     android:textSize="16dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/v_t"
-                    app:mask="##.##.####" />
+                    />
 
                 <ImageView
                     android:id="@+id/copy3"
@@ -268,7 +260,7 @@
                     app:layout_constraintTop_toTopOf="@+id/editTextCVV" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
+
        </androidx.constraintlayout.widget.ConstraintLayout>
 
     <Button

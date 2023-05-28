@@ -94,6 +94,7 @@ public class SignInActivity extends AppCompatActivity {
         cur = db.getUserByLogin(login);
         cur.moveToFirst();
         AppService.setUserId(cur.getInt(0),this);
+        AppService.setHideMode(false);
 
         Intent intent = new Intent(SignInActivity.this, MainContentActivity.class);
         startActivity(intent);

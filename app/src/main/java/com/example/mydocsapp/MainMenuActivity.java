@@ -14,11 +14,11 @@ import androidx.core.app.NavUtils;
 import com.example.mydocsapp.services.AppService;
 import com.example.mydocsapp.services.DBHelper;
 
-public class AccountActivity extends AppCompatActivity {
+public class MainMenuActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_account);
+        setContentView(R.layout.activity_main_menu);
 
         TextView gtxt = findViewById(R.id.login_txt);
         int userId = AppService.getUserId(this);
@@ -33,10 +33,11 @@ public class AccountActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        goAccountClickBack(getCurrentFocus());
+        goMainMenuClickBack(getCurrentFocus());
     }
 
-    public void goAccountClickBack(View view) {
+    public void goMainMenuClickBack(View view) {
+        AppService.setHideMode(false);
         NavUtils.navigateUpFromSameTask(this);
         overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
     }
@@ -49,12 +50,13 @@ public class AccountActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
     }
 
-    public void goMainActivityClick(View view) {
+    public void goSettingsClick(View view) {
+        startActivity(new Intent(MainMenuActivity.this, SettingsActivity.class));
+        overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
+    }
+    public void goHidenFilesClick(View view) {
+        AppService.setHideMode(true);
         NavUtils.navigateUpFromSameTask(this);
         overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
-    }
-
-    public void goSettingsClick(View view) {
-        startActivity(new Intent(AccountActivity.this, SettingsActivity.class));
     }
 }

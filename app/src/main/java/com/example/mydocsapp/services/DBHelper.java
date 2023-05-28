@@ -123,9 +123,9 @@ public class DBHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public Cursor getItemsByFolder(int id){
+    public Cursor getItemsByFolder(int id, int hideMode){
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=? and UserId=? order by Priority desc, id asc",new String[]{""+id,UserId+""});
+        Cursor cursor = db.rawQuery("select * from Item where isHiden=? and FolderId=? and UserId=? order by Priority desc, id asc",new String[]{hideMode+"",""+id,UserId+""});
         return cursor;
     }
     public Cursor getItemsByFolder0(){
@@ -133,9 +133,14 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=0 and UserId=? order by Priority desc, id asc", new String[]{this.UserId+""});
         return cursor;
     }
-    public Cursor getItemsByFolderIdForAdding(int id){
+    public Cursor getHiddenItemsByFolder0(){
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and UserId=? and FolderId=0 or FolderId=? order by Priority desc, id asc",new String[]{UserId+"",""+id});
+        Cursor cursor = db.rawQuery("select * from Item where isHiden=1 and FolderId=0 and UserId=? order by Priority desc, id asc", new String[]{this.UserId+""});
+        return cursor;
+    }
+    public Cursor getItemsByFolderIdForAdding(int id, int hideMode){
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Item where isHiden=? and UserId=? and FolderId=0 or FolderId=? order by Priority desc, id asc",new String[]{hideMode+"",UserId+"",""+id});
         return cursor;
     }
     public int getItemFolderItemsCount(int id){

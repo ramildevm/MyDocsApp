@@ -116,7 +116,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 holder.recyclerFolder.setVisibility(View.VISIBLE);
                 if (db.getItemFolderItemsCount(item.Id) > 0) {
                     ArrayList<Item> items = new ArrayList<>();
-                    Cursor cur = db.getItemsByFolder(item.Id);
+                    Cursor cur = db.getItemsByFolder(item.Id,AppService.isHideMode()?1:0);
                     //Cursor cur = db.getItems();
                     Item _item;
                     while (cur.moveToNext()) {
