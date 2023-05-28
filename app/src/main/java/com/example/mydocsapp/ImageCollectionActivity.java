@@ -8,7 +8,6 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.mydocsapp.apputils.ImageSaveService;
+import com.example.mydocsapp.apputils.ImageService;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.databinding.ActivityImageCollectionBinding;
 import com.example.mydocsapp.models.Item;
@@ -76,7 +75,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
             if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                 Uri imageUri = result.getData().getData();
                 try {
-                    Bitmap bitmap = ImageSaveService.getBitmapFormUri(this,imageUri);
+                    Bitmap bitmap = ImageService.getBitmapFormUri(this,imageUri);
                     imagesService.set(imagesService.getCurrentImage(), bitmap);
                     imageAdapter.onItemChange(imagesService.getCurrentImage(), bitmap);
                     changePhotoFile(bitmap);
@@ -281,7 +280,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                imagesService.add(ImageSaveService.fileToBitmap(outputFile));
+                imagesService.add(ImageService.fileToBitmap(outputFile));
                 outputFile.delete();
             }
             imageAdapter = new ImageAdapter(imagesService.get());
@@ -312,6 +311,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
             binding.goPreviousBtn.setVisibility(View.GONE);
             binding.goNextBtn.setImageResource(R.drawable.ic_round_add_photo_alternate_24);
         }
+        binding.currentImageTxt.setText(binding.viewPager2.getCurrentItem()+1 + "/" + imagesService.getSize());
     }
 
     public void goBackClick(View view) {

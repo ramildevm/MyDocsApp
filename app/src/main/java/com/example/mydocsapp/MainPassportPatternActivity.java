@@ -23,8 +23,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
-import com.example.mydocsapp.interfaces.PassportActivity;
+import com.example.mydocsapp.interfaces.IFragmentDataSaver;
+import com.example.mydocsapp.interfaces.Changedable;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
@@ -35,12 +35,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class MainPassportPatternActivity extends AppCompatActivity implements PassportActivity {
+public class MainPassportPatternActivity extends AppCompatActivity implements Changedable {
     DBHelper db;
     private com.example.mydocsapp.models.Passport Passport;
     PassportStateViewModel model;
-    private FragmentSaveViewModel listenerForF1;
-    private FragmentSaveViewModel listenerForF2;
+    private IFragmentDataSaver listenerForF1;
+    private IFragmentDataSaver listenerForF2;
 
     public static final int SELECT_USER_PHOTO = 1;
     public static final int SELECT_PAGE1_PHOTO = 2;
@@ -261,11 +261,11 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Pa
         super.onBackPressed();
     }
 
-    void setListenerForF1(FragmentSaveViewModel fragment) {
+    void setListenerForF1(IFragmentDataSaver fragment) {
         listenerForF1 = fragment;
     }
 
-    void setListenerForF2(FragmentSaveViewModel fragment2) {
+    void setListenerForF2(IFragmentDataSaver fragment2) {
         listenerForF2 = fragment2;
     }
 

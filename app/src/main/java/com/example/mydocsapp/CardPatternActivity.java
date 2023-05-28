@@ -31,7 +31,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
 
-import com.example.mydocsapp.apputils.ImageSaveService;
+import com.example.mydocsapp.apputils.ImageService;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.databinding.ActivityCardPatternBinding;
 import com.example.mydocsapp.models.CreditCard;
@@ -120,7 +120,7 @@ public class CardPatternActivity extends AppCompatActivity {
     }
     private void loadProfileImage(Bitmap bitmap) {
         firstPagePhoto = bitmap;
-        bitmap = ImageSaveService.scaleDown(bitmap, ImageSaveService.dpToPx(this, binding.cardPhoto.getWidth()), true);
+        bitmap = ImageService.scaleDown(bitmap, ImageService.dpToPx(this, binding.cardPhoto.getWidth()), true);
         binding.cardPhoto.setBackgroundColor(Color.TRANSPARENT);
         binding.cardPhoto.setImageBitmap(bitmap);
         IsChanged = true;
@@ -165,7 +165,7 @@ public class CardPatternActivity extends AppCompatActivity {
             String fileName = Card.PhotoPage1;
             intent.putExtra("item", item);
             if (firstPagePhoto != null) {
-                fileName = ImageSaveService.createImageFromBitmap(firstPagePhoto, this);
+                fileName = ImageService.createImageFromBitmap(firstPagePhoto, this);
                 intent.putExtra("type", BITMAP_IMAGE);
             } else
                 intent.putExtra("type", DB_IMAGE);

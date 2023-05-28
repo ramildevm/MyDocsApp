@@ -28,13 +28,13 @@ import com.example.mydocsapp.services.DBHelper;
 import java.io.IOException;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
     DBHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
 
         db = new DBHelper(this, AppService.getUserId(this));
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -46,12 +46,12 @@ public class MainActivity extends AppCompatActivity {
             int id = cur.getInt(0);
             if(id!=0){
                 AppService.setUserId(id, this);
-                Intent intent =new Intent(MainActivity.this, MainContentActivity.class);
+                Intent intent =new Intent(LoginActivity.this, MainContentActivity.class);
                 startActivity(intent);
             }
             else{
                 AppService.setUserId(id, this);
-                Intent intent = new Intent(MainActivity.this, MainContentActivity.class);
+                Intent intent = new Intent(LoginActivity.this, MainContentActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
             }
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         String login = ((TextView)findViewById(R.id.editTextLogin)).getText().toString();
         String password = ((TextView)findViewById(R.id.editTextPassword)).getText().toString();
         if(login.isEmpty() | password.isEmpty()){
-            Toast msg = Toast.makeText(MainActivity.this, R.string.error_not_all_fields_filled, Toast.LENGTH_SHORT);
+            Toast msg = Toast.makeText(LoginActivity.this, R.string.error_not_all_fields_filled, Toast.LENGTH_SHORT);
             msg.show();
             return;
         }
@@ -95,18 +95,18 @@ public class MainActivity extends AppCompatActivity {
     private void fromDB(String login, String password) {
         Cursor cur = db.getUserByLogin(login);
         if(cur == null){
-            Toast msg = Toast.makeText(MainActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT);
+            Toast msg = Toast.makeText(LoginActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT);
             msg.show();
             return;
         }
         cur.moveToFirst();
         if(password.isEmpty()){
-            Toast msg = Toast.makeText(MainActivity.this, R.string.error_input_password, Toast.LENGTH_SHORT);
+            Toast msg = Toast.makeText(LoginActivity.this, R.string.error_input_password, Toast.LENGTH_SHORT);
             msg.show();
             return;
         }
         if (!password.equals(cur.getString(2))) {
-            Toast msg = Toast.makeText(MainActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
+            Toast msg = Toast.makeText(LoginActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
             msg.show();
             return;
         }
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
 
         AppService.setUserId(cur.getInt(0),this);
-        Intent intent =new Intent(MainActivity.this, MainContentActivity.class);
+        Intent intent =new Intent(LoginActivity.this, MainContentActivity.class);
         startActivity(intent);
     }
 
@@ -127,22 +127,22 @@ public class MainActivity extends AppCompatActivity {
             public void onResult(User user) {
                 if(user != null) {
                     if (!password.equals(user.Password) && !password.isEmpty()) {
-                        Toast msg = Toast.makeText(MainActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
+                        Toast msg = Toast.makeText(LoginActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
                         msg.show();
                     } else {
                         db.insertUser(user);
-                        Intent intent =new Intent(MainActivity.this, MainContentActivity.class);
+                        Intent intent =new Intent(LoginActivity.this, MainContentActivity.class);
                         startActivity(intent);
                     }
                 }
                 else{
-                    Toast msg = Toast.makeText(MainActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT);
+                    Toast msg = Toast.makeText(LoginActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT);
                     msg.show();
                 }
             }
             @Override
             public void onError(Throwable e) {
-                Toast msg = Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT);
+                Toast msg = Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT);
                 msg.show();
             }
         });
@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
         Pair<View, String> pair7 = Pair.create(findViewById(R.id.without_login), findViewById(R.id.without_login).getTransitionName());
 
         ActivityOptions options;
-        options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, pair1,pair2,pair3,pair4,pair7);
+        options = ActivityOptions.makeSceneTransitionAnimation(LoginActivity.this, pair1,pair2,pair3,pair4,pair7);
         bundle = options.toBundle();
         Intent intent = new Intent(this,SignInActivity.class);
         startActivity(intent, bundle);
@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
         AppService.setUserId(1,this);
 
-        Intent intent = new Intent(MainActivity.this, MainContentActivity.class);
+        Intent intent = new Intent(LoginActivity.this, MainContentActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
     }

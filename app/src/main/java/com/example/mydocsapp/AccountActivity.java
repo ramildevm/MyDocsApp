@@ -45,7 +45,7 @@ public class AccountActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear().commit();
 
-        startActivity(new Intent(this, MainActivity.class));
+        startActivity(new Intent(this, LoginActivity.class));
         overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
     }
 

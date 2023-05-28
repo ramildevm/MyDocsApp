@@ -68,4 +68,11 @@
     <string name="exit">Exit</string>
     <string name="text_copied">Text copied to clipboard</string>
     <string name="crop">Crop</string>
+    <string name="delete">Delete</string>
+    <string name="language">Language</string>
+    <string name="safety">Safety</string>
+    <string name="help">Help</string>
+    <string name="about_the_app">About the app</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="unpin_string">Unpin</string>
 </resources>

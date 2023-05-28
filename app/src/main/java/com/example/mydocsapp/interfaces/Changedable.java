@@ -1,6 +1,6 @@
 package com.example.mydocsapp.interfaces;
 
-public interface PassportActivity {
+public interface Changedable {
     void setIsChanged(Boolean value);
     Boolean getIsChanged();
 }

@@ -14,10 +14,8 @@ import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.mydocsapp.R;
-import com.example.mydocsapp.apputils.ImageSaveService;
+import com.example.mydocsapp.apputils.ImageService;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.models.Item;
 
@@ -73,7 +71,7 @@ public class FolderItemAdapter extends RecyclerView.Adapter<FolderItemAdapter.Vi
             try {
                 MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
                 Bitmap image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(outputFile));
-                image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 50), true);
+                image = ImageService.scaleDown(image, ImageService.dpToPx(context, 50), true);
                 int sizeInDP = 3;
                 int marginInDp = (int) TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP, sizeInDP, this.context.getResources()

@@ -53,6 +53,25 @@ public class CurrentItemsService  {
         }
         CurrentItem = null;
     }
+    public ArrayList<Item> getInitialData() {
+        ArrayList<Item> dbItems= new ArrayList<>();
+        Cursor cur = db.getItemsByFolder0();
+        Item item;
+        while (cur.moveToNext()) {
+            item = new Item(cur.getInt(0),
+                    cur.getString(1),
+                    cur.getString(2),
+                    cur.getString(3),
+                    cur.getInt(4),
+                    cur.getInt(5),
+                    cur.getInt(6),
+                    cur.getString(7),
+                    cur.getInt(8),
+                    cur.getInt(8));
+            dbItems.add(item);
+        }
+        return dbItems;
+    }
     public ArrayList<Item> getCurrentItemsSet() {
         return CurrentItemsSet;
     }

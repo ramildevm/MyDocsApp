@@ -18,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -29,11 +28,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.mydocsapp.apputils.ImageSaveService;
+import com.example.mydocsapp.apputils.ImageService;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.databinding.FragmentPassportFirstBinding;
-import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
-import com.example.mydocsapp.interfaces.PassportActivity;
+import com.example.mydocsapp.interfaces.IFragmentDataSaver;
+import com.example.mydocsapp.interfaces.Changedable;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
@@ -55,7 +54,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.NoSuchPaddingException;
 
 
-public class PassportFirstFragment extends Fragment implements FragmentSaveViewModel {
+public class PassportFirstFragment extends Fragment implements IFragmentDataSaver {
 
     private static final int DB_IMAGE = 1;
     private static final int BITMAP_IMAGE = 0;
@@ -98,7 +97,7 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
     }
     private void loadProfileImage(Bitmap bitmap) {
         profilePhoto = bitmap;
-        bitmap = ImageSaveService.scaleDown(bitmap, ImageSaveService.dpToPx(getContext(), binding.userPassportPhoto.getWidth()), true);
+        bitmap = ImageService.scaleDown(bitmap, ImageService.dpToPx(getContext(), binding.userPassportPhoto.getWidth()), true);
         binding.userPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
         binding.userPassportPhoto.setImageBitmap(bitmap);
     }
@@ -150,7 +149,7 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             String fileName = model.getState().getValue().FacePhoto;
             intent.putExtra("item", item);
             if (profilePhoto != null) {
-                fileName = ImageSaveService.createImageFromBitmap(profilePhoto, getContext());
+                fileName = ImageService.createImageFromBitmap(profilePhoto, getContext());
                 intent.putExtra("type", BITMAP_IMAGE);
             } else
                 intent.putExtra("type", DB_IMAGE);
@@ -158,10 +157,10 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             getActivity().startActivity(intent);
         });
         binding.maleCheck.setOnCheckedChangeListener((compoundButton, b) -> {
-            ((PassportActivity)getContext()).setIsChanged(true);
+            ((Changedable)getContext()).setIsChanged(true);
         });
         binding.femaleCheck.setOnCheckedChangeListener((compoundButton, b) -> {
-            ((PassportActivity)getContext()).setIsChanged(true);
+            ((Changedable)getContext()).setIsChanged(true);
         });
         TextWatcher textWatcher = new TextWatcher() {
             @Override
@@ -169,7 +168,7 @@ public class PassportFirstFragment extends Fragment implements FragmentSaveViewM
             }
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                ((PassportActivity)getActivity()).setIsChanged(true);
+                ((Changedable)getActivity()).setIsChanged(true);
 
             }
             @Override

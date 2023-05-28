@@ -76,6 +76,20 @@
             app:layout_constraintLeft_toLeftOf="@id/image_txt"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/current_image_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.7"
+            android:background="@drawable/rounded_border_gray"
+            android:paddingHorizontal="10dp"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/top_panel"
+            tools:text="1/3" />
+
         <LinearLayout
             android:id="@+id/bottom_arrows"
             android:layout_width="match_parent"
@@ -164,7 +178,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Delete"
+                android:text="@string/delete"
                 android:onClick="menuDeleteBtnClick"
                 android:textAllCaps="false"
                 android:textColor="@color/yellow"

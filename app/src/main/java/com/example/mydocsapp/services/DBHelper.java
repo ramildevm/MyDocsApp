@@ -41,8 +41,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onOpen(SQLiteDatabase db) {
+        db.execSQL("PRAGMA foreign_keys = ON;");
         super.onOpen(db);
-        db.execSQL("pragma foreign_keys = on");
     }
 
     public void create_db() throws IOException{
@@ -119,7 +119,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
     public Cursor getItems(){
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and UserId=? order by Priority desc, id asc",new String[]{this.UserId+""});
+            Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and UserId=? order by Priority desc, id asc",new String[]{this.UserId+""});
         return cursor;
     }
 
@@ -145,12 +145,21 @@ public class DBHelper extends SQLiteOpenHelper {
     }
     public Boolean deleteItem(int id){
         SQLiteDatabase db = open();
-        //long result = db.delete("Item","id=?", new String[]{""+id});
-        db.execSQL("delete from Item where Id="+id);
-//        if (result <=0)
-//            return false;
-//        else {
+        db.delete("Item","Id=?", new String[]{""+id});
+        db.delete("Passport","Id=?", new String[]{""+id});
+        db.delete("CreditCard","Id=?", new String[]{""+id});
+        db.delete("INN","Id=?", new String[]{""+id});
+        db.delete("SNILS","Id=?", new String[]{""+id});
+        db.delete("Polis","Id=?", new String[]{""+id});
+        db.delete("Photo","CollectionId=?", new String[]{""+id});
             return true;
+//        }
+    }
+    public Boolean deleteFolder(int id, int deleteAll){
+        SQLiteDatabase db = open();
+        db.delete("Item","Id=?", new String[]{""+id});
+        db.delete("Item","FolderId=?", new String[]{""+id});
+        return true;
 //        }
     }
 

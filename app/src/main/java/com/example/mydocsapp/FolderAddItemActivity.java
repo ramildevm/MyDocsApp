@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mydocsapp.apputils.RecyclerItemClickListener;
-import com.example.mydocsapp.interfaces.ItemAdapterActivity;
+import com.example.mydocsapp.interfaces.IItemAdapterActivity;
 import com.example.mydocsapp.services.AppService;
 import com.example.mydocsapp.services.DBHelper;
 import com.example.mydocsapp.models.Item;
@@ -25,7 +25,7 @@ import com.example.mydocsapp.services.ItemAdapter;
 
 import java.util.ArrayList;
 
-public class FolderAddItemActivity extends AppCompatActivity implements ItemAdapterActivity {
+public class FolderAddItemActivity extends AppCompatActivity implements IItemAdapterActivity {
 
     ArrayList<Item> items = new ArrayList<Item>();
     ItemAdapter adapter;
@@ -76,7 +76,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements ItemAdap
                         }
                         view.setTag(item);
                     items.set(newItemId, item);
-                        ((TextView) findViewById(R.id.top_select_picked_txt)).setText("Selected: " + selectedItemsNum);
+                        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + selectedItemsNum);
                         reFillContentPanel(recyclerFolderView, items);
                     }
                 @Override
@@ -109,7 +109,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements ItemAdap
             if(item.FolderId == CurrentItem.Id){
                 item.isSelected = 1;
                 selectedItemsNum++;
-                ((TextView) findViewById(R.id.top_select_picked_txt)).setText("Selected: " + selectedItemsNum);
+                ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + selectedItemsNum);
             }
             if(!(item.Type.equals("Папка")))
                 items.add(item);
@@ -131,7 +131,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements ItemAdap
                 items.set(newItemId,x);
                 selectedItemsNum++;
             }
-            ((TextView)findViewById(R.id.top_select_picked_txt)).setText("Selected: "+ selectedItemsNum);
+            ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string)+ selectedItemsNum);
 
             reFillContentPanel(recyclerFolderView,items);
     }
@@ -156,7 +156,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements ItemAdap
         }
         setInitialData();
         reFillContentPanel(recyclerFolderView,items);
-        ((TextView)findViewById(R.id.top_select_picked_txt)).setText("Selected: "+ selectedItemsNum);
+        ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string)+ selectedItemsNum);
 
         Intent returnIntent = new Intent();
         setResult(Activity.RESULT_CANCELED,returnIntent);

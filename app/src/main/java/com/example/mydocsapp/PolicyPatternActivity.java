@@ -14,7 +14,6 @@ public class PolicyPatternActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_policy_pattern);
     }
-
     public void goBackMainPageClick(View view) {
         NavUtils.navigateUpFromSameTask(this);
     }

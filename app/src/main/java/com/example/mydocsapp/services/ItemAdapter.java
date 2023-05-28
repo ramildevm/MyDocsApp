@@ -23,9 +23,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.mydocsapp.R;
-import com.example.mydocsapp.apputils.ImageSaveService;
+import com.example.mydocsapp.apputils.ImageService;
 import com.example.mydocsapp.apputils.MyEncrypter;
-import com.example.mydocsapp.interfaces.ItemAdapterActivity;
+import com.example.mydocsapp.interfaces.IItemAdapterActivity;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Photo;
 
@@ -171,7 +171,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                         encFile = new File(photo.Path);
                         MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
                         image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(outputFile));
-                        image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 150), true);
+                        image = ImageService.scaleDown(image, ImageService.dpToPx(context, 150), true);
                         int sizeInDP = 3;
                         int marginInDp = (int) TypedValue.applyDimension(
                                 TypedValue.COMPLEX_UNIT_DIP, sizeInDP, this.context.getResources()
@@ -189,19 +189,37 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                         image = photoFirst;
                     }
                     else {
-                        int width = ImageSaveService.dpToPx(context, 157);
-                        int height = ImageSaveService.dpToPx(context, 190);
-                        float offsetFirst = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, context.getResources().getDisplayMetrics());
                         int length = (photos.size() > 2) ? 3 : photos.size();
-                        combinedBitmap = Bitmap.createBitmap(height-Math.round(offset*2), width-Math.round(offset*2), Bitmap.Config.ARGB_8888);
-                        Canvas canvas = new Canvas(combinedBitmap);
-                        canvas.drawBitmap(photoFirst, offsetFirst, 0, null);
-                        for (int i = 1; i < length; i++) {
+                        int maxWidth = 0;
+                        int maxHeight = 0;
+                        for (int i = 0; i < length; i++) {
                             Bitmap photo = photos.get(i);
-                            photo = ImageSaveService.addStrokeToBitmap(photo, Color.BLACK,2);
-                            canvas.drawBitmap(photo, offsetFirst+offset * i, offset * i, null);
+                            if(photo.getWidth() > maxWidth)
+                                maxWidth = photo.getWidth();
+                            if(photo.getHeight()>maxHeight)
+                                maxHeight = photo.getHeight();
+                        }
+                        maxWidth += 20 + 30*(length-1);
+                        maxHeight += 20 + 30*(length-1);
+                        combinedBitmap = Bitmap.createBitmap(maxWidth, maxHeight, Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(combinedBitmap);
+                        for (int i = length-1; i >=0; i--) {
+                            Bitmap photo = photos.get(i);
+                            photo = ImageService.addStrokeToBitmap(photo, Color.BLACK,2);
+                            if(i==0)
+                                canvas.drawBitmap(photo, 10, 10+30*(length-1-i), null);
+                            else
+                                canvas.drawBitmap(photo, 10+30*i, 10+30*(length-1-i), null);
                         }
                         image = combinedBitmap;
+//                        for (int i = 0; i <length; i++) {
+//                            Bitmap photo = photos.get(i);
+//                            photo = ImageSaveService.addStrokeToBitmap(photo, Color.BLACK,2);
+//                            if(i==0)
+//                                canvas.drawBitmap(photo, 10, 10, null);
+//                            else
+//                                canvas.drawBitmap(photo, 30*i, 30*i, null);
+//                        }
                     }
                 }
                 else{
@@ -209,7 +227,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                     encFile = new File(item.Image);
                     MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
                     image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(outputFile));
-                    image = ImageSaveService.scaleDown(image, ImageSaveService.dpToPx(context, 150), true);
+                    image = ImageService.scaleDown(image, ImageService.dpToPx(context, 150), true);
                     int sizeInDP = 3;
                     int marginInDp = (int) TypedValue.applyDimension(
                             TypedValue.COMPLEX_UNIT_DIP, sizeInDP, this.context.getResources()
@@ -280,7 +298,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         holder.titleView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                ((ItemAdapterActivity) context).setIsTitleClicked(true);
+                ((IItemAdapterActivity) context).setIsTitleClicked(true);
                 return true;
             }
         });

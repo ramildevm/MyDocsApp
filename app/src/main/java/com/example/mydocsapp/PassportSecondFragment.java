@@ -11,7 +11,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,10 +22,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.mydocsapp.apputils.ImageSaveService;
+import com.example.mydocsapp.apputils.ImageService;
 import com.example.mydocsapp.apputils.MyEncrypter;
 import com.example.mydocsapp.databinding.FragmentPassportSecondBinding;
-import com.example.mydocsapp.interfaces.FragmentSaveViewModel;
+import com.example.mydocsapp.interfaces.IFragmentDataSaver;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
@@ -48,7 +47,7 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.NoSuchPaddingException;
 
-public class PassportSecondFragment extends Fragment implements FragmentSaveViewModel {
+public class PassportSecondFragment extends Fragment implements IFragmentDataSaver {
 
     private static final int BITMAP_IMAGE = 0;
     private static final int DB_IMAGE = 1;
@@ -92,7 +91,7 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
             intent.putExtra("item", item);
             String fileName = model.getState().getValue().PhotoPage1;
             if (pagePhoto1 != null) {
-                fileName = ImageSaveService.createImageFromBitmap(pagePhoto1, getContext());
+                fileName = ImageService.createImageFromBitmap(pagePhoto1, getContext());
                 intent.putExtra("type", BITMAP_IMAGE);
             } else
                 intent.putExtra("type", DB_IMAGE);
@@ -107,7 +106,7 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
             intent.putExtra("item", item);
             String fileName = model.getState().getValue().PhotoPage2;
             if (pagePhoto2 != null) {
-                fileName = ImageSaveService.createImageFromBitmap(pagePhoto2, getContext());
+                fileName = ImageService.createImageFromBitmap(pagePhoto2, getContext());
                 intent.putExtra("type", BITMAP_IMAGE);
             } else
                 intent.putExtra("type", DB_IMAGE);
@@ -275,14 +274,14 @@ public class PassportSecondFragment extends Fragment implements FragmentSaveView
 
     private void loadPassportPage1(Bitmap bitmap) {
         pagePhoto1 = bitmap;
-        bitmap = ImageSaveService.scaleDown(bitmap, ImageSaveService.dpToPx(getContext(), binding.firstPassportPhoto.getWidth()), true);
+        bitmap = ImageService.scaleDown(bitmap, ImageService.dpToPx(getContext(), binding.firstPassportPhoto.getWidth()), true);
         binding.firstPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
         binding.firstPassportPhoto.setImageBitmap(bitmap);
     }
 
     private void loadPassportPage2(Bitmap bitmap) {
         pagePhoto2 = bitmap;
-        bitmap = ImageSaveService.scaleDown(bitmap, ImageSaveService.dpToPx(getContext(), binding.secondPassportPhoto.getWidth()), true);
+        bitmap = ImageService.scaleDown(bitmap, ImageService.dpToPx(getContext(), binding.secondPassportPhoto.getWidth()), true);
         binding.secondPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
         binding.secondPassportPhoto.setImageBitmap(bitmap);
     }

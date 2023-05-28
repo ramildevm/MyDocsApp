@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".App"
         android:allowBackup="true"
         android:hardwareAccelerated="false"
         android:icon="@drawable/ic_mydocs_logo"
@@ -22,6 +21,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name="com.example.mydocsapp.HidenItemActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.example.mydocsapp.SyncActivity"
+            android:exported="false" />
         <activity
             android:name="com.example.mydocsapp.ImageCollectionActivity"
             android:exported="false" />
@@ -59,7 +64,7 @@
         <activity
             android:name="com.example.mydocsapp.MainContentActivity"
             android:exported="false"
-            android:parentActivityName="com.example.mydocsapp.MainActivity"
+            android:parentActivityName="com.example.mydocsapp.LoginActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="com.example.mydocsapp.AccountActivity"
@@ -68,12 +73,12 @@
         <activity
             android:name="com.example.mydocsapp.SignInActivity"
             android:exported="false"
-            android:parentActivityName="com.example.mydocsapp.MainActivity"
-            android:windowSoftInputMode="adjustResize" />
+            android:parentActivityName="com.example.mydocsapp.LoginActivity"
+            android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="com.example.mydocsapp.MainActivity"
+            android:name="com.example.mydocsapp.LoginActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize|adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

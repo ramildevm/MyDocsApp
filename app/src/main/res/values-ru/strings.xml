@@ -35,13 +35,14 @@
     <string name="rename_an_item">Переименовать</string>
     <string name="cancel_btn">Отмена</string>
     <string name="pin_string">Закрепить</string>
+    <string name="unpin_string">Открепить</string>
     <string name="hide_string">Скрыть</string>
     <string name="delete_string">Удалить</string>
     <string name="document_string">Документ</string>
     <string name="image_string">Фото</string>
     <string name="card_string">Карта</string>
     <string name="folder_string">Папка</string>
-    <string name="selected_string">Выбрано:</string>
+    <string name="selected_string">Выбрано: </string>
     <string name="enter_a_name">Введите название</string>
     <string name="sort_by_string">Сортировать</string>
     <string name="load_image">Загрузить изображение</string>
@@ -66,4 +67,12 @@
     <string name="do_you_want_save">Вы хотите сохранить изменения?</string>
     <string name="save">Сохранить</string>
     <string name="exit">Выйти</string>
+    <string name="text_copied">Текст скопирован</string>
+    <string name="crop">Кадрировать</string>
+    <string name="delete">Удалить</string>
+    <string name="language">Язык</string>
+    <string name="safety">Безопасность</string>
+    <string name="help">Помощь</string>
+    <string name="about_the_app">О приложении</string>
+    <string name="privacy_policy">Политика конфиденциальности</string>
 </resources>
