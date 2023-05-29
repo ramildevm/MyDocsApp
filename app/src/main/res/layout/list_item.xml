@@ -24,17 +24,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" >
 
-        <androidx.recyclerview.widget.RecyclerView
+        <GridView
             android:id="@+id/recycler_folder"
             android:layout_width="match_parent"
             android:layout_margin="5dp"
             android:layout_height="160dp"
-
+            android:clickable="false"
+            android:numColumns="2"
+            android:scrollbars="none"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        </androidx.recyclerview.widget.RecyclerView>
+        </GridView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView

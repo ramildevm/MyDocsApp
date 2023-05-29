@@ -8,6 +8,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -31,41 +32,59 @@ import java.util.List;
 
 import javax.crypto.NoSuchPaddingException;
 
-public class FolderItemAdapter extends RecyclerView.Adapter<FolderItemAdapter.ViewHolder> {
-    private final LayoutInflater inflater;
+import jp.wasabeef.blurry.Blurry;
+
+public class FolderItemAdapter extends BaseAdapter {
     private Context context;
-    private final List<Item> items;
-    private boolean isSelectMode;
-    private DBHelper db = null;
-
-
-    public FolderItemAdapter(Context context, List<Item> items, boolean isSelectMode) {
+    private List<Item> items;
+    public FolderItemAdapter(Context context, List<Item> items) {
         this.context = context;
         this.items = items;
-        this.inflater = LayoutInflater.from(context);
     }
     @Override
-    public FolderItemAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.list_folder_item, parent, false);
-        return new FolderItemAdapter.ViewHolder(view);
+    public int getCount() {
+        return items.size();
     }
 
     @Override
-    public void onBindViewHolder(FolderItemAdapter.ViewHolder holder, int position) {
+    public boolean isEnabled(int position) {
+        return false;
+    }
+    @Override
+    public Object getItem(int position) {
+        return items.get(position);
+    }
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder viewHolder;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.list_folder_item, null);
+            viewHolder = new ViewHolder();
+            viewHolder.imageView = convertView.findViewById(R.id.image_panel);
+            viewHolder.titleView = convertView.findViewById(R.id.title_txt);
+            viewHolder.itemPanel = convertView.findViewById(R.id.item_panel);
+            viewHolder.folderItemPanel = convertView.findViewById(R.id.folder_content_back);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
         Item item = items.get(position);
-        int radius = context.getResources().getDimensionPixelSize(R.dimen.corner_radius_14);
         if(item.Image==null) {
-            holder.folderItemPanel.setBackgroundResource(R.drawable.rounded_border_white_14);
+            viewHolder.folderItemPanel.setBackgroundResource(R.drawable.rounded_border_white_14);
             if (item.Type.equals("Паспорт"))
-                holder.imageView.setImageResource(R.drawable.passport_image_folder);
+                viewHolder.imageView.setImageResource(R.drawable.passport_image_folder);
             else if (item.Type.equals("Паспорт"))
-                holder.imageView.setImageResource(R.drawable.image_credit_card_folder);
+                viewHolder.imageView.setImageResource(R.drawable.image_credit_card_folder);
             else
-                holder.imageView.setImageResource(R.drawable.passport_image_folder);
+                viewHolder.imageView.setImageResource(R.drawable.passport_image_folder);
         }
         else{
-            holder.folderItemPanel.setBackgroundResource(R.drawable.rounded_transparent);
-            holder.imageView.setVisibility(View.VISIBLE);
+            viewHolder.folderItemPanel.setBackgroundResource(R.drawable.rounded_transparent);
+            viewHolder.imageView.setVisibility(View.VISIBLE);
             File outputFile = new File(item.Image+"_copy");
             File encFile = new File(item.Image);
             try {
@@ -76,10 +95,10 @@ public class FolderItemAdapter extends RecyclerView.Adapter<FolderItemAdapter.Vi
                 int marginInDp = (int) TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP, sizeInDP, this.context.getResources()
                                 .getDisplayMetrics());
-                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.imageView.getLayoutParams();
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) viewHolder.imageView.getLayoutParams();
                 params.leftMargin = marginInDp; params.topMargin = marginInDp; params.rightMargin = marginInDp; params.bottomMargin=marginInDp;
-                holder.imageView.setImageBitmap(image);
-                //Glide.with(context).load(image).transform(new RoundedCorners(radius)).into(holder.imageView);
+                viewHolder.imageView.setImageBitmap(image);
+                //Glide.with(context).load(image).transform(new RoundedCorners(radius)).into(viewHolder.imageView);
                 outputFile.delete();
             } catch (NoSuchPaddingException e) {
                 e.printStackTrace();
@@ -95,27 +114,15 @@ public class FolderItemAdapter extends RecyclerView.Adapter<FolderItemAdapter.Vi
                 e.printStackTrace();
             }
         }
-        holder.itemPanel.setTag(item);
-        holder.titleView.setText(item.Title);
+        viewHolder.titleView.setText(item.Title);
 
+        return convertView;
     }
 
-    @Override
-    public int getItemCount() {
-        return items.size();
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        final ImageView imageView;
-        final TextView titleView;
-        final ConstraintLayout itemPanel;
-        final ConstraintLayout folderItemPanel;
-        ViewHolder(View view){
-            super(view);
-            imageView = view.findViewById(R.id.image_panel);
-            titleView = view.findViewById(R.id.title_txt);
-            itemPanel = view.findViewById(R.id.item_panel);
-            folderItemPanel = view.findViewById(R.id.folder_content_back);
-        }
+    private static class ViewHolder {
+        ImageView imageView;
+        TextView titleView;
+        ConstraintLayout itemPanel;
+        ConstraintLayout folderItemPanel;
     }
 }

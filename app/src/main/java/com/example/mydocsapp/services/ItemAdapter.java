@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -95,10 +96,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 else if(payload.equals(PAYLOAD_DELETE_MODE)){
                     if (item.Type.equals("Папка")) {
                         holder.imageView.setVisibility(View.INVISIBLE);
-                        holder.recyclerFolder.setVisibility(View.VISIBLE);
+                        holder.gridFolder.setVisibility(View.VISIBLE);
                     } else {
                         holder.imageView.setVisibility(View.VISIBLE);
-                        holder.recyclerFolder.setVisibility(View.INVISIBLE);
+                        holder.gridFolder.setVisibility(View.INVISIBLE);
                     }
                 }
             }
@@ -109,15 +110,17 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ItemAdapter.ViewHolder holder, int position) {
         Item item = items.get(position);
+        holder.gridFolder.setAdapter(null);
+        holder.gridFolder.setVisibility(View.INVISIBLE);
+        holder.imageView.setVisibility(View.INVISIBLE);
         int radius = context.getResources().getDimensionPixelSize(R.dimen.corner_radius_14);
         if (item.Image == null) {
             if (item.Type.equals("Папка")) {
                 holder.imageView.setVisibility(View.INVISIBLE);
-                holder.recyclerFolder.setVisibility(View.VISIBLE);
+                holder.gridFolder.setVisibility(View.VISIBLE);
                 if (db.getItemFolderItemsCount(item.Id) > 0) {
                     ArrayList<Item> items = new ArrayList<>();
                     Cursor cur = db.getItemsByFolder(item.Id,AppService.isHideMode()?1:0);
-                    //Cursor cur = db.getItems();
                     Item _item;
                     while (cur.moveToNext()) {
                         _item = new Item(cur.getInt(0),
@@ -132,30 +135,29 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                                 cur.getInt(9));
                         items.add(_item);
                     }
-                    holder.recyclerFolder.setLayoutManager(new GridLayoutManager(context, 2));
-                    FolderItemAdapter adapter = new FolderItemAdapter(context, items, false);
-                    holder.recyclerFolder.setAdapter(adapter);
+                    FolderItemAdapter adapter = new FolderItemAdapter(context, items);
+                    holder.gridFolder.setAdapter(adapter);
                 }
             }
             else if (item.Type.equals("Паспорт")){
-                holder.recyclerFolder.setVisibility(View.INVISIBLE);
+                holder.gridFolder.setVisibility(View.INVISIBLE);
                 Glide.with(context).load(R.drawable.passport_image).transform(new RoundedCorners(radius)).into(holder.imageView);
                 holder.imageView.setVisibility(View.VISIBLE);
             }
             else if (item.Type.equals("Карта")){
-                holder.recyclerFolder.setVisibility(View.INVISIBLE);
+                holder.gridFolder.setVisibility(View.INVISIBLE);
                 Glide.with(context).load(R.drawable.image_credit_card).transform(new RoundedCorners(radius)).into(holder.imageView);
                 holder.imageView.setVisibility(View.VISIBLE);
             }
             else{
-                holder.recyclerFolder.setVisibility(View.INVISIBLE);
+                holder.gridFolder.setVisibility(View.INVISIBLE);
                 Glide.with(context).load(R.drawable.passport_image).transform(new RoundedCorners(radius)).into(holder.imageView);
                 holder.imageView.setVisibility(View.VISIBLE);
             }
         }
         else {
             holder.imageView.setVisibility(View.VISIBLE);
-            holder.recyclerFolder.setVisibility(View.INVISIBLE);
+            holder.gridFolder.setVisibility(View.INVISIBLE);
             File outputFile;
             File encFile;
             try {
@@ -266,12 +268,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             holder.icoImg.setImageResource(R.drawable.ic_card);
         else if (item.Type.equals("Изображение")) {
             holder.imageView.setVisibility(View.VISIBLE);
-            holder.recyclerFolder.setVisibility(View.INVISIBLE);
+            holder.gridFolder.setVisibility(View.INVISIBLE);
             holder.icoImg.setImageResource(R.drawable.ic_image);
         }
         else if (item.Type.equals("Альбом")) {
             holder.imageView.setVisibility(View.VISIBLE);
-            holder.recyclerFolder.setVisibility(View.INVISIBLE);
+            holder.gridFolder.setVisibility(View.INVISIBLE);
             holder.icoImg.setImageResource(R.drawable.ic_image_collection);
         }
         else
@@ -295,19 +297,18 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             holder.pinBtn.setVisibility(View.INVISIBLE);
 
         holder.titleView.setText(item.Title);
-        holder.titleView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
+        holder.titleView.setOnTouchListener((view,motionEvent)-> {
                 ((IItemAdapterActivity) context).setIsTitleClicked(true);
                 return true;
-            }
         });
-        if (item.Type.equals("Папка") & !isSetChange)
-        holder.folderContentBack.post(() -> {
-            Blurry.with(context)
-                    .radius(6)
-                    .onto((ViewGroup) holder.folderContentBack);
-        });
+        if (item.Type.equals("Папка")) {
+            Blurry.delete(holder.folderContentBack);
+            holder.folderContentBack.post(() -> {
+                Blurry.with(context)
+                        .radius(6)
+                        .onto(holder.folderContentBack);
+            });
+        }
         isSetChange = false;
         holder.titleView.setTag(item);
     }
@@ -355,6 +356,23 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         items.set(position,item);
         notifyItemChanged(position, PAYLOAD_DELETE_MODE);
     }
+    public void updateItems(List<Item> newItems) {
+        items.clear();
+        items.addAll(newItems);
+
+        List<Item> tempItems = new ArrayList<>(items);
+
+        for (int i = 0; i < newItems.size(); i++) {
+            Item newItem = newItems.get(i);
+            int currentPosition = tempItems.indexOf(newItem);
+            int expectedPosition = i;
+
+            if (currentPosition != expectedPosition) {
+                onItemMoved(currentPosition, expectedPosition);
+                Collections.swap(tempItems, currentPosition, expectedPosition);
+            }
+        }
+    }
     public void onItemChanged(Item item) {
         Item newItem;
         int position;
@@ -373,7 +391,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             notifyItemChanged(position, PAYLOAD_SELECT_MODE);
     }
 
-
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final ImageView imageView;
         final ImageView selectBtn;
@@ -381,7 +398,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         final ImageView icoImg;
         final TextView titleView;
         final ConstraintLayout itemPanel;
-        final RecyclerView recyclerFolder;
+        final GridView gridFolder;
         final ConstraintLayout folderContentBack;
         View rowView;
 
@@ -392,7 +409,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             imageView = view.findViewById(R.id.image_panel);
             titleView = view.findViewById(R.id.title_txt);
             itemPanel = view.findViewById(R.id.item_panel);
-            recyclerFolder = view.findViewById(R.id.recycler_folder);
+            gridFolder = view.findViewById(R.id.recycler_folder);
             selectBtn = view.findViewById(R.id.select_btn);
             pinBtn = view.findViewById(R.id.pin_btn);
             icoImg = view.findViewById(R.id.ico_img);

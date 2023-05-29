@@ -506,41 +506,34 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             case RECYCLER_ADAPTER_EVENT_MOVE:
                 ArrayList<Item> oldItems = itemsService.getCurrentItemsSet();
                 itemsService.setInitialData();
-                int oldPosition;
-                int newPosition;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    for (Item newItem :
-                            itemsService.getCurrentItemsSet()) {
-                        Item oldItem = oldItems.stream().filter(item -> item.Id == newItem.Id).findFirst().get();
-                        if (oldItem != null) {
-                            oldPosition = oldItems.indexOf(oldItem);
-                            adapter.onMovedItemChanged(newItem, oldPosition);
-                        }
-                    }
-                    for (Item newItem :
-                            itemsService.getCurrentItemsSet()) {
-                        Item oldItem = oldItems.stream().filter(item -> item.Id == newItem.Id).findFirst().get();
-                        if (oldItem != null) {
-                            oldPosition = oldItems.indexOf(oldItem);
-                            newPosition = itemsService.getCurrentItemsSet().indexOf(newItem);
-                            adapter.onItemMoved(oldPosition, newPosition);
-                        }
-                    }
-                }
+                adapter.updateItems(itemsService.getCurrentItemsSet());
+                //TODO: fix layout overlay problem
+//                int oldPosition;
+//                int newPosition;
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                    for (Item newItem :
+//                            itemsService.getCurrentItemsSet()) {
+//                        Item oldItem = oldItems.stream().filter(item -> item.Id == newItem.Id).findFirst().get();
+//                        if (oldItem != null) {
+//                            oldPosition = oldItems.indexOf(oldItem);
+//                            adapter.onMovedItemChanged(newItem, oldPosition);
+//                        }
+//                    }
+//                    for (Item newItem :
+//                            itemsService.getCurrentItemsSet()) {
+//                        Item oldItem = oldItems.stream().filter(item -> item.Id == newItem.Id).findFirst().get();
+//                        if (oldItem != null) {
+//                            oldPosition = oldItems.indexOf(oldItem);
+//                            newPosition = itemsService.getCurrentItemsSet().indexOf(newItem);
+//                            adapter.onItemMoved(oldPosition, newPosition);
+//                        }
+//                    }
+//                }
                 break;
             case (RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE):
                 adapter.onItemSetChange(_items);
                 break;
         }
-    }
-    //сортировка
-    public void sortCancelClick(View view) {
-        itemsService.isCardsAvailable = itemsService.isDocsAvailable = itemsService.isFoldersAvailable = itemsService.isImagesAvailable = true;
-        findViewById(R.id.flow_sort_card_btn).setAlpha(1f);
-        findViewById(R.id.flow_sort_doc_btn).setAlpha(1f);
-        findViewById(R.id.flow_sort_image_btn).setAlpha(1f);
-        findViewById(R.id.flow_sort_folder_btn).setAlpha(1f);
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
     }
 
     public void bottomPinClick(View view) {
