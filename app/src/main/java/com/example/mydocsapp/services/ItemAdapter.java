@@ -57,7 +57,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     private boolean isSelectMode;
     private DBHelper db;
 
-    private Boolean isSetChange = false;
 
     public ItemAdapter(Context context, List<Item> items, boolean isSelectMode) {
         this.context = context;
@@ -214,14 +213,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                                 canvas.drawBitmap(photo, 10+30*i, 10+30*(length-1-i), null);
                         }
                         image = combinedBitmap;
-//                        for (int i = 0; i <length; i++) {
-//                            Bitmap photo = photos.get(i);
-//                            photo = ImageSaveService.addStrokeToBitmap(photo, Color.BLACK,2);
-//                            if(i==0)
-//                                canvas.drawBitmap(photo, 10, 10, null);
-//                            else
-//                                canvas.drawBitmap(photo, 30*i, 30*i, null);
-//                        }
                     }
                 }
                 else{
@@ -309,7 +300,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                         .onto(holder.folderContentBack);
             });
         }
-        isSetChange = false;
         holder.titleView.setTag(item);
     }
 
@@ -334,7 +324,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     }
     public void onItemSetChange(ArrayList<Item> _items) {
         if(items!=null) {
-            isSetChange = true;
             items = _items;
             notifyDataSetChanged();
         }

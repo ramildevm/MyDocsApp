@@ -59,7 +59,9 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         getExtraData(getIntent());
         ViewPager2 viewPager2 = findViewById(R.id.frame_container);
         viewPager2.setAdapter(new MyFragmentAdapter(getSupportFragmentManager(), getLifecycle(), this));
-        viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        viewPager2.registerOnPageChangeCallback(
+                new ViewPager2.OnPageChangeCallback()
+        {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);

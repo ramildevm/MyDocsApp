@@ -31,7 +31,7 @@
     <string name="place_of_residence">Место проживания</string>
     <string name="female_string">Ж</string>
     <string name="date_pattern">__.__.____ г.</string>
-    <string name="create_a_folder">Содать</string>
+    <string name="create_a_folder">Создать</string>
     <string name="rename_an_item">Переименовать</string>
     <string name="cancel_btn">Отмена</string>
     <string name="pin_string">Закрепить</string>
@@ -76,4 +76,8 @@
     <string name="about_the_app">О приложении</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="return_string">Вернуть</string>
+    <string name="avaible_templates">Доступные шаблоны</string>
+    <string name="search">Поиск</string>
+    <string name="templates">Шаблоны</string>
+    <string name="publish">Опубликовать</string>
 </resources>

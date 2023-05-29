@@ -182,7 +182,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                             view.setTag(item);
                             itemsService.setItem(position, item);
                             adapter.onItemChanged(item);
-                            ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
+                            ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
                         }
                         else {
                             itemsService.setCurrentItem(item);
@@ -283,7 +283,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                             }
                         }
                     }
-
                     @Override
                     public void onLongItemClick(View view, int position) {
                         if (!isSortMode) {
@@ -304,7 +303,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
 
                             item.isSelected = 1;
                             selectedItemsNum = 1;
-                            ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + +selectedItemsNum);
+                            ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + +selectedItemsNum);
 
                             itemsService.setItem(position, item);
                             view.setTag(item);
@@ -507,28 +506,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                 ArrayList<Item> oldItems = itemsService.getCurrentItemsSet();
                 itemsService.setInitialData();
                 adapter.updateItems(itemsService.getCurrentItemsSet());
-                //TODO: fix layout overlay problem
-//                int oldPosition;
-//                int newPosition;
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//                    for (Item newItem :
-//                            itemsService.getCurrentItemsSet()) {
-//                        Item oldItem = oldItems.stream().filter(item -> item.Id == newItem.Id).findFirst().get();
-//                        if (oldItem != null) {
-//                            oldPosition = oldItems.indexOf(oldItem);
-//                            adapter.onMovedItemChanged(newItem, oldPosition);
-//                        }
-//                    }
-//                    for (Item newItem :
-//                            itemsService.getCurrentItemsSet()) {
-//                        Item oldItem = oldItems.stream().filter(item -> item.Id == newItem.Id).findFirst().get();
-//                        if (oldItem != null) {
-//                            oldPosition = oldItems.indexOf(oldItem);
-//                            newPosition = itemsService.getCurrentItemsSet().indexOf(newItem);
-//                            adapter.onItemMoved(oldPosition, newPosition);
-//                        }
-//                    }
-//                }
                 break;
             case (RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE):
                 adapter.onItemSetChange(_items);
@@ -552,7 +529,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             }
         }
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_MOVE, itemsService.getInitialData());
-        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
+        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
         topSelectBackClick(new View(this));
     }
 
@@ -576,7 +553,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                 selectedItemsSet) {
             adapter.onItemDelete(delItem);
         }
-        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
+        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
         topSelectBackClick(new View(this));
     }
 
@@ -603,7 +580,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             adapter.onItemDelete(delItem);
         }
         itemsService.setInitialData();
-        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
+        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
     }
 
     public void topSelectAllClick(View view) {
@@ -615,7 +592,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             itemsService.setItem(newItemId, x);
             selectedItemsNum++;
         }
-        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
+        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
     }
 

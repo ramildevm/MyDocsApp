@@ -51,6 +51,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
         db = new DBHelper(this, AppService.getUserId(this));
         setInitialData();
         recyclerFolderView = (RecyclerView) findViewById(R.id.container);
+        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + 0);
 
         recyclerFolderView.setLayoutManager(new GridLayoutManager(FolderAddItemActivity.this, 2));
         // создаем адаптер
@@ -76,7 +77,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
                         }
                         view.setTag(item);
                     items.set(newItemId, item);
-                        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + selectedItemsNum);
+                        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
                         reFillContentPanel(recyclerFolderView, items);
                     }
                 @Override
@@ -109,7 +110,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
             if(item.FolderId == CurrentItem.Id){
                 item.isSelected = 1;
                 selectedItemsNum++;
-                ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + selectedItemsNum);
+                ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
             }
             if(!(item.Type.equals("Папка")))
                 items.add(item);
@@ -131,7 +132,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
                 items.set(newItemId,x);
                 selectedItemsNum++;
             }
-            ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string)+ selectedItemsNum);
+            ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
 
             reFillContentPanel(recyclerFolderView,items);
     }
@@ -156,7 +157,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
         }
         setInitialData();
         reFillContentPanel(recyclerFolderView,items);
-        ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string)+ selectedItemsNum);
+        ((TextView)findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
 
         Intent returnIntent = new Intent();
         setResult(Activity.RESULT_CANCELED,returnIntent);

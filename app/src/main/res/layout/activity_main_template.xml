@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#2C2C2C"
+    tools:context=".MainTemplateActivity">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/top_panel"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#757575"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/menubar_Back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="11dp"
+            android:onClick="goBackMainMenuClick"
+            android:rotation="180"
+            android:scaleX="1.3"
+            android:scaleY="1.3"
+            android:src="@drawable/right_arrow_white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/passport_txt"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/passport_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:tag="off"
+            android:text="@string/templates"
+            android:textColor="@color/white"
+            android:textIsSelectable="false"
+            android:textSize="24dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_panel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/top_panel">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/active_page_image1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+            android:id="@+id/active_page_image1"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="300dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/bottom_navigation_circle_from_white_to_yellow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/active_page_image2"
+            app:layout_constraintStart_toStartOf="parent" />
+        <ImageView
+            android:id="@+id/active_page_image2"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="300dp"
+            android:background="@drawable/bottom_navigation_circle_from_yellow_to_white"
+            app:layout_constraintStart_toEndOf="@id/active_page_image1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bottom_panel"
+        android:layout_width="match_parent"
+        android:layout_height="85dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/bottom_add_btn"
+            android:layout_width="60dp"
+            android:layout_height="45dp"
+            android:scaleY="0.9"
+            android:scaleX="0.9"
+            android:src="@drawable/add_btn"
+            app:layout_constraintBottom_toTopOf="@id/bottom_add_txt"
+            app:layout_constraintEnd_toStartOf="@id/bottom_delete_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/bottom_add_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/create_a_folder"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/bottom_add_btn"
+            app:layout_constraintStart_toStartOf="@+id/bottom_add_btn"
+            app:layout_constraintTop_toBottomOf="@+id/bottom_add_btn" />
+
+        <ImageView
+            android:id="@+id/bottom_delete_btn"
+            android:layout_width="60dp"
+            android:layout_height="45dp"
+            android:alpha=".7"
+            android:scaleY="1.05"
+            android:src="@drawable/bottom_delete_btn"
+            app:layout_constraintBottom_toTopOf="@id/bottom_delete_txt"
+            app:layout_constraintEnd_toStartOf="@id/bottom_publish_btn"
+            app:layout_constraintStart_toEndOf="@id/bottom_add_btn"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/bottom_delete_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/bottom_delete_btn"
+            app:layout_constraintStart_toStartOf="@+id/bottom_delete_btn"
+            app:layout_constraintTop_toBottomOf="@+id/bottom_delete_btn" />
+
+        <ImageView
+            android:id="@+id/bottom_publish_btn"
+            android:layout_width="60dp"
+            android:layout_height="45dp"
+            android:src="@drawable/publish_btn"
+            app:layout_constraintBottom_toTopOf="@id/bottom_publish_txt"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/bottom_delete_btn"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/bottom_publish_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/publish"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/bottom_publish_btn"
+            app:layout_constraintStart_toStartOf="@+id/bottom_publish_btn"
+            app:layout_constraintTop_toBottomOf="@+id/bottom_publish_btn" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

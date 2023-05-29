@@ -76,4 +76,8 @@
     <string name="privacy_policy">Privacy policy</string>
     <string name="unpin_string">Unpin</string>
     <string name="return_string">Return</string>
+    <string name="avaible_templates">Avaible templates</string>
+    <string name="search">Search</string>
+    <string name="templates">Templates</string>
+    <string name="publish">Publish</string>
 </resources>

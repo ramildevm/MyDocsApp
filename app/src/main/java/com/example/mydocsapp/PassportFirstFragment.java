@@ -73,26 +73,18 @@ public class PassportFirstFragment extends Fragment implements IFragmentDataSave
         ViewParent parent = view.getParent();
         if (parent instanceof ConstraintLayout) {
             ConstraintLayout constraintLayout = (ConstraintLayout) parent;
-            // Get the ConstraintSet object for the layout
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(constraintLayout);
-            // Get the IDs of the views that are referenced by the constraint for textView1's end edge
             int referencedId = constraintSet.getConstraint(view.getId()).layout.endToEnd;
-            // Get the view that is referenced by the constraint
             EditText linkedView = binding.getRoot().findViewById(referencedId);
             copyToClipboard(linkedView);
         }
     }
     public void copyToClipboard(EditText editText) {
-        // Get the text from the EditText
         String text = editText.getText().toString().trim();
-        // Get the system clipboard manager
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(getContext().CLIPBOARD_SERVICE);
-        // Create a ClipData object to hold the text to be copied
         ClipData clip = ClipData.newPlainText("text", text);
-        // Copy the text to the clipboard
         clipboard.setPrimaryClip(clip);
-        // Show a Toast message to indicate that the text has been copied
         Toast.makeText(getContext(), R.string.text_copied, Toast.LENGTH_SHORT).show();
     }
     private void loadProfileImage(Bitmap bitmap) {

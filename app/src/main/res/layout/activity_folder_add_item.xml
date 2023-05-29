@@ -96,7 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Selected: 0"
+            android:text="@string/selected_string"
             android:textColor="#FFC700"
             android:textSize="16dp"
             android:textStyle="bold"
