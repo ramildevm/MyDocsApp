@@ -45,7 +45,7 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Template item = items.get(position);
-        if(item.Id==0){
+        if(item==null){
             holder.templatePanel.setVisibility(View.GONE);
             holder.splitLine.setVisibility(View.VISIBLE);
         }

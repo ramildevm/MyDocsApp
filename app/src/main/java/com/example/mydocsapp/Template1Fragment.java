@@ -16,8 +16,11 @@ import com.example.mydocsapp.interfaces.Template1FragmentListener;
 import com.example.mydocsapp.models.Template;
 import com.example.mydocsapp.services.TemplateAdapter;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class Template1Fragment extends Fragment implements Template1FragmentListener {
 
@@ -99,13 +102,17 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
         selectedItemsSet = new ArrayList<>();
         userTemplatesList = new ArrayList<>();
         for (int i = 1; i < 5; i++) {
-            userTemplatesList.add(new Template(i, "My template" + i, "New", i));
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+            String time = df.format(new Date());
+            userTemplatesList.add(new Template(i, "My template" + i, time, "New", i));
         }
-        userTemplatesList.add(new Template(0, "", "", 0));
+        userTemplatesList.add(null);
 
         downloadedTemplatesList = new ArrayList<>();
         for (int i = 1; i < 12; i++) {
-            downloadedTemplatesList.add(new Template(i, "Download template" + i, "New", i));
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+            String time = df.format(new Date());
+            downloadedTemplatesList.add(new Template(i, "Download template" + i, time, "New", i));
         }
         userTemplatesList.addAll(downloadedTemplatesList);
     }

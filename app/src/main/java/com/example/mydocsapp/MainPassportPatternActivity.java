@@ -128,21 +128,7 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
     private void setDataFromDb() {
         Item item = CurrentItem;
         if (item != null) {
-            Cursor cur = db.getPassportById(item.Id);
-            cur.moveToFirst();
-            this.Passport = new Passport(0,
-                    cur.getString(1),
-                    cur.getString(2),
-                    cur.getString(3),
-                    cur.getString(4),
-                    cur.getString(5),
-                    cur.getString(6),
-                    cur.getString(7),
-                    cur.getString(8),
-                    cur.getString(9),
-                    cur.getString(10),
-                    cur.getString(11),
-                    cur.getString(12));
+            this.Passport = db.getPassportById(item.Id);
         } else
             this.Passport = new Passport(
                     0,
@@ -173,35 +159,18 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.save_changes);
         builder.setMessage(R.string.do_you_want_save);
-
-        // Add the Save button
-        builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Add your save code here
-                savePassportMethod();
-                dialog.dismiss(); // Close the dialog window
-            }
+        builder.setPositiveButton(R.string.save, (dialog, which) -> {
+            savePassportMethod();
+            dialog.dismiss();
         });
-
-        // Add the Cancel button
-        builder.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                onBackPressed();
-                dialog.dismiss(); // Close the dialog window
-            }
+        builder.setNegativeButton(R.string.exit, (dialog, which) -> {
+            onBackPressed();
+            dialog.dismiss();
         });
-
-        // Create the dialog window
         AlertDialog dialog = builder.create();
-
-        // Show the dialog window
         dialog.show();
-        // Set the color of the positive button
         Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         positiveButton.setTextColor(Color.parseColor("#FFC700"));
-
         Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
         negativeButton.setTextColor(Color.WHITE);
 

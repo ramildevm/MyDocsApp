@@ -5,11 +5,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -25,7 +23,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NavUtils;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -120,10 +117,9 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             ((TextView)findViewById(R.id.bottom_hide_return_txt)).setText(R.string.return_string);
             ((ImageView)findViewById(R.id.bottom_hide_return_btn)).setImageResource(R.drawable.return_btn);
             ImageView BtnMaimMenu = ((ImageView)findViewById(R.id.menubar_main_list));
-            BtnMaimMenu.setImageResource(R.drawable.right_arrow_white);
+            BtnMaimMenu.setImageResource(R.drawable.left_arrow_white);
             BtnMaimMenu.setScaleX(1.3f);
             BtnMaimMenu.setScaleY(1.3f);
-            BtnMaimMenu.setRotation(180);
             ((Button)findViewById(R.id.flow_button)).setBackgroundResource(R.drawable.ic_create_new_folder);
             findViewById(R.id.flow_button).setOnClickListener(v->{
                 makeRenameDialogMethod(itemsService.getCurrentItemsSet(), "Make");
@@ -136,14 +132,12 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     }
 
     private void setCurrentUserFromDB() {
-        Cursor cur = db.getUserById(AppService.getUserId(this));
-        cur.moveToFirst();
-        CurrentUser = new User(AppService.getUserId(this), cur.getString(1), cur.getString(2), cur.getString(3), cur.getString(4), cur.getString(5));
+        CurrentUser = db.getUserById(AppService.getUserId(this));
+        CurrentUser.Id = AppService.getUserId(this);
     }
     private void setCurrentUserFromAPI() {
-        Cursor cur = db.getUserById(1);
-        cur.moveToFirst();
-        CurrentUser = new User(0, cur.getString(1), cur.getString(2), cur.getString(3), cur.getString(4), cur.getString(5));
+        CurrentUser = db.getUserById(1);
+        CurrentUser.Id = 0;
     }
 
     @Override
@@ -152,7 +146,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE,itemsService.getCurrentItemsSet());
         super.onResume();
     }
-
     private void setOnClickListeners() {
         recyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
@@ -528,7 +521,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                 db.updateItem(x.Id, x);
             }
         }
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_MOVE, itemsService.getInitialData());
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_MOVE, (ArrayList<Item>) db.getItemsByFolder0());
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
         topSelectBackClick(new View(this));
     }
@@ -560,7 +553,10 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     public void bottomDeleteClick(View view) {
         for (Item x : itemsService.getCurrentItemsSet()) {
             if (x.isSelected == 1) {
-                db.deleteItem(x.Id);
+                if(x.Type.equals("Папка"))
+                    db.deleteFolder(x.Id, 1);
+                else
+                    db.deleteItem(x.Id);
                 try {
                     File dir = Environment.getExternalStoragePublicDirectory("Pictures/" + APPLICATION_NAME+"/"+ AppService.getUserId(this) + "/Item" + x.Id);
                     if (dir.isDirectory()) {

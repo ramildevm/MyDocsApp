@@ -74,8 +74,8 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void fromDB(String login, String password) {
-        Cursor cur = db.getUserByLogin(login);
-        if(cur!=null){
+        User user = db.getUserByLogin(login);
+        if(user!=null){
             Toast msg = Toast.makeText(SignInActivity.this, R.string.error_ligin_in_use, Toast.LENGTH_SHORT);
             msg.show();
             return;
@@ -91,9 +91,8 @@ public class SignInActivity extends AppCompatActivity {
         editor.putString("Login",login);
         editor.apply();
 
-        cur = db.getUserByLogin(login);
-        cur.moveToFirst();
-        AppService.setUserId(cur.getInt(0),this);
+        user = db.getUserByLogin(login);
+        AppService.setUserId(user.Id,this);
         AppService.setHideMode(false);
 
         Intent intent = new Intent(SignInActivity.this, MainContentActivity.class);

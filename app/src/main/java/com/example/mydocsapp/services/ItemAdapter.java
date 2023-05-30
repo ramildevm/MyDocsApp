@@ -118,22 +118,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 holder.imageView.setVisibility(View.INVISIBLE);
                 holder.gridFolder.setVisibility(View.VISIBLE);
                 if (db.getItemFolderItemsCount(item.Id) > 0) {
-                    ArrayList<Item> items = new ArrayList<>();
-                    Cursor cur = db.getItemsByFolder(item.Id,AppService.isHideMode()?1:0);
-                    Item _item;
-                    while (cur.moveToNext()) {
-                        _item = new Item(cur.getInt(0),
-                                cur.getString(1),
-                                cur.getString(2),
-                                cur.getString(3),
-                                cur.getInt(4),
-                                cur.getInt(5),
-                                cur.getInt(6),
-                                cur.getString(7),
-                                cur.getInt(8),
-                                cur.getInt(9));
-                        items.add(_item);
-                    }
+                    ArrayList<Item> items = (ArrayList<Item>) db.getItemsByFolder(item.Id,AppService.isHideMode()?1:0);
                     FolderItemAdapter adapter = new FolderItemAdapter(context, items);
                     holder.gridFolder.setAdapter(adapter);
                 }
@@ -165,9 +150,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 Bitmap image;
                 if(item.Type.equals("Альбом")) {
                     ArrayList<Bitmap> photos = new ArrayList<>();
-                    Cursor cur = db.getPhotos(item.Id);
-                    while(cur.moveToNext()) {
-                        Photo photo = new Photo(0,cur.getString(1),0);
+                    List<Photo> photoList = db.getPhotos(item.Id);
+                    for (Photo photo :
+                            photoList) {
                         outputFile = new File(photo.Path+"_copy");
                         encFile = new File(photo.Path);
                         MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));

@@ -41,9 +41,8 @@ public class LoginActivity extends AppCompatActivity {
         String name = preferences.getString("Login", "");
         if(!name.equalsIgnoreCase(""))
         {
-            Cursor cur = db.getUserByLogin(name);
-            cur.moveToNext();
-            int id = cur.getInt(0);
+            User user = db.getUserByLogin(name);
+            int id = user.Id;
             AppService.setUserId(id, this);
             AppService.setHideMode(false);
             if(id!=0){
@@ -93,19 +92,18 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void fromDB(String login, String password) {
-        Cursor cur = db.getUserByLogin(login);
-        if(cur == null){
+        User user = db.getUserByLogin(login);
+        if(user == null){
             Toast msg = Toast.makeText(LoginActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT);
             msg.show();
             return;
         }
-        cur.moveToFirst();
         if(password.isEmpty()){
             Toast msg = Toast.makeText(LoginActivity.this, R.string.error_input_password, Toast.LENGTH_SHORT);
             msg.show();
             return;
         }
-        if (!password.equals(cur.getString(2))) {
+        if (!password.equals(user.Password)) {
             Toast msg = Toast.makeText(LoginActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
             msg.show();
             return;
@@ -113,10 +111,10 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear().commit();
-        editor.putString("Login",cur.getString(1));
+        editor.putString("Login",user.Login);
         editor.apply();
 
-        AppService.setUserId(cur.getInt(0),this);
+        AppService.setUserId(user.Id,this);
         Intent intent =new Intent(LoginActivity.this, MainContentActivity.class);
         startActivity(intent);
     }

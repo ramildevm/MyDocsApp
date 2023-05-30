@@ -53,6 +53,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import javax.crypto.NoSuchPaddingException;
@@ -177,14 +178,7 @@ public class CardPatternActivity extends AppCompatActivity {
     private void LoadData() {
         Item item = CurrentItem;
         if(item!= null) {
-            Cursor cur = db.getCreditCardById(item.Id);
-            cur.moveToFirst();
-            Card = new CreditCard(cur.getInt(0),
-                    cur.getString(1),
-                    cur.getString(2),
-                    cur.getString(3),
-                    cur.getInt(4),
-                    cur.getString(5));
+            Card = db.getCreditCardById(item.Id);
         }
         else
             Card = new CreditCard(

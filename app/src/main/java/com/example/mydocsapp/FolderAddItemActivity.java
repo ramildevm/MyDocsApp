@@ -24,6 +24,7 @@ import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.services.ItemAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FolderAddItemActivity extends AppCompatActivity implements IItemAdapterActivity {
 
@@ -94,19 +95,9 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
 
     private void setInitialData() {
         items.clear();
-        Cursor cur = db.getItemsByFolderIdForAdding(CurrentItem.Id,AppService.isHideMode()?1:0);
-        Item item;
-        while(cur.moveToNext()){
-            item = new Item(cur.getInt(0),
-                    cur.getString(1),
-                    cur.getString(2),
-                    cur.getString(3),
-                    cur.getInt(4),
-                    cur.getInt(5),
-                    cur.getInt(6),
-                    cur.getString(7),
-                    cur.getInt(8),
-                    cur.getInt(9));
+        List<Item> newItems = db.getItemsByFolderIdForAdding(CurrentItem.Id,AppService.isHideMode()?1:0);
+        for (Item item :
+                newItems) {
             if(item.FolderId == CurrentItem.Id){
                 item.isSelected = 1;
                 selectedItemsNum++;

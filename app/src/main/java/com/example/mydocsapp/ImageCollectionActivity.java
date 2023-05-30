@@ -2,7 +2,6 @@ package com.example.mydocsapp;
 
 import android.content.ClipData;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.net.Uri;
@@ -197,15 +196,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
     }
 
     private void fillPhotoArray(int itemId) {
-        Cursor cur = db.getPhotos(itemId);
-        photoList = new ArrayList<>();
-        Photo photo;
-        while (cur.moveToNext()) {
-            photo = new Photo(cur.getInt(0),
-                    cur.getString(1),
-                    cur.getInt(2));
-            photoList.add(photo);
-        }
+        photoList = (ArrayList<Photo>) db.getPhotos(itemId);
     }
 
     private String createPhoto(Bitmap bitmap, int index) {
@@ -298,14 +289,14 @@ public class ImageCollectionActivity extends AppCompatActivity {
         if (imagesService.getSize() != 1) {
             binding.goPreviousBtn.setVisibility(View.VISIBLE);
             if (binding.viewPager2.getCurrentItem() == 0) {
-                binding.goPreviousBtn.setImageResource(R.drawable.right_arrow_white);
-                binding.goNextBtn.setImageResource(R.drawable.right_arrow_yellow);
+                binding.goPreviousBtn.setImageResource(R.drawable.left_arrow_white);
+                binding.goNextBtn.setImageResource(R.drawable.left_arrow_yellow);
             } else if (binding.viewPager2.getCurrentItem() == imagesService.getSize() - 1) {
                 binding.goNextBtn.setImageResource(R.drawable.ic_round_add_photo_alternate_24);
-                binding.goPreviousBtn.setImageResource(R.drawable.right_arrow_yellow);
+                binding.goPreviousBtn.setImageResource(R.drawable.left_arrow_yellow);
             } else {
-                binding.goNextBtn.setImageResource(R.drawable.right_arrow_yellow);
-                binding.goPreviousBtn.setImageResource(R.drawable.right_arrow_yellow);
+                binding.goNextBtn.setImageResource(R.drawable.left_arrow_yellow);
+                binding.goPreviousBtn.setImageResource(R.drawable.left_arrow_yellow);
             }
         } else {
             binding.goPreviousBtn.setVisibility(View.GONE);

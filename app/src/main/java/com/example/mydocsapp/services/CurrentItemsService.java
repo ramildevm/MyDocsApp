@@ -7,7 +7,7 @@ import com.example.mydocsapp.models.Item;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class CurrentItemsService  {
+public class CurrentItemsService {
     private ArrayList<Item> CurrentItemsSet;
     private Item CurrentItem;
     public boolean isFoldersAvailable;
@@ -17,7 +17,7 @@ public class CurrentItemsService  {
     DBHelper db;
     private boolean isHidenItems;
 
-    public CurrentItemsService(DBHelper _db, boolean _isHidenItems){
+    public CurrentItemsService(DBHelper _db, boolean _isHidenItems) {
         isHidenItems = _isHidenItems;
         isCardsAvailable = true;
         isImagesAvailable = true;
@@ -35,66 +35,21 @@ public class CurrentItemsService  {
             db.updateItem(x.Id, x);
         }
     }
+
     public void setInitialData() {
         CurrentItemsSet.clear();
-        Cursor cur = isHidenItems?db.getHiddenItemsByFolder0(): db.getItemsByFolder0();
-        Item item;
-        while (cur.moveToNext()) {
-            item = new Item(cur.getInt(0),
-                    cur.getString(1),
-                    cur.getString(2),
-                    cur.getString(3),
-                    cur.getInt(4),
-                    cur.getInt(5),
-                    cur.getInt(6),
-                    cur.getString(7),
-                    cur.getInt(8),
-                    cur.getInt(8));
-            CurrentItemsSet.add(item);
-        }
+        CurrentItemsSet.addAll(isHidenItems ? db.getHiddenItemsByFolder0() : db.getItemsByFolder0());
         CurrentItem = null;
     }
-    public ArrayList<Item> getInitialData() {
-        ArrayList<Item> dbItems= new ArrayList<>();
-        Cursor cur = db.getItemsByFolder0();
-        Item item;
-        while (cur.moveToNext()) {
-            item = new Item(cur.getInt(0),
-                    cur.getString(1),
-                    cur.getString(2),
-                    cur.getString(3),
-                    cur.getInt(4),
-                    cur.getInt(5),
-                    cur.getInt(6),
-                    cur.getString(7),
-                    cur.getInt(8),
-                    cur.getInt(8));
-            dbItems.add(item);
-        }
-        return dbItems;
-    }
+
     public ArrayList<Item> getFolderItemsFromDb(int id) {
-        ArrayList<Item> folderItems = new ArrayList<>();
-        Cursor cur = db.getItemsByFolder(id,AppService.isHideMode()?1:0);
-        Item item;
-        while (cur.moveToNext()) {
-            item = new Item(cur.getInt(0),
-                    cur.getString(1),
-                    cur.getString(2),
-                    cur.getString(3),
-                    cur.getInt(4),
-                    cur.getInt(5),
-                    cur.getInt(6),
-                    cur.getString(7),
-                    cur.getInt(8),
-                    cur.getInt(9));
-            folderItems.add(item);
-        }
-        return folderItems;
+        return (ArrayList<Item>) db.getItemsByFolder(id, AppService.isHideMode() ? 1 : 0);
     }
+
     public ArrayList<Item> getCurrentItemsSet() {
         return CurrentItemsSet;
     }
+
     public ArrayList<Item> getSortedCurrentItemsSet() {
         setInitialData();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -103,7 +58,7 @@ public class CurrentItemsService  {
             if (!isDocsAvailable)
                 CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Паспорт"))).collect(Collectors.toList()));
             if (!isImagesAvailable)
-                CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Изображение")|x.Type.equals("Альбом"))).collect(Collectors.toList()));
+                CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Изображение") | x.Type.equals("Альбом"))).collect(Collectors.toList()));
             if (!isCardsAvailable)
                 CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Карта"))).collect(Collectors.toList()));
         }
@@ -123,6 +78,6 @@ public class CurrentItemsService  {
     }
 
     public void setItem(int position, Item item) {
-        CurrentItemsSet.set(position,item);
+        CurrentItemsSet.set(position, item);
     }
 }

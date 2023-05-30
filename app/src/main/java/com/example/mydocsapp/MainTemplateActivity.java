@@ -2,6 +2,7 @@ package com.example.mydocsapp;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.view.View;
@@ -58,6 +59,11 @@ public class MainTemplateActivity extends AppCompatActivity {
     private void setOnClickListeners() {
         binding.bottomDeleteBtn.setOnClickListener(v-> onDeleteBtnClick(v));
         binding.bottomDeleteTxt.setOnClickListener(v-> onDeleteBtnClick(v));
+        binding.bottomAddBtn.setOnClickListener(v->onAddBtnClick(v));
+    }
+
+    private void onAddBtnClick(View v) {
+        startActivity(new Intent(MainTemplateActivity.this,TemplateActivity.class));
     }
 
     private void onDeleteBtnClick(View v) {
