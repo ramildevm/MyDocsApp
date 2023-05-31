@@ -49,6 +49,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/content_panel"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/bottom_panel"
@@ -68,7 +69,7 @@
             android:id="@+id/active_page_image1"
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="10dp"
             android:layout_marginLeft="300dp"
             android:layout_marginRight="5dp"
             android:background="@drawable/bottom_navigation_circle_from_white_to_yellow"
@@ -79,7 +80,7 @@
             android:id="@+id/active_page_image2"
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="10dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="300dp"
             android:background="@drawable/bottom_navigation_circle_from_yellow_to_white"

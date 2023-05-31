@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mydocsapp.R;
 import com.example.mydocsapp.models.Template;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ViewHolder>{
@@ -63,6 +64,12 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ViewHo
             else{
                 holder.selectBtn.setVisibility(View.INVISIBLE);
             }
+            if(item.Status.equals("Downloaded"))
+                holder.templateImage.setImageResource(R.drawable.ic_downloaded_template);
+            else if(item.Status.equals("Published"))
+                holder.templateImage.setImageResource(R.drawable.ic_published_template);
+            else
+                holder.templateImage.setImageResource(R.drawable.ic_document);
         }
     }
 
@@ -85,13 +92,42 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ViewHo
         isSelectMode = _isSelectMode;
     }
 
-    public void onItemDeleted(List<Template> templateSet) {
+    public void onItemDeleted(List<Template> selectedItemsSet) {
         for (Template temp :
-                templateSet) {
+                selectedItemsSet) {
             int position = items.indexOf(temp);
             items.remove(position);
             notifyItemRemoved(position);
         }
+    }
+
+    public void onItemPublished(List<Template> selectedItemsSet) {
+        for (Template temp :
+                selectedItemsSet) {
+            if(temp.Status.equals("Downloaded"))
+                continue;
+            temp.Status = "Published";
+            temp.isSelected = false;
+            db.updateTemplate(temp.Id,temp);
+            int position = items.indexOf(temp);
+            items.set(position,temp);
+            notifyItemChanged(position);
+        }
+    }
+
+    public void onItemFilter(ArrayList<Template> allItems, String filter) {
+        ArrayList<Template> filteredItems = new ArrayList<>();
+        if(!filter.equals(""))
+        for (Template temp :
+                allItems) {
+            if (temp.Name.contains(filter))
+                filteredItems.add(temp);
+        }
+        else
+            filteredItems.addAll(allItems);
+        items.clear();
+        items.addAll(filteredItems);
+        notifyDataSetChanged();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -99,12 +135,15 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ViewHo
         final ConstraintLayout templatePanel;
         final CardView splitLine;
         final ImageView selectBtn;
+        public ImageView templateImage;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             txtName = itemView.findViewById(R.id.template_name_txt);
             templatePanel = itemView.findViewById(R.id.template_panel);
             splitLine = itemView.findViewById(R.id.split_line);
             selectBtn = itemView.findViewById(R.id.select_btn);
+            templateImage = itemView.findViewById(R.id.template_image);
         }
     }
 }

@@ -1,79 +1,360 @@
 package com.example.mydocsapp;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.NavUtils;
 
 import com.example.mydocsapp.databinding.ActivityTemplateBinding;
+import com.example.mydocsapp.models.Item;
+import com.example.mydocsapp.models.Template;
+import com.example.mydocsapp.models.TemplateDocument;
+import com.example.mydocsapp.models.TemplateDocumentData;
+import com.example.mydocsapp.models.TemplateObject;
+import com.example.mydocsapp.services.AppService;
+import com.example.mydocsapp.services.DBHelper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class TemplateActivity extends AppCompatActivity {
-
     private static final int DIALOG_EDITTEXT = 1;
     private static final int DIALOG_NUMBER_TEXT = 2;
     private static final int DIALOG_CHECKBOX = 3;
+    private static final int DIALOG_TEMPLATE_NAME = 4;
     ActivityTemplateBinding binding;
-    List<View> showedLayouts;
+    List<TemplateObject> templateObjects;
+    DBHelper db;
+    Template template = null;
+    TemplateDocument templateDoc = null;
+    boolean isCreateDocumentMode = false;
+    boolean isCreateTemplateMode = false;
+    boolean isReviewTemplateMode = false;
+    boolean isReviewUserTemplateMode = false;
+    boolean isUpdateDocumentMode = false;
+    private boolean isShowing = false;
+    private int userId;
+    Map<TemplateObject, View> templateViews = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityTemplateBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        showedLayouts = new ArrayList<>();
+        templateObjects = new ArrayList<>();
+        userId = AppService.getUserId(this);
+        db = new DBHelper(this, userId);
+        template = getIntent().getParcelableExtra("template");
+        templateDoc = getIntent().getParcelableExtra("document");
+
+        if (templateDoc != null & template != null)
+            isUpdateDocumentMode = true;
+        else if (templateDoc == null & template == null)
+            isCreateTemplateMode = true;
+        else if (templateDoc == null & template != null) {
+            if (getIntent().getIntExtra("isReview", 0) == 1) {
+                if (template.UserId != userId)
+                    isReviewTemplateMode = true;
+                else
+                    isReviewUserTemplateMode = true;
+            } else
+                isCreateDocumentMode = true;
+        }
+        if (isCreateDocumentMode) {
+            binding.arrowImageView.setVisibility(View.VISIBLE);
+            binding.nameTxt.setOnClickListener(v -> {
+                Boolean btnFlag = v.getTag().equals("off");
+                ImageView arrowImageView = findViewById(R.id.arrow_image_view);
+                ObjectAnimator animator = btnFlag ? ObjectAnimator.ofFloat(arrowImageView, View.ROTATION_X, 0f, 180f) : ObjectAnimator.ofFloat(arrowImageView, View.ROTATION_X, 180f, 0f);
+                animator.setDuration(600);
+                animator.start();
+                MotionLayout ml = findViewById(R.id.main_panel);
+                ml.setTransition(R.id.transTop);
+                if (btnFlag) {
+                    ml.transitionToEnd();
+                    v.setTag("on");
+                } else {
+                    ml.transitionToStart();
+                    v.setTag("off");
+                }
+            });
+        }
+        setWindowData();
+        setTopPatternPanelData();
         setOnClickListeners();
     }
 
+    private void setWindowData() {
+        if (!isCreateTemplateMode) {
+            binding.bottomPanel.setVisibility(View.GONE);
+            binding.hideBottomPanelBtn.setVisibility(View.GONE);
+            templateObjects.addAll(db.getTemplateObjectsByTemplateId(template.Id));
+            setContentPanelData();
+        }
+        if (isReviewUserTemplateMode)
+            binding.confirmButton.setVisibility(View.GONE);
+        if (isReviewTemplateMode) {
+            binding.confirmButton.setBackgroundResource(R.drawable.ic_round_download);
+        }
+    }
+
+    private void setTopPatternPanelData() {
+        LinearLayout patternContainer = findViewById(R.id.pattern_container_layout);
+        ArrayList<Template> templates = (ArrayList<Template>) db.getTemplateByUserId(AppService.getUserId(this));
+        ArrayList<Template> downloadedTemplates = (ArrayList<Template>) db.getTemplateDownload(AppService.getUserId(this));
+        if (templates.size() > 0)
+            patternContainer.addView(makePatternTopTextView(getString(R.string.my_templates) + ":"));
+        for (Template template :
+                templates) {
+            patternContainer.addView(makePatternTopButton(template));
+        }
+        patternContainer.addView(makePatternTopTextView(getString(R.string.downloaded)));
+        for (Template template :
+                downloadedTemplates) {
+            patternContainer.addView(makePatternTopButton(template));
+        }
+    }
+
+    private View makePatternTopButton(Template template) {
+        Button button = (Button) getLayoutInflater().inflate(R.layout.pattern_button_layout, null);
+        button.setText(template.Name);
+        if (template.Status.equals("Downloaded"))
+            button.setCompoundDrawables(getDrawable(R.drawable.ic_downloaded_template), null, null, null);
+        button.setTag(template);
+        button.setOnClickListener(v -> {
+            Template temp = (Template) v.getTag();
+            this.template = temp;
+            templateObjects.clear();
+            templateViews.clear();
+            templateObjects.addAll(db.getTemplateObjectsByTemplateId(template.Id));
+            setContentPanelData();
+        });
+        return button;
+    }
+
+    private View makePatternTopTextView(String text) {
+        TextView textView = new TextView(this);
+        textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        textView.setGravity(Gravity.CENTER);
+        textView.setTextColor(getResources().getColor(R.color.yellow));
+        textView.setText(text);
+        textView.setTextSize(18);
+        textView.setTypeface(null, Typeface.BOLD);
+        return textView;
+    }
+
+    private void setContentPanelData() {
+        binding.mainContentPanel.removeAllViews();
+        for (TemplateObject templateObj :
+                templateObjects) {
+            if (templateObj.Type.equals("EditText"))
+                makeEditText(templateObj);
+            else if (templateObj.Type.equals("NumberText"))
+                makeEditText(templateObj);
+            else if (templateObj.Type.equals("CheckBox"))
+                makeCheckBox(templateObj);
+        }
+    }
+
+    private void setOnClickListeners() {
+        binding.menubarBack.setOnClickListener(v ->
+                onBackPressed()
+        );
+        binding.bottomAddEdittextPanel.setOnClickListener(v -> getTitleDialog(DIALOG_EDITTEXT));
+        binding.bottomAddNumberTextPanel.setOnClickListener(v -> getTitleDialog(DIALOG_NUMBER_TEXT));
+        binding.bottomAddCheckboxPanel.setOnClickListener(v -> getTitleDialog(DIALOG_CHECKBOX));
+        binding.bottomAddPhotoPanel.setOnClickListener(v -> makePhoto());
+        binding.hideBottomPanelBtn.setOnClickListener(v -> showHideBottomPanel());
+        if (isCreateTemplateMode) {
+            binding.confirmButton.setOnClickListener(v -> {
+                if (templateObjects.size() > 0)
+                    getTitleDialog(DIALOG_TEMPLATE_NAME);
+                else
+                    Toast.makeText(this, "Add at least one element", Toast.LENGTH_SHORT).show();
+            });
+        }
+        if (isReviewTemplateMode) {
+            binding.confirmButton.setOnClickListener(v -> downloadTemplateBtnClick());
+        }
+        if (isCreateDocumentMode)
+            binding.confirmButton.setOnClickListener(v -> saveDocumentBtnClick());
+        if (isUpdateDocumentMode)
+            binding.confirmButton.setOnClickListener(v -> updateDocumentBtnClick());
+        binding.passportTopBtn.setOnClickListener(v -> startActivity(new Intent(this,MainPassportPatternActivity.class)));
+        binding.INNTopBtn.setOnClickListener(v -> startActivity(new Intent(this,INNPatternActivity.class)));
+        binding.policyTopBtn.setOnClickListener(v -> startActivity(new Intent(this,PolicyPatternActivity.class)));
+    }
+
+
+    private void updateDocumentBtnClick() {
+        for (Map.Entry<TemplateObject, View> entry : templateViews.entrySet()) {
+            TemplateObject templateObject = entry.getKey();
+            View view = entry.getValue();
+            TemplateDocumentData docData = db.getTemplateDocumentData(templateObject.Id, templateDoc.Id);
+            if (docData != null) {
+                if (view instanceof EditText) {
+                    EditText editText = (EditText) view;
+                    docData.Value = editText.getText().toString();
+                    db.updateTemplateDocumentData(docData.Id, docData);
+                } else if (view instanceof CheckBox) {
+                    CheckBox checkBox = (CheckBox) view;
+                    docData.Value = checkBox.isChecked() ? "true" : "false";
+                    db.updateTemplateDocumentData(docData.Id, docData);
+                }
+            }
+        }
+        onBackPressed();
+    }
+
+    private void saveDocumentBtnClick() {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+        String time = df.format(new Date());
+        db.insertItem(new Item(0, template.Name + db.selectLastItemId(), "Template", null, 0, 0, 0, time, 0, AppService.getUserId(this)));
+        int id = db.selectLastItemId();
+        db.insertTemplateDocument(new TemplateDocument(id, template.Id));
+        id = db.selectLastTemplateDocumentId();
+        for (Map.Entry<TemplateObject, View> entry : templateViews.entrySet()) {
+            TemplateObject templateObject = entry.getKey();
+            View view = entry.getValue();
+            if (view instanceof EditText) {
+                EditText editText = (EditText) view;
+                db.insertTemplateDocumentData(new TemplateDocumentData(0, editText.getText().toString(), templateObject.Id, id));
+            } else if (view instanceof CheckBox) {
+                CheckBox checkBox = (CheckBox) view;
+                String value = checkBox.isChecked() ? "true" : "false";
+                db.insertTemplateDocumentData(new TemplateDocumentData(0, value, templateObject.Id, id));
+            }
+        }
+        onBackPressed();
+    }
+
+    private void downloadTemplateBtnClick() {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+        String time = df.format(new Date());
+        Template temp = new Template(0, template.Name, "Downloaded", time, userId);
+        db.insertTemplate(temp);
+        int id = db.selectLastTemplateId();
+        for (TemplateObject templateObject :
+                templateObjects) {
+            templateObject.TemplateId = id;
+            db.insertTemplateObject(templateObject);
+        }
+        startActivity(new Intent(this, MainTemplateActivity.class));
+    }
+
+    private void saveTemplateBtnClick(String name) {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+        String time = df.format(new Date());
+        Template template = new Template(0, name, "New", time, userId);
+        db.insertTemplate(template);
+        int id = db.selectLastTemplateId();
+        for (TemplateObject templateObject :
+                templateObjects) {
+            templateObject.TemplateId = id;
+            db.insertTemplateObject(templateObject);
+        }
+        startActivity(new Intent(this, MainTemplateActivity.class));
+    }
+
+
     @Override
     public void onBackPressed() {
-        NavUtils.navigateUpFromSameTask(this);
-        super.onBackPressed();
-    }
-    private void setOnClickListeners() {
-        binding.menubarBack.setOnClickListener(v->{onBackPressed();});
-        binding.bottomAddEdittextPanel.setOnClickListener(v->{getTitleDialog(DIALOG_EDITTEXT);});
-        binding.bottomAddNumberTextPanel.setOnClickListener(v->{getTitleDialog(DIALOG_NUMBER_TEXT);});
-        binding.bottomAddCheckboxPanel.setOnClickListener(v->{getTitleDialog(DIALOG_CHECKBOX);});
-        binding.bottomAddPhotoPanel.setOnClickListener(v->{makePhoto();});
+        if (isCreateDocumentMode || isUpdateDocumentMode)
+            startActivity(new Intent(this, MainContentActivity.class));
+        else
+            startActivity(new Intent(this, MainTemplateActivity.class));
     }
 
+    private void showHideBottomPanel() {
+        float initialY = binding.bottomPanel.getTranslationY();
+        float finalY = binding.mainPanel.getHeight();
+        float bottomH = binding.bottomPanel.getHeight();
+        float bottomY = binding.bottomPanel.getY();
+        float hideY = binding.hideBottomPanelBtn.getY();
+        float hideH = binding.hideBottomPanelBtn.getHeight();
+        ObjectAnimator flipAnimation;
+        int duration = 400;
+        if (isShowing)
+            flipAnimation = ObjectAnimator.ofFloat(binding.hideBottomPanelBtn, "rotationX", 180, 0).setDuration(duration);
+        else
+            flipAnimation = ObjectAnimator.ofFloat(binding.hideBottomPanelBtn, "rotationX", 0, 180).setDuration(duration);
+        ValueAnimator hideBottomAnimation = isShowing ? ValueAnimator.ofFloat(initialY, 0) : ValueAnimator.ofFloat(0, finalY - bottomY).setDuration(duration);
+        hideBottomAnimation.addUpdateListener(valueAnimator -> {
+            float animatedValue = (float) valueAnimator.getAnimatedValue();
+            binding.bottomPanel.setTranslationY(animatedValue);
+        });
+        ValueAnimator hideButtonAnimation = isShowing ? ValueAnimator.ofFloat(finalY - hideH, finalY - bottomH - hideH - 20) : ValueAnimator.ofFloat(hideY, finalY - hideH).setDuration(duration);
+        hideButtonAnimation.addUpdateListener(valueAnimator -> {
+            float animatedValue = (float) valueAnimator.getAnimatedValue();
+            binding.hideBottomPanelBtn.setY(animatedValue);
+        });
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(flipAnimation, hideBottomAnimation, hideButtonAnimation);
+        isShowing = !isShowing;
+        animatorSet.start();
+    }
 
-    private void makeEditText(String dialogTitleText, boolean isNumeric) {
+    private void makeEditText(final TemplateObject templateObject) {
+        if (isCreateTemplateMode)
+            templateObjects.add(templateObject);
         ConstraintLayout layout = (ConstraintLayout) getLayoutInflater().inflate(R.layout.template_edittext_layout, null);
         TextView titleTxt = layout.findViewById(R.id.title_txt);
-        titleTxt.setText(dialogTitleText);
-        if(isNumeric){
-            EditText editText = layout.findViewById(R.id.content_txt);
-            editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+        EditText editTxt = layout.findViewById(R.id.content_txt);
+        titleTxt.setText(templateObject.Title);
+        if (templateObject.Type.equals("NumberText")) {
+            editTxt.setInputType(InputType.TYPE_CLASS_NUMBER);
         }
         ImageButton deleteBtn = layout.findViewById(R.id.delete_btn);
-        deleteBtn.setOnClickListener(v->{
-            showedLayouts.remove(layout);
-            binding.mainContentPanel.removeView(layout);
-        });
+        if (!isCreateTemplateMode)
+            deleteBtn.setVisibility(View.GONE);
+        else
+            deleteBtn.setOnClickListener(v -> {
+                templateObjects.remove(templateObject);
+                db.deleteTemplateObject(templateObject.Id);
+                binding.mainContentPanel.removeView(layout);
+            });
+        if (isUpdateDocumentMode) {
+            TemplateDocumentData docData = db.getTemplateDocumentData(templateObject.Id, templateDoc.Id);
+            if (docData != null) {
+                editTxt.setText(docData.Value);
+            }
+        }
+        if (isCreateDocumentMode || isUpdateDocumentMode)
+            templateViews.put(templateObject, editTxt);
         binding.mainContentPanel.addView(layout);
     }
 
     private void makePhoto() {
+
     }
 
     private void getTitleDialog(int mode) {
-        final String title;
         Dialog makeRenameDialog = new Dialog(TemplateActivity.this);
         makeRenameDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         makeRenameDialog.setContentView(R.layout.make_rename_layout);
@@ -86,24 +367,32 @@ public class TemplateActivity extends AppCompatActivity {
         editText.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
-        editText.setHint(R.string.create_a_folder);
+        if (mode != DIALOG_TEMPLATE_NAME)
+            editText.setHint(R.string.enter_object_name);
 
         ((Button) makeRenameDialog.findViewById(R.id.make_rename_item_btn)).setText(R.string.create_a_folder);
-
         makeRenameDialog.findViewById(R.id.make_rename_item_btn).setOnClickListener(view -> {
-            if (editText.getText().toString().replace(" ","").equals(""))
+            if (editText.getText().toString().replace(" ", "").equals(""))
                 return;
-            else{
-                switch (mode){
+            else {
+                TemplateObject templateObject;
+                switch (mode) {
                     case DIALOG_EDITTEXT:
-                        makeEditText(editText.getText().toString(), false);
+                        templateObject = new TemplateObject(0, templateObjects.size(), "EditText", editText.getText().toString(), 0);
+                        makeEditText(templateObject);
                         break;
                     case DIALOG_NUMBER_TEXT:
-                        makeEditText(editText.getText().toString(), true);
+                        templateObject = new TemplateObject(0, templateObjects.size(), "NumberText", editText.getText().toString(), 0);
+                        makeEditText(templateObject);
                         break;
                     case DIALOG_CHECKBOX:
-                        makeCheckBox(editText.getText().toString());
+                        templateObject = new TemplateObject(0, templateObjects.size(), "CheckBox", editText.getText().toString(), 0);
+                        makeCheckBox(templateObject);
                         break;
+                    case DIALOG_TEMPLATE_NAME:
+                        saveTemplateBtnClick(editText.getText().toString());
+                        break;
+
                 }
                 makeRenameDialog.dismiss();
             }
@@ -113,15 +402,34 @@ public class TemplateActivity extends AppCompatActivity {
         });
         makeRenameDialog.show();
     }
-    private void makeCheckBox(String dialogTitleText) {
+
+    private void makeCheckBox(TemplateObject templateObject) {
+        if (isCreateTemplateMode)
+            templateObjects.add(templateObject);
         ConstraintLayout layout = (ConstraintLayout) getLayoutInflater().inflate(R.layout.template_checkbox_layout, null);
-        CheckBox titleTxt = layout.findViewById(R.id.title_txt);
-        titleTxt.setText(dialogTitleText);
+        CheckBox checkBox = layout.findViewById(R.id.title_txt);
+        checkBox.setText(templateObject.Title);
         ImageButton deleteBtn = layout.findViewById(R.id.delete_btn);
-        deleteBtn.setOnClickListener(v->{
-            showedLayouts.remove(layout);
-            binding.mainContentPanel.removeView(layout);
-        });
+        deleteBtn.setTag(templateObject.Id);
+        if (!isCreateTemplateMode)
+            deleteBtn.setVisibility(View.GONE);
+        else
+            deleteBtn.setOnClickListener(v -> {
+                templateObjects.remove(templateObject);
+                db.deleteTemplateObject(templateObject.Id);
+                binding.mainContentPanel.removeView(layout);
+            });
+        if (isUpdateDocumentMode) {
+            TemplateDocumentData docData = db.getTemplateDocumentData(templateObject.Id, templateDoc.Id);
+            if (docData != null) {
+                if (docData.Value.equals("true"))
+                    checkBox.setChecked(true);
+                else
+                    checkBox.setChecked(false);
+            }
+        }
+        if (isCreateDocumentMode || isUpdateDocumentMode)
+            templateViews.put(templateObject, checkBox);
         binding.mainContentPanel.addView(layout);
     }
 }

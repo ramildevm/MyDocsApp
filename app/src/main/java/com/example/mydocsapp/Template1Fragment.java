@@ -1,5 +1,6 @@
 package com.example.mydocsapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,13 +15,12 @@ import com.example.mydocsapp.apputils.RecyclerItemClickListener;
 import com.example.mydocsapp.databinding.Template1FragmentBinding;
 import com.example.mydocsapp.interfaces.Template1FragmentListener;
 import com.example.mydocsapp.models.Template;
+import com.example.mydocsapp.services.AppService;
+import com.example.mydocsapp.services.DBHelper;
 import com.example.mydocsapp.services.TemplateAdapter;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class Template1Fragment extends Fragment implements Template1FragmentListener {
 
@@ -30,10 +30,7 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
     private ArrayList<Template> userTemplatesList;
     private ArrayList<Template> downloadedTemplatesList;
     private TemplateAdapter adapter;
-
-    public static Template1Fragment newInstance() {
-        return new Template1Fragment();
-    }
+    DBHelper db;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,7 +42,9 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
                              @Nullable Bundle savedInstanceState) {
         binding = Template1FragmentBinding.inflate(getLayoutInflater());
         View rootView = binding.getRoot();
+        db= new DBHelper(getContext(), AppService.getUserId(getContext()));
         setListData();
+        isSelectMode = false;
         adapter = new TemplateAdapter(getContext(), userTemplatesList, false);
         binding.templateContainer.setLayoutManager(new LinearLayoutManager(getActivity()));
         binding.templateContainer.setAdapter(adapter);
@@ -70,7 +69,7 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
                     }
                     adapter.onItemChanged(position, item);
                 } else {
-
+                    startActivity(new Intent(getActivity(),TemplateActivity.class).putExtra("template", adapter.getTemplate(position)).putExtra("isReview",1));
                 }
             }
 
@@ -83,11 +82,9 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
                 item.isSelected = true;
                 adapter.onItemChanged(position, item);
                 reFillRecyclerView();
-
             }
         }));
         return rootView;
-
     }
 
     private void reFillRecyclerView() {
@@ -100,26 +97,30 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
 
     private void setListData() {
         selectedItemsSet = new ArrayList<>();
-        userTemplatesList = new ArrayList<>();
-        for (int i = 1; i < 5; i++) {
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
-            String time = df.format(new Date());
-            userTemplatesList.add(new Template(i, "My template" + i, time, "New", i));
-        }
+        userTemplatesList = (ArrayList<Template>) db.getTemplateByUserId(AppService.getUserId(getContext()));
         userTemplatesList.add(null);
-
         downloadedTemplatesList = new ArrayList<>();
-        for (int i = 1; i < 12; i++) {
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
-            String time = df.format(new Date());
-            downloadedTemplatesList.add(new Template(i, "Download template" + i, time, "New", i));
-        }
+        downloadedTemplatesList = (ArrayList<Template>) db.getTemplateDownload(AppService.getUserId(getContext()));
         userTemplatesList.addAll(downloadedTemplatesList);
     }
 
     @Override
     public void onTemplateDelete() {
+        for (Template template :
+                selectedItemsSet) {
+            db.deleteTemplate(template.Id);
+        }
         adapter.onItemDeleted(selectedItemsSet);
         selectedItemsSet.clear();
+        isSelectMode = false;
+        reFillRecyclerView();
+    }
+
+    @Override
+    public void onTemplatePublish() {
+        adapter.onItemPublished(selectedItemsSet);
+        selectedItemsSet.clear();
+        isSelectMode = false;
+        reFillRecyclerView();
     }
 }

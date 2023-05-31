@@ -1,17 +1,20 @@
 package com.example.mydocsapp;
 
+import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -60,28 +63,55 @@ public class MainTemplateActivity extends AppCompatActivity {
         binding.bottomDeleteBtn.setOnClickListener(v-> onDeleteBtnClick(v));
         binding.bottomDeleteTxt.setOnClickListener(v-> onDeleteBtnClick(v));
         binding.bottomAddBtn.setOnClickListener(v->onAddBtnClick(v));
+        binding.bottomPublishBtn.setOnClickListener(v->onPublishBtnClick(v));
     }
 
     private void onAddBtnClick(View v) {
-        startActivity(new Intent(MainTemplateActivity.this,TemplateActivity.class));
+        startActivity(new Intent(MainTemplateActivity.this,TemplateActivity.class).putExtra("template", (Parcelable[]) null));
     }
 
     private void onDeleteBtnClick(View v) {
             adapter.onTemplateDelete();
     }
+    private void onPublishBtnClick(View v) {
+            adapter.onTemplatePublish();
+    }
 
     private void hideShowBottomButtons(float start, float end) {
-        ObjectAnimator fadeOutAnimatorAdd = ObjectAnimator.ofFloat(binding.bottomAddBtn, "alpha", start, end).setDuration(200);
-        ObjectAnimator fadeOutAnimatorAddTxt = ObjectAnimator.ofFloat(binding.bottomAddTxt, "alpha", start, end).setDuration(200);
-        ObjectAnimator fadeOutAnimatorPublish = ObjectAnimator.ofFloat(binding.bottomPublishBtn, "alpha", start, end).setDuration(200);
-        ObjectAnimator fadeOutAnimatorPublishTxt = ObjectAnimator.ofFloat(binding.bottomPublishTxt, "alpha", start, end).setDuration(200);
+        ObjectAnimator fadeOutAnimatorBottomPanel = ObjectAnimator.ofFloat(binding.bottomPanel, "alpha", start, end).setDuration(200);
+        ObjectAnimator transitionOutBottomPanel = ObjectAnimator.ofFloat(binding.bottomPanel, "translationY", end*95, start*95).setDuration(200);
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(fadeOutAnimatorAdd, fadeOutAnimatorAddTxt, fadeOutAnimatorPublish, fadeOutAnimatorPublishTxt);
+        animatorSet.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                if(end > start) {
+                    binding.bottomPanel.setVisibility(View.VISIBLE);
+                }
+            }
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                if(start > end) {
+                    binding.bottomPanel.setVisibility(View.GONE);
+                }
+            }
+            @Override
+            public void onAnimationCancel(Animator animator) {
+            }
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+            }
+        });
+        animatorSet.playTogether(transitionOutBottomPanel,fadeOutAnimatorBottomPanel);
         animatorSet.start();
     }
 
     public void goBackMainMenuClick(View view) {
         onBackPressed();
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this,MainMenuActivity.class));
     }
 
     public class FragmentAdapter extends FragmentStateAdapter {
@@ -91,6 +121,9 @@ public class MainTemplateActivity extends AppCompatActivity {
         }
         public void onTemplateDelete(){
             template1FragmentListener.onTemplateDelete();
+        }
+        public void onTemplatePublish(){
+            template1FragmentListener.onTemplatePublish();
         }
         @Override
         public Fragment createFragment(int position) {

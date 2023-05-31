@@ -4,4 +4,5 @@ import com.example.mydocsapp.models.Template;
 
 public interface Template1FragmentListener {
     void onTemplateDelete();
+    void onTemplatePublish();
 }

@@ -190,6 +190,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.delete("INN", "Id=?", new String[]{"" + id});
         db.delete("SNILS", "Id=?", new String[]{"" + id});
         db.delete("Polis", "Id=?", new String[]{"" + id});
+        deleteTemplateDocument(id);
         db.delete("Photo", "CollectionId=?", new String[]{"" + id});
         return true;
     }
@@ -559,13 +560,43 @@ public class DBHelper extends SQLiteOpenHelper {
         return templates;
     }
 
+    public List<Template> getTemplateDownload(int userId) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Template where UserId=? and Status=?", new String[]{"" + userId, "Downloaded"});
+        List<Template> templates = getTemplatesFromCursor(cursor);
+        return templates;
+    }
+    public List<Template> getTemplatePublished() {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Template where UserId!=? and Status=?", new String[]{"" + UserId, "Published"});
+        List<Template> templates = getTemplatesFromCursor(cursor);
+        return templates;
+    }
     public Template getTemplateById(int objectId) {
         SQLiteDatabase db = open();
         Cursor cursor = db.rawQuery("select * from Template where Id=?", new String[]{"" + objectId});
         List<Template> templates = getTemplatesFromCursor(cursor);
         return templates.size() == 0 ? null : templates.get(0);
     }
+    public List<Template> getTemplateByUserId(int userId) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Template where UserId=? and Status!=?", new String[]{"" + userId, "Downloaded"});
+        List<Template> templates = getTemplatesFromCursor(cursor);
+        return templates;
+    }
 
+    @SuppressLint("Range")
+    public int selectLastTemplateId() {
+        SQLiteDatabase db = open();
+        Cursor cur = db.rawQuery("SELECT rowid from Template order by ROWID DESC limit 1", null);
+        cur.moveToFirst();
+        int id;
+        if (cur != null && cur.getCount() > 0)
+            id = cur.getInt(0);
+        else
+            id = 0;
+        return id;
+    }
     public Boolean updateTemplate(int id, Template template) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
@@ -584,7 +615,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public Boolean insertTemplate(Template template) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Id", template.Id);
         cv.put("Name", template.Name);
         cv.put("Status", template.Status);
         cv.put("Date", template.Date);
@@ -596,7 +626,19 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         }
     }
-
+    public Boolean deleteTemplate(int id) {
+        SQLiteDatabase db = open();
+        long result = db.delete("Template", "id=?", new String[]{"" + id});
+        db.delete("TemplateObject", "TemplateId=?", new String[]{"" + id});
+        db.delete("TemplateDocument", "TemplateId=?", new String[]{"" + id});
+        db.execSQL("DELETE FROM Item WHERE Id NOT IN (SELECT id FROM TemplateDocument)");
+        db.execSQL("DELETE FROM TemplateDocumentData WHERE TemplateObjectId NOT IN (SELECT id FROM TemplateObject)");
+        if (result <= 0)
+            return false;
+        else {
+            return true;
+        }
+    }
     //TemplateDocument
     private List<TemplateDocument> getTemplateDocumentsFromCursor(Cursor cur) {
         List<TemplateDocument> templateDocuments = new ArrayList<>();
@@ -610,6 +652,19 @@ public class DBHelper extends SQLiteOpenHelper {
         return templateDocuments;
     }
 
+
+    @SuppressLint("Range")
+    public int selectLastTemplateDocumentId() {
+        SQLiteDatabase db = open();
+        Cursor cur = db.rawQuery("SELECT rowid from TemplateDocument order by ROWID DESC limit 1", null);
+        cur.moveToFirst();
+        int id;
+        if (cur != null && cur.getCount() > 0)
+            id = cur.getInt(0);
+        else
+            id = 0;
+        return id;
+    }
     public TemplateDocument getTemplateDocumentById(int objectId) {
         SQLiteDatabase db = open();
         Cursor cursor = db.rawQuery("select * from TemplateDocument where Id=?", new String[]{"" + objectId});
@@ -629,6 +684,16 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
+    public Boolean deleteTemplateDocument(int id) {
+        SQLiteDatabase db = open();
+        long result = db.delete("TemplateDocument", "id=?", new String[]{"" + id});
+        db.delete("TemplateDocumentData", "TemplateDocumentId=?", new String[]{"" + id});
+        if (result <= 0)
+            return false;
+        else {
+            return true;
+        }
+    }
     public Boolean insertTemplateDocument(TemplateDocument templateDocument) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
@@ -663,6 +728,12 @@ public class DBHelper extends SQLiteOpenHelper {
         List<TemplateDocumentData> templateDocumentDataList = getTemplateDocumentDataFromCursor(cursor);
         return templateDocumentDataList.size() == 0 ? null : templateDocumentDataList.get(0);
     }
+    public TemplateDocumentData getTemplateDocumentData(int objectId, int docId) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from TemplateDocumentData where TemplateObjectId=? and TemplateDocumentId=?", new String[]{"" + objectId,""+docId});
+        List<TemplateDocumentData> templateDocumentDataList = getTemplateDocumentDataFromCursor(cursor);
+        return templateDocumentDataList.size() == 0 ? null : templateDocumentDataList.get(0);
+    }
 
     public Boolean updateTemplateDocumentData(int id, TemplateDocumentData templateDocumentData) {
         SQLiteDatabase db = open();
@@ -677,11 +748,19 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         }
     }
-
+    public Boolean deleteTemplateObject(int id) {
+        SQLiteDatabase db = open();
+        long result = db.delete("TemplateObject", "id=?", new String[]{"" + id});
+        db.delete("TemplateDocumentData", "TemplateObjectId=?", new String[]{"" + id});
+        if (result <= 0)
+            return false;
+        else {
+            return true;
+        }
+    }
     public Boolean insertTemplateDocumentData(TemplateDocumentData templateDocumentData) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Id", templateDocumentData.Id);
         cv.put("Value", templateDocumentData.Value);
         cv.put("TemplateObjectId", templateDocumentData.TemplateObjectId);
         cv.put("TemplateDocumentId", templateDocumentData.TemplateDocumentId);
@@ -709,11 +788,10 @@ public class DBHelper extends SQLiteOpenHelper {
         return templateObjects;
     }
 
-    public TemplateObject getTemplateObjectById(int objectId) {
+    public List<TemplateObject> getTemplateObjectsByTemplateId(int templateId) {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from TemplateObject where Id=?", new String[]{"" + objectId});
-        List<TemplateObject> templateObjects = getTemplateObjectsFromCursor(cursor);
-        return templateObjects.size() == 0 ? null : templateObjects.get(0);
+        Cursor cursor = db.rawQuery("select * from TemplateObject where TemplateId=?", new String[]{"" + templateId});
+        return getTemplateObjectsFromCursor(cursor);
     }
 
     public Boolean updateTemplateObject(int id, TemplateObject templateObject) {
@@ -734,7 +812,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public Boolean insertTemplateObject(TemplateObject templateObject) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Id", templateObject.Id);
         cv.put("Position", templateObject.Position);
         cv.put("Type", templateObject.Type);
         cv.put("Title", templateObject.Title);
@@ -784,7 +861,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public Boolean insertUserTemplate(UserTemplate userTemplate) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Id", userTemplate.Id);
         cv.put("UserId", userTemplate.UserId);
         cv.put("TemplateId", userTemplate.TemplateId);
         long result = db.insert("UserTemplate", null, cv);
@@ -794,9 +870,5 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         }
     }
-
-
-
-
 }
 

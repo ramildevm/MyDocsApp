@@ -71,5 +71,4 @@ public class Item implements Parcelable {
     public int describeContents() {
         return 0;
     }
-
 }
