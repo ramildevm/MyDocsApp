@@ -30,6 +30,8 @@ import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.apputils.RecyclerItemClickListener;
 import com.example.mydocsapp.interfaces.IItemAdapterActivity;
 import com.example.mydocsapp.models.Item;
+import com.example.mydocsapp.models.Template;
+import com.example.mydocsapp.models.TemplateDocument;
 import com.example.mydocsapp.services.AppService;
 import com.example.mydocsapp.services.CurrentItemsService;
 import com.example.mydocsapp.services.DBHelper;
@@ -272,6 +274,14 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                     intent.putExtra("mode",SESSION_MODE_OPEN);
                                     intent.putExtra("item",item);
                                     startActivity(intent);
+                                }else if (item.Type.equals("Template")) {
+                                    Intent intent = new Intent(MainContentActivity.this, TemplateActivity.class);
+                                    TemplateDocument templateDocument = db.getTemplateDocumentById(item.Id);
+                                    Template template = db.getTemplateById(templateDocument.TemplateId);
+                                    intent.putExtra("template", template);
+                                    intent.putExtra("document",templateDocument);
+                                    if(template!=null)
+                                        startActivity(intent);
                                 }
                             }
                         }
@@ -373,7 +383,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         startActivity(new Intent(MainContentActivity.this, MainMenuActivity.class));
         overridePendingTransition(R.anim.slide_in_left, R.anim.alpha_out);
     }
-
     public void goPatternClick(View view) {
         Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
         itemsService.setCurrentItem(null);

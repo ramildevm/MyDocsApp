@@ -81,4 +81,12 @@
     <string name="templates">Шаблоны</string>
     <string name="publish">Опубликовать</string>
     <string name="guest_mode">Гостевой режим</string>
+    <string name="text_field">Текстовое поле</string>
+    <string name="number_text_field">Числовое поле</string>
+    <string name="photo">Фото</string>
+    <string name="checkbox">Флажок</string>
+    <string name="template">Шаблон</string>
+    <string name="enter_object_name">Введите заголовок элементу</string>
+    <string name="downloaded">Скачанные:</string>
+    <string name="system">Системные:</string>
 </resources>

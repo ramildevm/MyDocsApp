@@ -1,20 +1,26 @@
 package com.example.mydocsapp;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -23,15 +29,18 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.mydocsapp.interfaces.IFragmentDataSaver;
+import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.interfaces.Changedable;
+import com.example.mydocsapp.interfaces.IFragmentDataSaver;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
+import com.example.mydocsapp.models.Template;
 import com.example.mydocsapp.services.AppService;
 import com.example.mydocsapp.services.DBHelper;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -89,14 +98,13 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
             this.Passport = item;
         });
         model.setState(this.Passport);
-
         if (CurrentItem == null) {
             findViewById(R.id.arrow_image_view).setVisibility(View.VISIBLE);
             (findViewById(R.id.passport_txt)).setOnClickListener(v -> {
                 if (v.getTag().equals("off")) {
                     ImageView arrowImageView = findViewById(R.id.arrow_image_view);
                     ObjectAnimator animator = ObjectAnimator.ofFloat(arrowImageView, View.ROTATION_X, 0f, 180f);
-                    animator.setDuration(600); // set animation duration in milliseconds
+                    animator.setDuration(600);
                     animator.start();
                     MotionLayout ml = findViewById(R.id.motion_layout);
                     ml.setTransition(R.id.transTop);
@@ -105,7 +113,7 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
                 } else if (v.getTag().equals("on")) {
                     ImageView arrowImageView = findViewById(R.id.arrow_image_view);
                     ObjectAnimator animator = ObjectAnimator.ofFloat(arrowImageView, View.ROTATION_X, 180f, 0f);
-                    animator.setDuration(600); // set animation duration in milliseconds
+                    animator.setDuration(600);
                     animator.start();
                     MotionLayout ml = findViewById(R.id.motion_layout);
                     ml.setTransition(R.id.transTop);
@@ -114,6 +122,50 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
                 }
             });
         }
+        setTopPatternPanelData();
+    }
+
+    private void setTopPatternPanelData() {
+        LinearLayout patternContainer = findViewById(R.id.pattern_container_layout);
+        ArrayList<Template> templates = (ArrayList<Template>) db.getTemplateByUserId(AppService.getUserId(this));
+        ArrayList<Template> downloadedTemplates = (ArrayList<Template>) db.getTemplateDownload(AppService.getUserId(this));
+        if(templates.size()>0)
+            patternContainer.addView(makePatternTopTextView(getString(R.string.my_templates)+":"));
+        for (Template template:
+             templates) {
+            patternContainer.addView(makePatternTopButton(template));
+        }
+        patternContainer.addView(makePatternTopTextView(getString(R.string.downloaded)));
+        for (Template template:
+                downloadedTemplates) {
+            patternContainer.addView(makePatternTopButton(template));
+        }
+    }
+
+    private View makePatternTopButton(Template template) {
+        Button button = (Button) getLayoutInflater().inflate(R.layout.pattern_button_layout, null);
+        button.setText(template.Name);
+        if(template.Status.equals("Downloaded"))
+            button.setCompoundDrawables(getDrawable(R.drawable.ic_downloaded_template),null,null,null);
+        button.setTag(template);
+        button.setOnClickListener(v->{
+            Template temp = (Template) v.getTag();
+            Intent intent = new Intent(MainPassportPatternActivity.this, TemplateActivity.class);
+            intent.putExtra("template", temp);
+            if(temp!=null)
+                startActivity(intent);
+        });
+        return button;
+    }
+    private View makePatternTopTextView(String text) {
+        TextView textView = new TextView(this);
+        textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        textView.setGravity(Gravity.CENTER);
+        textView.setTextColor(getResources().getColor(R.color.yellow));
+        textView.setText(text);
+        textView.setTextSize(18);
+        textView.setTypeface(null, Typeface.BOLD);
+        return textView;
     }
 
     private void getExtraData(Intent intent) {
@@ -179,7 +231,6 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
     private void savePassportMethod() {
         listenerForF1.SaveData();
         String itemImagePath = null;
-
         Item item;
         if (CurrentItem == null) {
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);

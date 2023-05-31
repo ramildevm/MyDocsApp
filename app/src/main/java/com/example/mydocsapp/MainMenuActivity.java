@@ -72,7 +72,7 @@ public class MainMenuActivity extends AppCompatActivity {
             binding.templatesPanel.setOnClickListener(v -> goMainTemplateClick(v));
             binding.syncingPanel.setOnClickListener(v -> goSyncingClick(v));
             binding.accountPanel.setOnClickListener(v -> goAccountSettingsClick(v));
-            binding.hiddenPanel.setOnClickListener(v -> goAccountSettingsClick(v));
+            binding.hiddenPanel.setOnClickListener(v -> goHidenFilesClick(v));
         }
     }
 

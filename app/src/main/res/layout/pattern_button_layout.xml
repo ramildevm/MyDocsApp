@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+        android:id="@+id/passport_top_btn"
+        android:layout_gravity="left"
+        android:gravity="left|center_vertical"
+        android:layout_marginTop="3dp"
+        android:drawablePadding="4dp"
+        android:textAllCaps="false"
+        android:drawableLeft="@drawable/ic_user_template"
+        android:background="@drawable/rounded_transparent"
+        android:textSize="20dp"
+        android:textStyle="bold" />

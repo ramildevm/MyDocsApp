@@ -240,6 +240,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             holder.icoImg.setImageResource(R.drawable.ic_folder);
         else if (item.Type.equals("Паспорт"))
             holder.icoImg.setImageResource(R.drawable.ic_personalcard);
+        else if (item.Type.equals("Template"))
+            holder.icoImg.setImageResource(R.drawable.ic_user_template);
         else if (item.Type.equals("Карта"))
             holder.icoImg.setImageResource(R.drawable.ic_card);
         else if (item.Type.equals("Изображение")) {

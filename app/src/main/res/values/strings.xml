@@ -86,4 +86,7 @@
     <string name="photo">Photo</string>
     <string name="checkbox">Checkbox</string>
     <string name="template">Template</string>
+    <string name="enter_object_name">Enter an object title</string>
+    <string name="downloaded">Downloaded:</string>
+    <string name="system">System:</string>
 </resources>
