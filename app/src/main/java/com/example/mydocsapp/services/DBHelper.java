@@ -312,26 +312,28 @@ public class DBHelper extends SQLiteOpenHelper {
                 cur.getString(2),
                 cur.getString(3),
                 cur.getString(4),
-                cur.getString(5));
+                cur.getString(5),
+                cur.getString(6));
         return user;
     }
 
-    public User getUserByLogin(String login) {
+    public User getUserByEmail(String email) {
         SQLiteDatabase db = open();
-        Cursor cur = db.rawQuery("select count(*) from User where Login=?", new String[]{login});
+        Cursor cur = db.rawQuery("select count(*) from User where Email=?", new String[]{email});
         if (cur != null) {
             cur.moveToFirst();
             if (cur.getInt(0) == 0) {
                 return null;
             }
         }
-        cur = db.rawQuery("select * from User where Login=?", new String[]{login});
+        cur = db.rawQuery("select * from User where Email=?", new String[]{email});
         return getUserFromCursor(cur);
     }
 
     public Boolean updateUser(int id, User user) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        cv.put("Email", user.Email);
         cv.put("Login", user.Login);
         cv.put("Password", user.Password);
         long result = db.update("User", cv, "id=?", new String[]{"" + id});
@@ -345,6 +347,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public Boolean insertUser(User user) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        cv.put("Email", user.Email);
         cv.put("Login", user.Login);
         cv.put("Password", user.Password);
         cv.put("PremiumStatus", user.PremiumStatus);
@@ -672,18 +675,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return documents.size() == 0 ? null : documents.get(0);
     }
 
-    public Boolean updateTemplateDocument(int id, TemplateDocument templateDocument) {
-        SQLiteDatabase db = open();
-        ContentValues cv = new ContentValues();
-        cv.put("TemplateId", templateDocument.TemplateId);
-        long result = db.update("TemplateDocument", cv, "id=?", new String[]{"" + id});
-        if (result <= 0)
-            return false;
-        else {
-            return true;
-        }
-    }
-
     public Boolean deleteTemplateDocument(int id) {
         SQLiteDatabase db = open();
         long result = db.delete("TemplateDocument", "id=?", new String[]{"" + id});
@@ -720,13 +711,6 @@ public class DBHelper extends SQLiteOpenHelper {
             templateDocumentDataList.add(templateDocumentData);
         }
         return templateDocumentDataList;
-    }
-
-    public TemplateDocumentData getTemplateDocumentDataById(int objectId) {
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from TemplateDocumentData where Id=?", new String[]{"" + objectId});
-        List<TemplateDocumentData> templateDocumentDataList = getTemplateDocumentDataFromCursor(cursor);
-        return templateDocumentDataList.size() == 0 ? null : templateDocumentDataList.get(0);
     }
     public TemplateDocumentData getTemplateDocumentData(int objectId, int docId) {
         SQLiteDatabase db = open();
@@ -792,21 +776,6 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = open();
         Cursor cursor = db.rawQuery("select * from TemplateObject where TemplateId=?", new String[]{"" + templateId});
         return getTemplateObjectsFromCursor(cursor);
-    }
-
-    public Boolean updateTemplateObject(int id, TemplateObject templateObject) {
-        SQLiteDatabase db = open();
-        ContentValues cv = new ContentValues();
-        cv.put("Position", templateObject.Position);
-        cv.put("Type", templateObject.Type);
-        cv.put("Title", templateObject.Title);
-        cv.put("TemplateId", templateObject.TemplateId);
-        long result = db.update("TemplateObject", cv, "id=?", new String[]{"" + id});
-        if (result <= 0)
-            return false;
-        else {
-            return true;
-        }
     }
 
     public Boolean insertTemplateObject(TemplateObject templateObject) {

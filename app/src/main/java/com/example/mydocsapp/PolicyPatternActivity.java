@@ -1,11 +1,12 @@
 package com.example.mydocsapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NavUtils;
-
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
 
 public class PolicyPatternActivity extends AppCompatActivity {
 

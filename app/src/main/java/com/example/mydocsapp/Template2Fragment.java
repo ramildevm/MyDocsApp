@@ -47,6 +47,7 @@ public class Template2Fragment extends Fragment {
             public void onItemClick(View view, int position) {
                 Template item = adapter.getTemplate(position);
                 startActivity(new Intent(getActivity(),TemplateActivity.class).putExtra("template", item).putExtra("isReview",1));
+                getActivity().overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
             }
             @Override
             public void onLongItemClick(View view, int position) {

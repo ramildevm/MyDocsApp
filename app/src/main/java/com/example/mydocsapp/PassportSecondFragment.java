@@ -97,6 +97,7 @@ public class PassportSecondFragment extends Fragment implements IFragmentDataSav
                 intent.putExtra("type", DB_IMAGE);
             intent.putExtra("imageFile", fileName);
             getActivity().startActivity(intent);
+            getActivity().overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
         });
         binding.secondPassportPhoto.setOnClickListener(v -> {
             if (model.getState().getValue().PhotoPage2 == null)

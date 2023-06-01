@@ -70,6 +70,7 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
                     adapter.onItemChanged(position, item);
                 } else {
                     startActivity(new Intent(getActivity(),TemplateActivity.class).putExtra("template", adapter.getTemplate(position)).putExtra("isReview",1));
+                    getActivity().overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
                 }
             }
 

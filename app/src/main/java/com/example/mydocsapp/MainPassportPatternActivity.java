@@ -1,7 +1,6 @@
 package com.example.mydocsapp;
 
 import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,7 +19,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -29,7 +27,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.interfaces.Changedable;
 import com.example.mydocsapp.interfaces.IFragmentDataSaver;
 import com.example.mydocsapp.models.Item;
@@ -56,6 +53,7 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
     public static final int SELECT_PAGE2_PHOTO = 3;
     private Item CurrentItem;
     private Boolean isChanged = false;
+    private boolean isCreateMode = false;
 
     public Item getCurrentItem() {
         return CurrentItem;
@@ -66,30 +64,7 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_passport_pattern);
         getExtraData(getIntent());
-        ViewPager2 viewPager2 = findViewById(R.id.frame_container);
-        viewPager2.setAdapter(new MyFragmentAdapter(getSupportFragmentManager(), getLifecycle(), this));
-        viewPager2.registerOnPageChangeCallback(
-                new ViewPager2.OnPageChangeCallback()
-        {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                switch (position) {
-                    case 0:
-                        TransitionDrawable transition = (TransitionDrawable) findViewById(R.id.active_page_image1).getBackground();
-                        transition.startTransition(200);
-                        TransitionDrawable transition2 = (TransitionDrawable) findViewById(R.id.active_page_image2).getBackground();
-                        transition2.startTransition(200);
-                        return;
-                    case 1:
-                        TransitionDrawable transition_1 = (TransitionDrawable) findViewById(R.id.active_page_image1).getBackground();
-                        transition_1.reverseTransition(200);
-                        TransitionDrawable transition_2 = (TransitionDrawable) findViewById(R.id.active_page_image2).getBackground();
-                        transition_2.reverseTransition(200);
-                        return;
-                }
-            }
-        });
+
         db = new DBHelper(this, AppService.getUserId(this));
         setDataFromDb();
 
@@ -98,31 +73,74 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
             this.Passport = item;
         });
         model.setState(this.Passport);
-        if (CurrentItem == null) {
+        if (CurrentItem == null) isCreateMode = true;
+        setWindowData();
+        setOnClickListeners();
+        setTopPatternPanelData();
+    }
+
+    private void setWindowData() {
+        ViewPager2 viewPager2 = findViewById(R.id.frame_container);
+        viewPager2.setAdapter(new MyFragmentAdapter(getSupportFragmentManager(), getLifecycle(), this));
+        viewPager2.registerOnPageChangeCallback(
+                new ViewPager2.OnPageChangeCallback()
+                {
+                    @Override
+                    public void onPageSelected(int position) {
+                        super.onPageSelected(position);
+                        switch (position) {
+                            case 0:
+                                TransitionDrawable transition = (TransitionDrawable) findViewById(R.id.active_page_image1).getBackground();
+                                transition.startTransition(200);
+                                TransitionDrawable transition2 = (TransitionDrawable) findViewById(R.id.active_page_image2).getBackground();
+                                transition2.startTransition(200);
+                                return;
+                            case 1:
+                                TransitionDrawable transition_1 = (TransitionDrawable) findViewById(R.id.active_page_image1).getBackground();
+                                transition_1.reverseTransition(200);
+                                TransitionDrawable transition_2 = (TransitionDrawable) findViewById(R.id.active_page_image2).getBackground();
+                                transition_2.reverseTransition(200);
+                                return;
+                        }
+                    }
+                });
+        if(isCreateMode) {
             findViewById(R.id.arrow_image_view).setVisibility(View.VISIBLE);
             (findViewById(R.id.passport_txt)).setOnClickListener(v -> {
-                if (v.getTag().equals("off")) {
-                    ImageView arrowImageView = findViewById(R.id.arrow_image_view);
-                    ObjectAnimator animator = ObjectAnimator.ofFloat(arrowImageView, View.ROTATION_X, 0f, 180f);
-                    animator.setDuration(600);
-                    animator.start();
-                    MotionLayout ml = findViewById(R.id.motion_layout);
-                    ml.setTransition(R.id.transTop);
+                Boolean btnFlag = v.getTag().equals("off");
+                ImageView arrowImageView = findViewById(R.id.arrow_image_view);
+                ObjectAnimator animator = btnFlag ? ObjectAnimator.ofFloat(arrowImageView, View.ROTATION_X, 0f, 180f) : ObjectAnimator.ofFloat(arrowImageView, View.ROTATION_X, 180f, 0f);
+                animator.setDuration(600);
+                animator.start();
+                MotionLayout ml = findViewById(R.id.motion_layout);
+                ml.setTransition(R.id.transTop);
+                if (btnFlag) {
                     ml.transitionToEnd();
                     v.setTag("on");
-                } else if (v.getTag().equals("on")) {
-                    ImageView arrowImageView = findViewById(R.id.arrow_image_view);
-                    ObjectAnimator animator = ObjectAnimator.ofFloat(arrowImageView, View.ROTATION_X, 180f, 0f);
-                    animator.setDuration(600);
-                    animator.start();
-                    MotionLayout ml = findViewById(R.id.motion_layout);
-                    ml.setTransition(R.id.transTop);
+                } else {
                     ml.transitionToStart();
                     v.setTag("off");
                 }
             });
+            findViewById(R.id.right_menu_delete_btn).setVisibility(View.GONE);
+            findViewById(R.id.right_menu_save_as_btn).setVisibility(View.GONE);
         }
-        setTopPatternPanelData();
+    }
+
+    private void setOnClickListeners() {
+        findViewById(R.id.menubar_options).setOnClickListener(v->menuOptionsBtnClick(v));
+        findViewById(R.id.confirm_button).setOnClickListener(v->savePassportMethod());
+        findViewById(R.id.menubar_Back).setOnClickListener(v->goBackMainPageClick(v));
+        findViewById(R.id.INN_top_btn).setOnClickListener(v->goInnClick(v));
+        findViewById(R.id.policy_top_btn).setOnClickListener(v->goPolicyClick(v));
+        findViewById(R.id.right_menu_save_btn).setOnClickListener(v->savePassportMethod());
+        findViewById(R.id.right_menu_save_as_btn).setOnClickListener(v->saveAsBtnClick(v));
+        findViewById(R.id.right_menu_delete_btn).setOnClickListener(v->deleteBtnClick(v));
+    }
+
+    private void deleteBtnClick(View v) {
+        db.deleteItem(CurrentItem.Id);
+        onBackPressed();
     }
 
     private void setTopPatternPanelData() {
@@ -152,8 +170,10 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
             Template temp = (Template) v.getTag();
             Intent intent = new Intent(MainPassportPatternActivity.this, TemplateActivity.class);
             intent.putExtra("template", temp);
-            if(temp!=null)
+            if(temp!=null) {
                 startActivity(intent);
+                overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+            }
         });
         return button;
     }
@@ -182,21 +202,7 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         if (item != null) {
             this.Passport = db.getPassportById(item.Id);
         } else
-            this.Passport = new Passport(
-                    0,
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "M",
-                    "",
-                    "",
-                    null,
-                    null,
-                    null
-            );
+            this.Passport = new Passport(0,"","","","","","","M","","",null,null,null);
     }
 
     public void copyTextClick(View view) {
@@ -228,20 +234,34 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
 
     }
 
+    private void saveAsBtnClick(View v) {
+    }
+
+    public void menuOptionsBtnClick(View v) {
+        if (v.getTag().equals("off")) {
+            MotionLayout ml = findViewById(R.id.motion_layout);
+            ml.setTransition(R.id.transRightMenu);
+            ml.transitionToEnd();
+            v.setTag("on");
+        } else if (v.getTag().equals("on")) {
+            MotionLayout ml = findViewById(R.id.motion_layout);
+            ml.setTransition(R.id.transRightMenu);
+            ml.transitionToStart();
+            v.setTag("off");
+        }
+    }
     private void savePassportMethod() {
         listenerForF1.SaveData();
         String itemImagePath = null;
         Item item;
-        if (CurrentItem == null) {
+        if (isCreateMode) {
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
             String time = df.format(new Date());
             item = new Item(0, "Паспорт" + db.selectLastItemId(), "Паспорт", null, 0, 0, 0, time, 0, 0);
             db.insertItem(item);
             int ItemId = db.selectLastItemId();
             this.Passport.Id = ItemId;
-
             db.insertPassport(this.Passport);
-
             listenerForF1.SavePhotos(ItemId);
             itemImagePath = this.Passport.FacePhoto;
             if (listenerForF2 != null) {
@@ -271,10 +291,12 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
 
     public void goInnClick(View view) {
         startActivity(new Intent(MainPassportPatternActivity.this, INNPatternActivity.class));
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
 
     public void goPolicyClick(View view) {
         startActivity(new Intent(MainPassportPatternActivity.this, PolicyPatternActivity.class));
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
 
     @Override
@@ -289,10 +311,6 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
 
     void setListenerForF2(IFragmentDataSaver fragment2) {
         listenerForF2 = fragment2;
-    }
-
-    public void saveBtnClick(View view) {
-        savePassportMethod();
     }
 
     @Override
@@ -331,7 +349,6 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
                     return null;
             }
         }
-
         @Override
         public int getItemCount() {
             return NUM_ITEMS;

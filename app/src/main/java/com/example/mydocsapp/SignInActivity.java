@@ -6,7 +6,6 @@ import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,6 +29,8 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
         db = new DBHelper(this, AppService.getUserId(this));
+        findViewById(R.id.sign_up_btn).setOnClickListener(v->signupBtnClick(v));
+        findViewById(R.id.cancel_btn).setOnClickListener(v->cancelBtnClick(v));
     }
 
     public void cancelBtnClick(View view) {
@@ -38,7 +39,7 @@ public class SignInActivity extends AppCompatActivity {
         overridePendingTransition(0, 0);
     }
     public void signupBtnClick(View view) {
-        changeButtonBack(view, R.drawable.main_button_click_set, 200);
+        signInMethod();
     }
     private void changeButtonBack(View view, int backSetId, int duration){
         view.setBackground(ContextCompat.getDrawable(this,backSetId));
@@ -50,48 +51,44 @@ public class SignInActivity extends AppCompatActivity {
                 transition.startTransition(duration);
                 transition.reverseTransition(duration);
                 signInMethod();
-
             }
         }, duration);
     }
     private void signInMethod() {
-        String login = ((TextView)findViewById(R.id.editTextLogin)).getText().toString();
+        String email = ((TextView)findViewById(R.id.editTextEmail)).getText().toString();
         String password = ((TextView)findViewById(R.id.editTextPassword)).getText().toString();
         String passwordConfirm = ((TextView)findViewById(R.id.editTextPasswordConfirm)).getText().toString();
-        if(login.isEmpty() | password.isEmpty()){
-            Toast msg = Toast.makeText(SignInActivity.this, R.string.error_not_all_fields_filled, Toast.LENGTH_SHORT);
-            msg.show();
+        if(email.isEmpty() | password.isEmpty()){
+            Toast.makeText(SignInActivity.this, R.string.error_not_all_fields_filled, Toast.LENGTH_SHORT).show();
             return;
         }
         if(!passwordConfirm.equals(password)){
-            Toast msg = Toast.makeText(SignInActivity.this, R.string.error_dont_match_passwords, Toast.LENGTH_SHORT);
-            msg.show();
+            Toast.makeText(SignInActivity.this, R.string.error_dont_match_passwords, Toast.LENGTH_SHORT).show();
             return;
         }
-
         //fromAPI(login, password);
-        fromDB(login, password);
+        fromDB(email, password);
     }
 
-    private void fromDB(String login, String password) {
-        User user = db.getUserByLogin(login);
+    private void fromDB(String email, String password) {
+        User user = db.getUserByEmail(email);
         if(user!=null){
-            Toast msg = Toast.makeText(SignInActivity.this, R.string.error_ligin_in_use, Toast.LENGTH_SHORT);
-            msg.show();
+            Toast.makeText(SignInActivity.this, R.string.error_email_in_use, Toast.LENGTH_SHORT).show();
             return;
         }
-        db.insertUser(new User(0,login,password,"None","None",null));
-        AppService.setUserId(db.selectLastUserId(),this);
+        db.insertUser(new User(0,email,email,password,"None","None",null));
         Toast msg = Toast.makeText(SignInActivity.this, R.string.result_successful_user_adding, Toast.LENGTH_SHORT);
         msg.show();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.clear().commit();
-        editor.putString("Login",login);
+        editor.remove("email").commit();
+        editor.remove("Id").commit();
+        editor.putString("email",email);
         editor.apply();
+        AppService.setUserId(db.selectLastUserId(),this);
 
-        user = db.getUserByLogin(login);
+        user = db.getUserByEmail(email);
         AppService.setUserId(user.Id,this);
         AppService.setHideMode(false);
 
@@ -100,8 +97,8 @@ public class SignInActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
     }
 
-    private void fromAPI(String login, String password) {
-        MainApi.CreateUser(new User(0, login, password,"None","None",null), new UserPostCallback() {
+    private void fromAPI(String email, String password) {
+        MainApi.CreateUser(new User(0, email, email, password,"None","None",null), new UserPostCallback() {
             @Override
             public void onResult(User result) {
                 if(result == null) {

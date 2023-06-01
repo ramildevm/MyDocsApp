@@ -60,181 +60,180 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main_panel"
-        android:layout_marginTop="60dp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#2C2C2C"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/first_policy_photo"
-            android:layout_width="140dp"
-            android:layout_height="180dp"
-            android:background="#C4C4C4"
-            android:layout_marginLeft="40dp"
-            android:layout_marginTop="30dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/second_policy_photo"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <ImageView
-            android:id="@+id/second_policy_photo"
-            android:layout_width="140dp"
-            android:layout_height="180dp"
-            android:background="#C4C4C4"
-            android:layout_marginLeft="35dp"
-            android:layout_marginTop="30dp"
-            android:layout_marginRight="35dp"
-            app:layout_constraintStart_toEndOf="@id/first_policy_photo"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <TextView
-            android:id="@+id/f_n"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="220dp"
-            android:layout_marginLeft="45dp"
-            android:text="Full name"
-            android:textColor="@color/white"
-            android:textSize="14dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <EditText
-            android:id="@+id/editTextFullName"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main_panel"
+            android:layout_marginTop="60dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#C4C4C4"
-            android:ems="10"
-            android:layout_marginTop="245dp"
-            android:layout_marginLeft="35dp"
-            android:layout_marginRight="25dp"
-            android:textColor="#000"
-            android:textSize="16dp"
+            android:layout_height="match_parent"
+            android:background="#2C2C2C"
+            android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/p_n"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="270dp"
-            android:layout_marginLeft="45dp"
-            android:text="Policy number"
-            android:textColor="@color/white"
-            android:textSize="14dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <ImageView
+                android:id="@+id/first_policy_photo"
+                android:layout_width="140dp"
+                android:layout_height="180dp"
+                android:background="#C4C4C4"
+                android:layout_marginLeft="40dp"
+                android:layout_marginTop="30dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/second_policy_photo"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-        <EditText
-            android:id="@+id/editTextPolicyNumber"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#C4C4C4"
-            android:ems="10"
-            android:layout_marginTop="295dp"
-            android:layout_marginLeft="35dp"
-            android:layout_marginRight="25dp"
-            android:textColor="#000"
-            android:textSize="16dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <ImageView
+                android:id="@+id/second_policy_photo"
+                android:layout_width="140dp"
+                android:layout_height="180dp"
+                android:background="#C4C4C4"
+                android:layout_marginLeft="35dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginRight="35dp"
+                app:layout_constraintStart_toEndOf="@id/first_policy_photo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-        <TextView
-            android:id="@+id/d_b"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="320dp"
-            android:text="Date of birth"
-            android:layout_marginRight="20dp"
-            android:textColor="@color/white"
-            android:textSize="14dp"
-            app:layout_constraintEnd_toStartOf="@id/v_u"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <TextView
+                android:id="@+id/f_n"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="220dp"
+                android:layout_marginLeft="45dp"
+                android:text="Full name"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-        <EditText
-            android:id="@+id/editTextDateBirth"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:background="#C4C4C4"
-            android:ems="10"
-            android:layout_marginTop="345dp"
-            android:layout_marginLeft="35dp"
-            android:textColor="#000"
-            android:textSize="16dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <EditText
+                android:id="@+id/editTextFullName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#C4C4C4"
+                android:ems="10"
+                android:layout_marginTop="245dp"
+                android:layout_marginLeft="35dp"
+                android:layout_marginRight="25dp"
+                android:textColor="#000"
+                android:textSize="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-        <TextView
-            android:id="@+id/v_u"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="320dp"
-            android:layout_marginLeft="20dp"
-            android:text="Valid until"
-            android:textColor="@color/white"
-            android:textSize="14dp"
-            app:layout_constraintStart_toEndOf="@+id/d_b"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <TextView
+                android:id="@+id/p_n"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="270dp"
+                android:layout_marginLeft="45dp"
+                android:text="Policy number"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-        <EditText
-            android:id="@+id/editTextValidUntil"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:background="#C4C4C4"
-            android:ems="10"
-            android:layout_marginTop="345dp"
-            android:textColor="#000"
-            android:textSize="16dp"
-            app:layout_constraintStart_toEndOf="@id/editTextDateBirth"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <EditText
+                android:id="@+id/editTextPolicyNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#C4C4C4"
+                android:ems="10"
+                android:layout_marginTop="295dp"
+                android:layout_marginLeft="35dp"
+                android:layout_marginRight="25dp"
+                android:textColor="#000"
+                android:textSize="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-        <TextView
-            android:id="@+id/gender"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="380dp"
-            android:layout_marginLeft="50dp"
-            android:text="Gender"
-            android:textColor="@color/white"
-            android:textSize="14dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <TextView
+                android:id="@+id/d_b"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="320dp"
+                android:text="Date of birth"
+                android:layout_marginRight="20dp"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                app:layout_constraintEnd_toStartOf="@id/v_u"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-        <RadioButton
-            android:id="@+id/maleCheck"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="375dp"
-            android:layout_marginLeft="10dp"
-            android:textColor="@color/white"
-            android:textSize="14dp"
-            android:text="M"
-            android:layout_marginRight="10dp"
-            app:layout_constraintStart_toEndOf="@+id/gender"
-            app:layout_constraintEnd_toStartOf="@+id/femaleCheck"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <EditText
+                android:id="@+id/editTextDateBirth"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:background="#C4C4C4"
+                android:ems="10"
+                android:layout_marginTop="345dp"
+                android:layout_marginLeft="35dp"
+                android:textColor="#000"
+                android:textSize="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <RadioButton
-            android:id="@+id/femaleCheck"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="375dp"
-            android:textColor="@color/white"
-            android:textSize="14dp"
-            android:text="F"
-            app:layout_constraintStart_toEndOf="@+id/maleCheck"
-            app:layout_constraintEnd_toStartOf="@+id/editTextDateRegistrationINN"
-            app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/v_u"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="320dp"
+                android:layout_marginLeft="20dp"
+                android:text="Valid until"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                app:layout_constraintStart_toEndOf="@+id/d_b"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <EditText
+                android:id="@+id/editTextValidUntil"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:background="#C4C4C4"
+                android:ems="10"
+                android:layout_marginTop="345dp"
+                android:textColor="#000"
+                android:textSize="16dp"
+                app:layout_constraintStart_toEndOf="@id/editTextDateBirth"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/gender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="380dp"
+                android:layout_marginLeft="50dp"
+                android:text="Gender"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <RadioButton
+                android:id="@+id/maleCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="375dp"
+                android:layout_marginLeft="10dp"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                android:text="M"
+                android:layout_marginRight="10dp"
+                app:layout_constraintStart_toEndOf="@+id/gender"
+                app:layout_constraintEnd_toStartOf="@+id/femaleCheck"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <RadioButton
+                android:id="@+id/femaleCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="375dp"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                android:text="F"
+                app:layout_constraintStart_toEndOf="@+id/maleCheck"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

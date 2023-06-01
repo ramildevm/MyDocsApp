@@ -74,15 +74,12 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_content);
-
         registerForARFolder = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                     CurrentFolderItemsSet = itemsService.getFolderItemsFromDb(itemsService.getCurrentItem().Id);
                     reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
                     itemsService.setInitialData();
                     reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
         });
-        // начальная инициализация списка
-        // создаем базу данных
         db = new DBHelper(this, AppService.getUserId(this));
         setCurrentUserFromDB();
         //setCurrentUserFromAPI();
@@ -136,6 +133,8 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     private void setCurrentUserFromDB() {
         CurrentUser = db.getUserById(AppService.getUserId(this));
         CurrentUser.Id = AppService.getUserId(this);
+        if(CurrentUser.Id==0)
+            CurrentUser.Login = getString(R.string.guest_mode);
     }
     private void setCurrentUserFromAPI() {
         CurrentUser = db.getUserById(1);
@@ -219,10 +218,12 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                                         Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
                                                         intent.putExtra("item", itemsService.getCurrentItem());
                                                         startActivity(intent);
+                                                        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
                                                     } else if (itemsService.getCurrentItem().Type.equals("Карта")) {
                                                         Intent intent = new Intent(MainContentActivity.this, CardPatternActivity.class);
                                                         intent.putExtra("item", itemsService.getCurrentItem());
                                                         startActivity(intent);
+                                                        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
                                                     }else if (item.Type.equals("Изображение")) {
                                                         Intent intent = new Intent(MainContentActivity.this, ImageActivity.class);
                                                         intent.putExtra("text", item.Title);
@@ -230,6 +231,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                                         intent.putExtra("item", itemsService.getCurrentItem());
                                                         intent.putExtra("imageFile", item.Image);
                                                         startActivity(intent);
+                                                        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
                                                     }
                                                 }
 
@@ -258,30 +260,36 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                     Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
                                     intent.putExtra("item", itemsService.getCurrentItem());
                                     startActivity(intent);
+                                    overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
                                 } else if (item.Type.equals("Карта")) {
                                     Intent intent = new Intent(MainContentActivity.this, CardPatternActivity.class);
                                     intent.putExtra("item", itemsService.getCurrentItem());
                                     startActivity(intent);
+                                    overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
                                 }else if (item.Type.equals("Изображение")) {
                                     Intent intent = new Intent(MainContentActivity.this, ImageCollectionActivity.class);
                                     intent.putExtra("userId",CurrentUser.Id);
                                     intent.putExtra("mode",SESSION_MODE_OPEN);
                                     intent.putExtra("item",item);
                                     startActivity(intent);
+                                    overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
                                 }else if (item.Type.equals("Альбом")) {
                                     Intent intent = new Intent(MainContentActivity.this, ImageCollectionActivity.class);
                                     intent.putExtra("userId",CurrentUser.Id);
                                     intent.putExtra("mode",SESSION_MODE_OPEN);
                                     intent.putExtra("item",item);
                                     startActivity(intent);
+                                    overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
                                 }else if (item.Type.equals("Template")) {
                                     Intent intent = new Intent(MainContentActivity.this, TemplateActivity.class);
                                     TemplateDocument templateDocument = db.getTemplateDocumentById(item.Id);
                                     Template template = db.getTemplateById(templateDocument.TemplateId);
                                     intent.putExtra("template", template);
-                                    intent.putExtra("document",templateDocument);
-                                    if(template!=null)
+                                    intent.putExtra("document", templateDocument);
+                                    if (template != null) {
                                         startActivity(intent);
+                                        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+                                    }
                                 }
                             }
                         }
@@ -388,6 +396,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         itemsService.setCurrentItem(null);
         intent.putExtra("item", itemsService.getCurrentItem());
         startActivity(intent);
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
 
     public void openSortMenuClick(View view) {
@@ -432,6 +441,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     public void menuMakeCardClick(View view) {
         Intent intent = new Intent(MainContentActivity.this, CardPatternActivity.class);
         startActivity(intent);
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
 
     public void menuMakeImageClick(View view) {
@@ -440,6 +450,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             intent.putExtra("userId",CurrentUser.Id);
             intent.putExtra("mode",SESSION_MODE_CREATE);
             startActivity(intent);
+            overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
         }

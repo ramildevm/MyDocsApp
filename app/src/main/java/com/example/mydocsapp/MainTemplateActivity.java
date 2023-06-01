@@ -68,7 +68,7 @@ public class MainTemplateActivity extends AppCompatActivity {
 
     private void onAddBtnClick(View v) {
         startActivity(new Intent(MainTemplateActivity.this,TemplateActivity.class).putExtra("template", (Parcelable[]) null));
-    }
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);}
 
     private void onDeleteBtnClick(View v) {
             adapter.onTemplateDelete();
@@ -112,6 +112,7 @@ public class MainTemplateActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         startActivity(new Intent(this,MainMenuActivity.class));
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
 
     public class FragmentAdapter extends FragmentStateAdapter {

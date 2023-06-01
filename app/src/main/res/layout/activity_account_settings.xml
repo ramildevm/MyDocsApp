@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AccountSettingsActivity">
+
+    <RelativeLayout
+        android:id="@+id/top_panel"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#757575"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/menubar_Back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:scaleX="1.3"
+            android:scaleY="1.3"
+            android:src="@drawable/left_arrow_white" />
+
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/account_settings"
+            android:textColor="@color/white"
+            android:textSize="24dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/constraintLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="25dp"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_panel">
+
+        <LinearLayout
+            android:id="@+id/data_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/sign_up_btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/main_icon">
+
+            <TextView
+                android:id="@+id/email_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/stardos_stencil_regular"
+                android:text="@string/email"
+                android:textColor="#FFC700"
+                android:textSize="24dp"
+                android:transitionName="etxt" />
+            <EditText
+                android:id="@+id/editTextEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/rounded_border_white"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890_@.-"
+                android:ems="10"
+                android:inputType="textEmailAddress"
+                android:maxLength="50"
+                android:padding="2dp"
+                android:textColor="#000"
+                android:textSize="22dp"
+                android:transitionName="@string/email" />
+
+            <TextView
+                android:id="@+id/login_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/stardos_stencil_regular"
+                android:text="@string/login"
+                android:textColor="#FFC700"
+                android:textSize="24dp"
+                android:transitionName="etxt" />
+
+            <EditText
+                android:id="@+id/editTextLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/rounded_border_white"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890_"
+                android:ems="10"
+                android:inputType="textEmailAddress"
+                android:maxLength="50"
+                android:padding="2dp"
+                android:textColor="#000"
+                android:textSize="22dp"
+                android:transitionName="@string/email" />
+
+            <TextView
+                android:id="@+id/password_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/stardos_stencil_regular"
+                android:text="@string/password"
+                android:textColor="#FFC700"
+                android:textSize="24dp"
+                android:transitionName="ptxt" />
+
+            <EditText
+                android:id="@+id/editTextPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/rounded_border_white"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#%^*_+-="
+                android:ems="10"
+                android:inputType="textPassword"
+                android:maxLength="50"
+                android:textColor="#000"
+                android:textSize="22dp"
+                android:transitionName="@string/password" />
+
+            <TextView
+                android:id="@+id/passwordConfirm_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:alpha="1"
+                android:fontFamily="@font/stardos_stencil_regular"
+                android:text="@string/confirm_password"
+                android:textColor="#FFC700"
+                android:textSize="24dp"
+                android:transitionName="@string/confirm_password" />
+
+            <EditText
+                android:id="@+id/editTextPasswordConfirm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:alpha="1"
+                android:background="@drawable/rounded_border_white"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#%^*_+-="
+                android:ems="10"
+                android:inputType="textPassword"
+                android:maxLength="50"
+                android:textColor="#000"
+                android:textSize="22dp"
+                android:transitionName="etpc" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="1dp"
+                android:background="@drawable/rounded_border_white"
+                android:ems="10"
+                android:inputType="textPassword"
+                android:textColor="#000"
+                android:textSize="26dp"
+                android:transitionName="@string/fake_line"
+                android:visibility="invisible" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+    <Button
+        android:id="@+id/save_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="14"
+        android:textSize="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/rounded_border_gray"
+        android:text="@string/save"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -172,6 +172,7 @@ public class CardPatternActivity extends AppCompatActivity {
                 intent.putExtra("type", DB_IMAGE);
             intent.putExtra("imageFile", fileName);
             startActivity(intent);
+            overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
         });
     }
 
@@ -334,6 +335,7 @@ public class CardPatternActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         NavUtils.navigateUpFromSameTask(this);
+        overridePendingTransition(0, 0);
         super.onBackPressed();
     }
     private void SaveData() {

@@ -10,7 +10,7 @@ import retrofit2.http.Query;
 
 public interface IApi {
 @GET("api/users")
-    Call<User> GetUser(@Query("login") String login);
+    Call<User> GetUser(@Query("email") String login);
     @POST("api/users")
     Call<User> PostUser(@Body User user);
 }

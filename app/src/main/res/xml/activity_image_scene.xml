@@ -4,7 +4,7 @@
 
     <ConstraintSet android:id="@+id/start">
         <Constraint
-            android:id="@+id/pattern_container"
+            android:id="@+id/right_menu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="0"
@@ -17,7 +17,7 @@
 
     <ConstraintSet android:id="@+id/end">
         <Constraint
-            android:id="@+id/pattern_container"
+            android:id="@+id/right_menu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"

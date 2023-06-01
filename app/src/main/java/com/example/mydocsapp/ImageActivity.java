@@ -27,7 +27,6 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.NoSuchPaddingException;
 
 public class ImageActivity extends AppCompatActivity {
-
     private String imgFile;
     private String imgText;
     private int type;
@@ -94,6 +93,7 @@ public class ImageActivity extends AppCompatActivity {
         if(CurrentItem!=null)
         if(CurrentItem.Type.equals("Изображение"))
             NavUtils.navigateUpFromSameTask(this);
+        overridePendingTransition(0, 0);
         super.onBackPressed();
     }
     public void saveAsClick(View view) {

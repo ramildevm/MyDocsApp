@@ -25,6 +25,9 @@ import com.example.mydocsapp.services.DBHelper;
 public class MainMenuActivity extends AppCompatActivity {
     private GestureDetectorCompat gestureDetector;
     ActivityMainMenuBinding binding;
+    private boolean isGuest = false;
+    private DBHelper db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,12 +35,24 @@ public class MainMenuActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         gestureDetector = new GestureDetectorCompat(this, new SwipeGestureListener());
 
+
+        setWindowData();
+        setOnClickListeners(isGuest);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setWindowData();
+    }
+
+    private void setWindowData() {
         int userId = AppService.getUserId(this);
-        DBHelper db = new DBHelper(this, userId);
+        db = new DBHelper(this, userId);
         User user = db.getUserById(userId);
-        Boolean isGuest = user.Login.equals("гость");
+        isGuest = user.Id==0;
         if(isGuest) {
-            binding.changeAccountTxt.setText("Выйти");
+            binding.changeAccountTxt.setText(R.string.exit);
             binding.accountPanel.setVisibility(View.GONE);
             binding.syncingPanel.setAlpha(0.5f);
             binding.templatesPanel.setAlpha(0.5f);
@@ -55,13 +70,14 @@ public class MainMenuActivity extends AppCompatActivity {
                     .into(binding.accountPhotoImage);
             binding.loginTxt.setText(user.Login);
         }
-        setOnClickListeners(isGuest);
     }
 
     private void setOnClickListeners(Boolean isGuest) {
         binding.changeAccountTxt.setOnClickListener(v->changeAccountClickBack(v));
         binding.settingsImage.setOnClickListener(v->goSettingsClick(v));
         binding.settingsTxt.setOnClickListener(v->goSettingsClick(v));
+        binding.syncingPanel.setOnClickListener(v->goSyncingClick(v));
+        binding.syncingPanel.setOnClickListener(v->goSyncingClick(v));
         if (isGuest) {
             binding.templatesPanel.setOnClickListener(v ->makeAccountDialog());
             binding.syncingPanel.setOnClickListener(v ->makeAccountDialog());
@@ -77,6 +93,8 @@ public class MainMenuActivity extends AppCompatActivity {
     }
 
     private void goAccountSettingsClick(View v) {
+        startActivity(new Intent(this,AccountSettingsActivity.class));
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
 
     private void goSyncingClick(View v) {
@@ -113,14 +131,15 @@ public class MainMenuActivity extends AppCompatActivity {
     public void changeAccountClickBack(View view) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.clear().commit();
+        editor.remove("email").commit();
+        editor.remove("Id").commit();
         startActivity(new Intent(this, LoginActivity.class));
         overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
     }
 
     public void goSettingsClick(View view) {
         startActivity(new Intent(MainMenuActivity.this, SettingsActivity.class));
-        overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
+        overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
     }
     public void goHidenFilesClick(View view) {
         AppService.setHideMode(true);
@@ -129,7 +148,7 @@ public class MainMenuActivity extends AppCompatActivity {
     }
     public void goMainTemplateClick(View view) {
         startActivity(new Intent(MainMenuActivity.this, MainTemplateActivity.class));
-        overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
+        overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
     }
     public class SwipeGestureListener extends GestureDetector.SimpleOnGestureListener {
 

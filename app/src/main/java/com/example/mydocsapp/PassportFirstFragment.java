@@ -147,6 +147,7 @@ public class PassportFirstFragment extends Fragment implements IFragmentDataSave
                 intent.putExtra("type", DB_IMAGE);
             intent.putExtra("imageFile", fileName);
             getActivity().startActivity(intent);
+            getActivity().overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
         });
         binding.maleCheck.setOnCheckedChangeListener((compoundButton, b) -> {
             ((Changedable)getContext()).setIsChanged(true);

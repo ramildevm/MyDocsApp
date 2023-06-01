@@ -10,7 +10,7 @@
     <string name="go_back">Log out</string>
     <string name="error_not_all_fields_filled">Not all fields are filled in!</string>
     <string name="error_passwords_are_not_same">Passwords are not same!</string>
-    <string name="error_user_doesnt_exists">User with this login doesn\'t exists!</string>
+    <string name="error_user_doesnt_exists">User with this email doesn\'t exists!</string>
     <string name="extra_guest">quest</string>
     <string name="confirm_password">Confirm password:</string>
     <string name="cancel">Cancel</string>
@@ -47,7 +47,7 @@
     <string name="passport_first_photo_usage">Use first photo as item image</string>
     <string name="save_as">Save as</string>
     <string name="change_photo">Change photo</string>
-    <string name="error_ligin_in_use">Login is already in use!</string>
+    <string name="error_email_in_use">Email is already in use!</string>
     <string name="fake_line">fake line</string>
     <string name="card_number">Card number</string>
     <string name="full_name">Full Name</string>
@@ -89,4 +89,17 @@
     <string name="enter_object_name">Enter an object title</string>
     <string name="downloaded">Downloaded:</string>
     <string name="system">System:</string>
+    <string name="create_document">Create document</string>
+    <string name="download">Download</string>
+    <string name="email">Email:</string>
+    <string name="login_ref">login</string>
+    <string name="download_from_the_server">Download from the server</string>
+    <string name="upload_to_the_server">Upload to the server</string>
+    <string name="select_language">Select a language</string>
+    <string name="help_dialog_text">"You can read the user manual at the link "</string>
+    <string name="privacy_policy_dialog_text" >Rrivacy policy is not avaible yet</string>
+    <string name="pin_code_created">PIN code created</string>
+    <string name="pin_code_not_enough">PIN code is too short</string>
+    <string name="pin_code_is_not_correct">PIN code is not correct</string>
+    <string name="pin_code_deleted">PIN code deleted</string>
 </resources>

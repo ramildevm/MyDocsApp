@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/motion_layout"
-    app:layoutDescription="@xml/activity_passport_scene"
+    app:layoutDescription="@xml/activity_document_scene"
     tools:context=".MainPassportPatternActivity">
     <ScrollView
         android:id="@+id/scrollview"
@@ -16,7 +16,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/top_panel">
-
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/frame_container"
             android:layout_width="match_parent"
@@ -88,7 +87,58 @@
             android:textStyle="bold" />
     </LinearLayout>
     </ScrollView>
+    <LinearLayout
+        android:id="@+id/right_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0"
+        android:background="@drawable/rounded_border_gray_85"
+        android:orientation="vertical"
+        android:scaleX="0.1"
+        android:scaleY="0.1"
+        android:translationX="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <Button
+            android:id="@+id/right_menu_save_btn"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="10dp"
+            android:padding="5dp"
+            android:text="@string/save"
+            android:textAllCaps="false"
+            android:textColor="#fff"
+            android:textSize="20dp"
+            android:textStyle="bold" />
 
+        <Button
+            android:id="@+id/right_menu_save_as_btn"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="10dp"
+            android:padding="5dp"
+            android:text="@string/save_as"
+            android:textAllCaps="false"
+            android:textColor="#fff"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+        <Button
+            android:id="@+id/right_menu_delete_btn"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/delete"
+            android:textAllCaps="false"
+            android:textColor="@color/yellow"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_panel"
         android:layout_width="match_parent"
@@ -103,7 +153,6 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="11dp"
-            android:onClick="goBackMainPageClick"
             android:scaleX="1.3"
             android:scaleY="1.3"
             android:src="@drawable/left_arrow_white"
@@ -147,6 +196,7 @@
             android:layout_margin="7dp"
             android:scaleX="1.3"
             android:scaleY="1.3"
+            android:tag="off"
             android:src="@drawable/ic_more_btn"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -185,7 +235,6 @@
             android:layout_height="60dp"
             android:layout_margin="15dp"
             android:background="@drawable/ic_check_btn"
-            android:onClick="saveBtnClick"
             android:tag="off"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>

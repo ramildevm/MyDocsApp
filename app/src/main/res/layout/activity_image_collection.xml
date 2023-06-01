@@ -67,7 +67,6 @@
             android:layout_marginEnd="316dp"
             android:scaleX="1.3"
             android:scaleY="1.3"
-            android:onClick="menuOptionsBtnClick"
             android:src="@drawable/ic_more_btn"
             android:tag="off"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -115,8 +114,9 @@
                 android:rotation="180"
                 android:src="@drawable/left_arrow_white" />
         </LinearLayout>
+
         <LinearLayout
-            android:id="@+id/pattern_container"
+            android:id="@+id/right_menu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="0"
@@ -163,9 +163,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
+                android:onClick="menuCropBtnClick"
                 android:padding="5dp"
                 android:text="@string/crop"
-                android:onClick="menuCropBtnClick"
                 android:textAllCaps="false"
                 android:textColor="#fff"
                 android:textSize="20dp"
@@ -177,8 +177,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/delete"
                 android:onClick="menuDeleteBtnClick"
+                android:text="@string/delete"
                 android:textAllCaps="false"
                 android:textColor="@color/yellow"
                 android:textSize="20dp"

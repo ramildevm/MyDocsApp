@@ -16,5 +16,6 @@ public class SnilsPatternActivity extends AppCompatActivity {
 
     public void goBackMainPageClick(View view) {
         startActivity(new Intent(SnilsPatternActivity.this, MainContentActivity.class));
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
 }

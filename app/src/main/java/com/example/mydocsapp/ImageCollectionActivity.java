@@ -46,8 +46,6 @@ import javax.crypto.NoSuchPaddingException;
 public class ImageCollectionActivity extends AppCompatActivity {
     private static final int SESSION_MODE_CREATE = 1;
     private static final int SESSION_MODE_OPEN = 2;
-    private static final int CREATE_PHOTO_MODE_CHANGE = 100;
-    private static final int CREATE_PHOTO_MODE_ADD = 200;
     private ActivityResultLauncher<Intent> registerForARImageCollection;
     private ActivityResultLauncher<Intent> registerForARImageChange;
     private ActivityResultLauncher<Intent> registerForARImageAddCollection;
@@ -65,7 +63,6 @@ public class ImageCollectionActivity extends AppCompatActivity {
         binding = ActivityImageCollectionBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-
         getExtraData(getIntent());
         imagesService = new ImageCollectionService();
         photoList = new ArrayList<>();
@@ -156,6 +153,12 @@ public class ImageCollectionActivity extends AppCompatActivity {
                 super.onPageScrollStateChanged(state);
             }
         });
+        setOnClickListeners();
+
+        createSession();
+    }
+
+    private void setOnClickListeners() {
         binding.goNextBtn.setOnClickListener(v -> {
             if(imagesService.getCurrentImage()==imagesService.getSize()-1){
                 Intent intent = new Intent(Intent.ACTION_PICK);
@@ -171,7 +174,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
             binding.viewPager2.setCurrentItem(binding.viewPager2.getCurrentItem() - 1, true);
             changeArrowColor();
         });
-        createSession();
+        binding.menubarOptions.setOnClickListener(v->menuOptionsBtnClick(v));
     }
 
     private void changePhotoFile(Bitmap bitmap) {
@@ -372,7 +375,6 @@ public class ImageCollectionActivity extends AppCompatActivity {
             v.setTag("off");
         }
     }
-
     public void menuDeleteBtnClick(View view) {
         Photo photo = photoList.get(imagesService.getCurrentImage());
         if(imagesService.getSize()==1){

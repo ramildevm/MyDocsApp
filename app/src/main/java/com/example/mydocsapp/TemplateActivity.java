@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
@@ -42,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class TemplateActivity extends AppCompatActivity {
     private static final int DIALOG_EDITTEXT = 1;
@@ -61,6 +63,7 @@ public class TemplateActivity extends AppCompatActivity {
     private boolean isShowing = false;
     private int userId;
     Map<TemplateObject, View> templateViews = new HashMap<>();
+    private boolean isReview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,13 +75,21 @@ public class TemplateActivity extends AppCompatActivity {
         db = new DBHelper(this, userId);
         template = getIntent().getParcelableExtra("template");
         templateDoc = getIntent().getParcelableExtra("document");
+        isReview = getIntent().getIntExtra("isReview", 0) == 1;
+        setCheckParameters();
+        setWindowData();
+        if(isCreateDocumentMode)
+            setTopPatternPanelData();
+        setOnClickListeners();
+    }
 
+    private void setCheckParameters() {
         if (templateDoc != null & template != null)
             isUpdateDocumentMode = true;
         else if (templateDoc == null & template == null)
             isCreateTemplateMode = true;
         else if (templateDoc == null & template != null) {
-            if (getIntent().getIntExtra("isReview", 0) == 1) {
+            if (isReview) {
                 if (template.UserId != userId)
                     isReviewTemplateMode = true;
                 else
@@ -86,6 +97,15 @@ public class TemplateActivity extends AppCompatActivity {
             } else
                 isCreateDocumentMode = true;
         }
+    }
+
+    private void setWindowData() {
+        binding.rightMenuSaveBtn.setVisibility(View.VISIBLE);
+        binding.rightMenuDeleteBtn.setVisibility(View.VISIBLE);
+        binding.rightMenuSaveAsBtn.setVisibility(View.VISIBLE);
+        binding.rightMenuSaveBtn.setText(R.string.save);
+        templateViews.clear();
+        templateObjects.clear();
         if (isCreateDocumentMode) {
             binding.arrowImageView.setVisibility(View.VISIBLE);
             binding.nameTxt.setOnClickListener(v -> {
@@ -105,21 +125,28 @@ public class TemplateActivity extends AppCompatActivity {
                 }
             });
         }
-        setWindowData();
-        setTopPatternPanelData();
-        setOnClickListeners();
-    }
-
-    private void setWindowData() {
         if (!isCreateTemplateMode) {
             binding.bottomPanel.setVisibility(View.GONE);
+            binding.hideBottomPanelBtn.setVisibility(View.GONE);
             binding.hideBottomPanelBtn.setVisibility(View.GONE);
             templateObjects.addAll(db.getTemplateObjectsByTemplateId(template.Id));
             setContentPanelData();
         }
-        if (isReviewUserTemplateMode)
-            binding.confirmButton.setVisibility(View.GONE);
+        else{
+            binding.rightMenuDeleteBtn.setVisibility(View.GONE);
+            binding.rightMenuSaveAsBtn.setVisibility(View.GONE);
+        }
+        if (isReviewUserTemplateMode) {
+            binding.confirmButton.setVisibility(View.INVISIBLE);
+            binding.rightMenuSaveBtn.setText(R.string.create_document);
+            binding.rightMenuSaveAsBtn.setVisibility(View.GONE);
+        }
+        else
+            binding.confirmButton.setVisibility(View.VISIBLE);
         if (isReviewTemplateMode) {
+            binding.rightMenuSaveBtn.setText(R.string.download);
+            binding.rightMenuDeleteBtn.setVisibility(View.GONE);
+            binding.rightMenuSaveAsBtn.setVisibility(View.GONE);
             binding.confirmButton.setBackgroundResource(R.drawable.ic_round_download);
         }
     }
@@ -157,7 +184,6 @@ public class TemplateActivity extends AppCompatActivity {
         });
         return button;
     }
-
     private View makePatternTopTextView(String text) {
         TextView textView = new TextView(this);
         textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -168,7 +194,6 @@ public class TemplateActivity extends AppCompatActivity {
         textView.setTypeface(null, Typeface.BOLD);
         return textView;
     }
-
     private void setContentPanelData() {
         binding.mainContentPanel.removeAllViews();
         for (TemplateObject templateObj :
@@ -181,7 +206,6 @@ public class TemplateActivity extends AppCompatActivity {
                 makeCheckBox(templateObj);
         }
     }
-
     private void setOnClickListeners() {
         binding.menubarBack.setOnClickListener(v ->
                 onBackPressed()
@@ -192,23 +216,75 @@ public class TemplateActivity extends AppCompatActivity {
         binding.bottomAddPhotoPanel.setOnClickListener(v -> makePhoto());
         binding.hideBottomPanelBtn.setOnClickListener(v -> showHideBottomPanel());
         if (isCreateTemplateMode) {
-            binding.confirmButton.setOnClickListener(v -> {
+            Consumer<View> d = (v) -> {
                 if (templateObjects.size() > 0)
                     getTitleDialog(DIALOG_TEMPLATE_NAME);
                 else
                     Toast.makeText(this, "Add at least one element", Toast.LENGTH_SHORT).show();
-            });
+            };
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                binding.rightMenuSaveBtn.setOnClickListener(d::accept);
+                binding.confirmButton.setOnClickListener(d::accept);
+            }
         }
         if (isReviewTemplateMode) {
             binding.confirmButton.setOnClickListener(v -> downloadTemplateBtnClick());
         }
-        if (isCreateDocumentMode)
+        if (isCreateDocumentMode) {
+            binding.rightMenuSaveBtn.setOnClickListener(v->saveDocumentBtnClick());
             binding.confirmButton.setOnClickListener(v -> saveDocumentBtnClick());
-        if (isUpdateDocumentMode)
+        }
+        if (isUpdateDocumentMode) {
+            binding.rightMenuSaveBtn.setOnClickListener(v->updateDocumentBtnClick());
             binding.confirmButton.setOnClickListener(v -> updateDocumentBtnClick());
-        binding.passportTopBtn.setOnClickListener(v -> startActivity(new Intent(this,MainPassportPatternActivity.class)));
-        binding.INNTopBtn.setOnClickListener(v -> startActivity(new Intent(this,INNPatternActivity.class)));
-        binding.policyTopBtn.setOnClickListener(v -> startActivity(new Intent(this,PolicyPatternActivity.class)));
+            binding.rightMenuDeleteBtn.setOnClickListener(v -> deleteDocumentBtnClick());
+        }
+        if(isReviewUserTemplateMode) {
+            binding.rightMenuSaveBtn.setOnClickListener(v -> loadCreateDocument());
+            binding.rightMenuDeleteBtn.setOnClickListener(v -> deleteTemplateBtnClick());
+        }
+        binding.passportTopBtn.setOnClickListener(v -> {startActivity(new Intent(this,MainPassportPatternActivity.class));
+            overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);});
+        binding.INNTopBtn.setOnClickListener(v -> {startActivity(new Intent(this,INNPatternActivity.class));
+            overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);});
+        binding.policyTopBtn.setOnClickListener(v -> {startActivity(new Intent(this,PolicyPatternActivity.class));
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);});
+        binding.menubarOptions.setOnClickListener(v->menuOptionsBtnClick(v));
+        binding.rightMenuSaveAsBtn.setOnClickListener(v->saveAsBtnClick(v));
+    }
+    private void deleteDocumentBtnClick() {
+        db.deleteItem(templateDoc.Id);
+        onBackPressed();
+    }
+    private void loadCreateDocument() {
+        isCreateTemplateMode = isReviewTemplateMode = isReviewUserTemplateMode = isUpdateDocumentMode = false;
+        isCreateDocumentMode = true;
+        setWindowData();
+        setTopPatternPanelData();
+        setOnClickListeners();
+        binding.confirmButton.setVisibility(View.VISIBLE);
+    }
+    private void deleteTemplateBtnClick() {
+        db.deleteTemplate(template.Id);
+        onBackPressed();
+    }
+
+    private void saveAsBtnClick(View v) {
+
+    }
+
+    private void menuOptionsBtnClick(View v) {
+        if (v.getTag().equals("off")) {
+            MotionLayout ml = findViewById(R.id.main_panel);
+            ml.setTransition(R.id.transRightMenu);
+            ml.transitionToEnd();
+            v.setTag("on");
+        } else if (v.getTag().equals("on")) {
+            MotionLayout ml = findViewById(R.id.main_panel);
+            ml.setTransition(R.id.transRightMenu);
+            ml.transitionToStart();
+            v.setTag("off");
+        }
     }
 
 
@@ -266,6 +342,7 @@ public class TemplateActivity extends AppCompatActivity {
             db.insertTemplateObject(templateObject);
         }
         startActivity(new Intent(this, MainTemplateActivity.class));
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
 
     private void saveTemplateBtnClick(String name) {
@@ -280,6 +357,7 @@ public class TemplateActivity extends AppCompatActivity {
             db.insertTemplateObject(templateObject);
         }
         startActivity(new Intent(this, MainTemplateActivity.class));
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
 
 
@@ -289,6 +367,7 @@ public class TemplateActivity extends AppCompatActivity {
             startActivity(new Intent(this, MainContentActivity.class));
         else
             startActivity(new Intent(this, MainTemplateActivity.class));
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
 
     private void showHideBottomPanel() {
@@ -392,7 +471,6 @@ public class TemplateActivity extends AppCompatActivity {
                     case DIALOG_TEMPLATE_NAME:
                         saveTemplateBtnClick(editText.getText().toString());
                         break;
-
                 }
                 makeRenameDialog.dismiss();
             }

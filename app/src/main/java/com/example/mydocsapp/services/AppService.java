@@ -17,7 +17,7 @@ public class AppService {
 
     public static int getUserId(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getInt("Id",0);
+        return preferences.getInt("Id",-1);
     }
 
     public static void setUserId(int userId, Context context) {

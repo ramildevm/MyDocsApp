@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <LinearLayout
-        android:id="@+id/pattern_container"
+        android:id="@+id/right_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:alpha="0.85"
