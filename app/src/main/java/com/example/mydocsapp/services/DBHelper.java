@@ -163,6 +163,11 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=0 and UserId=? order by Priority desc, id asc", new String[]{this.UserId + ""});
         return getItemsFromCursor(cursor);
     }
+    public Item getItemById(int id) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Item where Id=? and UserId=? order by Priority desc, id asc", new String[]{id+"",this.UserId + ""});
+        return getItemsFromCursor(cursor).get(0);
+    }
 
     public List<Item> getHiddenItemsByFolder0() {
         SQLiteDatabase db = open();
@@ -711,6 +716,18 @@ public class DBHelper extends SQLiteOpenHelper {
             templateDocumentDataList.add(templateDocumentData);
         }
         return templateDocumentDataList;
+    }
+
+    public int selectLastTemplateDocumentDataId() {
+        SQLiteDatabase db = open();
+        Cursor cur = db.rawQuery("SELECT rowid from TemplateDocumentData order by ROWID DESC limit 1", null);
+        cur.moveToFirst();
+        int id;
+        if (cur != null && cur.getCount() > 0)
+            id = cur.getInt(0);
+        else
+            id = 0;
+        return id;
     }
     public TemplateDocumentData getTemplateDocumentData(int objectId, int docId) {
         SQLiteDatabase db = open();

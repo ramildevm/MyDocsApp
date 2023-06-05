@@ -1,5 +1,7 @@
 package com.example.mydocsapp;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.Manifest;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -21,6 +23,8 @@ import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -50,24 +54,23 @@ import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.crypto.NoSuchPaddingException;
 
 
 public class PassportFirstFragment extends Fragment implements IFragmentDataSaver {
-
     private static final int DB_IMAGE = 1;
     private static final int BITMAP_IMAGE = 0;
     FragmentPassportFirstBinding binding;
     PassportStateViewModel model;
     Bitmap profilePhoto = null;
+    private ActivityResultLauncher<Intent> registerForARFacePhoto;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-
-        }
     }
     public void copyTextClick(View view){
         ViewParent parent = view.getParent();
@@ -87,47 +90,36 @@ public class PassportFirstFragment extends Fragment implements IFragmentDataSave
         clipboard.setPrimaryClip(clip);
         Toast.makeText(getContext(), R.string.text_copied, Toast.LENGTH_SHORT).show();
     }
-    private void loadProfileImage(Bitmap bitmap) {
-        profilePhoto = bitmap;
-        bitmap = ImageService.scaleDown(bitmap, ImageService.dpToPx(getContext(), binding.userPassportPhoto.getWidth()), true);
-        binding.userPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
-        binding.userPassportPhoto.setImageBitmap(bitmap);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        CropImage.ActivityResult result = CropImage.getActivityResult(data);
-        if (resultCode == MainPassportPatternActivity.RESULT_OK) {
-            if (data != null) {
-                // Get the URI of the selected file
-                final Uri uri = result.getUri();
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), uri);
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                    Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
-                    loadProfileImage(decoded);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         binding = FragmentPassportFirstBinding.inflate(getLayoutInflater());
         model = new ViewModelProvider(requireActivity()).get(PassportStateViewModel.class);
+        registerForARFacePhoto = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK) {
+                CropImage.ActivityResult cropImageResult = CropImage.getActivityResult(result.getData());
+                if (result.getData() != null) {
+                    final Uri uri = cropImageResult.getUri();
+                    try {
+                        profilePhoto = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        profilePhoto.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                        Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+                        binding.userPassportPhoto.setBackgroundColor(Color.TRANSPARENT);
+                        binding.userPassportPhoto.setImageBitmap(decoded);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
         loadData();
 
         binding.loadProfilePhotoBtn.setOnClickListener(v -> {
-            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = CropImage.activity()
                         .getIntent(getContext());
-                startActivityForResult(intent, MainPassportPatternActivity.SELECT_USER_PHOTO);
+                registerForARFacePhoto.launch(intent);
             } else {
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
             }
@@ -162,7 +154,6 @@ public class PassportFirstFragment extends Fragment implements IFragmentDataSave
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 ((Changedable)getActivity()).setIsChanged(true);
-
             }
             @Override
             public void afterTextChanged(Editable editable) {
@@ -178,10 +169,8 @@ public class PassportFirstFragment extends Fragment implements IFragmentDataSave
         binding.editTextPlaceResidence.addTextChangedListener(textWatcher);
         return binding.getRoot();
     }
-
     private void loadData() {
         Passport passport = model.getState().getValue();
-        //photo load
         binding.editTextSeriesNumber.setText(passport.SeriaNomer);
         binding.editTextDivisionCode.setText(passport.DivisionCode);
         binding.editTextDateIssue.setText(passport.GiveDate);
@@ -205,24 +194,12 @@ public class PassportFirstFragment extends Fragment implements IFragmentDataSave
                     binding.userPassportPhoto.setImageURI(Uri.fromFile(outputFile));
 
                     outputFile.delete();
-                } catch (NoSuchPaddingException e) {
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (InvalidAlgorithmParameterException e) {
-                    e.printStackTrace();
-                } catch (InvalidKeyException e) {
-                    e.printStackTrace();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
+                }  catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
         }
     }
-
     @Override
     public void SaveData() {
         Passport passport = model.getState().getValue();
@@ -242,53 +219,9 @@ public class PassportFirstFragment extends Fragment implements IFragmentDataSave
     }
 
     @Override
-    public void SavePhotos(int ItemId) {
-        Passport passport = model.getState().getValue();
-        if (profilePhoto != null) {
-            //File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File rootDir = getContext().getApplicationContext().getFilesDir();
-            String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME +"/"+ AppService.getUserId(getContext())+ "/Item" + ItemId + "/";
-            File dir = new File(imgPath);
-            if (!dir.exists())
-                dir.mkdirs();
-            String imgName = "PassportProfileImage" + ItemId + System.currentTimeMillis();
-            File imgFile = new File(dir, imgName);
-            if (passport.FacePhoto != null) {
-                File filePath = new File(passport.FacePhoto);
-                filePath.delete();
-                imgFile = new File(passport.FacePhoto);
-
-            }
-            try {
-                imgFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.d("MyDocsAppPassport1",e.getMessage());
-            }
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            profilePhoto.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            InputStream is = new ByteArrayInputStream(stream.toByteArray());
-            try {
-                MyEncrypter.encryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), is, new FileOutputStream(imgFile));
-            } catch (NoSuchPaddingException e) {
-                e.printStackTrace();
-                Log.d("MyDocsAppPassport2",e.getMessage());
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-                Log.d("MyDocsAppPassport3",e.getMessage());
-            } catch (InvalidAlgorithmParameterException e) {
-                e.printStackTrace();
-                Log.d("MyDocsAppPassport4",e.getMessage());
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-                Log.d("MyDocsAppPassport5",e.getMessage());
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.d("MyDocsAppPassport6",e.getMessage());
-            }
-            passport.FacePhoto = imgFile.getAbsolutePath();
-            Log.d("MyDocsAppPassport",passport.FacePhoto);
-        }
-        model.setState(passport);
+    public List<Bitmap> getPhotos() {
+        List<Bitmap> bitmaps = new ArrayList<>();
+        bitmaps.add(profilePhoto);
+        return bitmaps;
     }
 }

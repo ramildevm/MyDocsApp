@@ -19,8 +19,7 @@ public class MyEncrypter {
     private final static String ALGO_IMAGE_ENCRYPTER = "AES/CBC/PKCS5Padding";
     private final static String ALGO_SECRET_KEY = "AES";
 
-    public static void encryptToFile(String keyStr, String specStr, InputStream in, OutputStream out)
-            throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IOException {
+    public static void encryptToFile(String keyStr, String specStr, InputStream in, OutputStream out) {
         try {
             IvParameterSpec iv = new IvParameterSpec(specStr.getBytes(StandardCharsets.UTF_8));
 
@@ -35,17 +34,21 @@ public class MyEncrypter {
                 out.write(buffer,0,count);
             }
         }
+        catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException| InvalidKeyException | IOException e){
+            e.printStackTrace();
+        }
         finally {
-            out.close();
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
-    public static void decryptToFile(String keyStr, String specStr, InputStream in, OutputStream out)
-            throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IOException {
+    public static void decryptToFile(String keyStr, String specStr, InputStream in, OutputStream out) {
         try {
             IvParameterSpec iv = new IvParameterSpec(specStr.getBytes(StandardCharsets.UTF_8));
-
             SecretKeySpec keySpec = new SecretKeySpec(keyStr.getBytes(StandardCharsets.UTF_8), ALGO_SECRET_KEY);
-
             Cipher c = Cipher.getInstance(ALGO_IMAGE_ENCRYPTER);
             c.init(Cipher.DECRYPT_MODE, keySpec, iv);
             out = new CipherOutputStream(out, c);
@@ -55,8 +58,15 @@ public class MyEncrypter {
                 out.write(buffer,0,count);
             }
         }
+        catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException| InvalidKeyException | IOException e){
+            e.printStackTrace();
+        }
         finally {
-            out.close();
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

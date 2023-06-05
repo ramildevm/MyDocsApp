@@ -59,7 +59,6 @@ import java.util.Locale;
 import javax.crypto.NoSuchPaddingException;
 
 public class CardPatternActivity extends AppCompatActivity {
-
     private static final int BITMAP_IMAGE = 0;
     private static final int DB_IMAGE = 1;
     DBHelper db;
@@ -69,25 +68,21 @@ public class CardPatternActivity extends AppCompatActivity {
     private Bitmap firstPagePhoto;
     private CreditCard Card;
     private boolean IsChanged = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityCardPatternBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-
         db = new DBHelper(this, AppService.getUserId(this));
         getExtraData(getIntent());
         LoadData();
         setOnClickEvents();
-
         registerForARImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             Log.d("RequestCode",result.getResultCode()+"");
             if (result.getResultCode() == RESULT_OK) {
                 CropImage.ActivityResult cropImageResult = CropImage.getActivityResult(result.getData());
                 if (result.getData() != null) {
-                    // Get the URI of the selected file
                     final Uri uri = cropImageResult.getUri();
                     try {
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
@@ -103,16 +98,11 @@ public class CardPatternActivity extends AppCompatActivity {
         });
         TextWatcher textWatcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                IsChanged=true;
-
-            }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {IsChanged=true;}
             @Override
-            public void afterTextChanged(Editable editable) {
-            }
+            public void afterTextChanged(Editable editable) {}
         };
         binding.editTextFullName.addTextChangedListener(textWatcher);
         binding.editTextCVV.addTextChangedListener(textWatcher);
@@ -130,19 +120,16 @@ public class CardPatternActivity extends AppCompatActivity {
         ViewParent parent = view.getParent();
         if (parent instanceof ConstraintLayout) {
             ConstraintLayout constraintLayout = (ConstraintLayout) parent;
-            // Get the ConstraintSet object for the layout
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(constraintLayout);
-            // Get the IDs of the views that are referenced by the constraint for textView1's end edge
             int referencedId = constraintSet.getConstraint(view.getId()).layout.endToEnd;
-            // Get the view that is referenced by the constraint
             EditText linkedView = binding.getRoot().findViewById(referencedId);
             copyToClipboard(linkedView);
         }
     }
     public void copyToClipboard(EditText editText) {
         String text = editText.getText().toString().trim();
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(this.CLIPBOARD_SERVICE);
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("text", text);
         clipboard.setPrimaryClip(clip);
         Toast.makeText(this, R.string.text_copied, Toast.LENGTH_SHORT).show();
@@ -182,15 +169,7 @@ public class CardPatternActivity extends AppCompatActivity {
             Card = db.getCreditCardById(item.Id);
         }
         else
-            Card = new CreditCard(
-                    0,
-                    "",
-                    "",
-                    "",
-                    0,
-                    null
-            );
-
+            Card = new CreditCard(0,"","","",0,null);
         binding.editTextCardNumber.setText(Card.Number);
         binding.editTextCVV.setText(String.valueOf(Card.CVV==0?"":Card.CVV));
         binding.editTextFullName.setText(Card.FIO);
@@ -203,29 +182,16 @@ public class CardPatternActivity extends AppCompatActivity {
                 try {
                     MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
                     binding.cardPhoto.setImageURI(Uri.fromFile(outputFile));
-
                     outputFile.delete();
-                } catch (NoSuchPaddingException e) {
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (InvalidAlgorithmParameterException e) {
-                    e.printStackTrace();
-                } catch (InvalidKeyException e) {
-                    e.printStackTrace();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
         }
     }
     private void getExtraData(Intent intent) {
         CurrentItem= intent.getParcelableExtra("item");
     }
-
     public void goBackMainPageClick(View view) {
         if (!IsChanged) {
             onBackPressed();
@@ -234,43 +200,24 @@ public class CardPatternActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.save_changes);
         builder.setMessage(R.string.do_you_want_save);
-
-        // Add the Save button
-        builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Add your save code here
-                SaveCardMethod();
-                dialog.dismiss(); // Close the dialog window
-            }
+        builder.setPositiveButton(R.string.save, (dialog, which) -> {
+            SaveCardMethod();
+            dialog.dismiss();
         });
-
-        // Add the Cancel button
-        builder.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                onBackPressed();
-                dialog.dismiss(); // Close the dialog window
-            }
+        builder.setNegativeButton(R.string.exit, (dialog, which) -> {
+            onBackPressed();
+            dialog.dismiss();
         });
-
-        // Create the dialog window
         AlertDialog dialog = builder.create();
-
-        // Show the dialog window
         dialog.show();
-        // Set the color of the positive button
         Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         positiveButton.setTextColor(Color.parseColor("#FFC700"));
-
         Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
         negativeButton.setTextColor(Color.WHITE);
     }
-
     private void SaveCardMethod() {
         SaveData();
         String itemImagePath = null;
-
         Item item;
         if(CurrentItem == null){
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
@@ -279,9 +226,7 @@ public class CardPatternActivity extends AppCompatActivity {
             db.insertItem(item);
             int ItemId = db.selectLastItemId();
             this.Card.Id = ItemId;
-
             db.insertCreditCard(this.Card);
-
             SavePhotos(ItemId);
             itemImagePath = this.Card.PhotoPage1;
             db.updateCreditCard(ItemId,this.Card);
@@ -317,21 +262,12 @@ public class CardPatternActivity extends AppCompatActivity {
             InputStream is = new ByteArrayInputStream(stream.toByteArray());
             try {
                 MyEncrypter.encryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), is, new FileOutputStream(imgFile));
-            } catch (NoSuchPaddingException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (InvalidAlgorithmParameterException e) {
-                e.printStackTrace();
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             Card.PhotoPage1 = imgFile.getAbsolutePath();
         }
     }
-
     @Override
     public void onBackPressed() {
         NavUtils.navigateUpFromSameTask(this);
@@ -344,7 +280,6 @@ public class CardPatternActivity extends AppCompatActivity {
         Card.ExpiryDate = binding.editTextValidThru.getText().toString();
         Card.CVV = Integer.parseInt(binding.editTextCVV.getText().toString().equals("")?"0":binding.editTextCVV.getText().toString());
     }
-
     public void saveBtnClick(View view) {
         SaveCardMethod();
     }

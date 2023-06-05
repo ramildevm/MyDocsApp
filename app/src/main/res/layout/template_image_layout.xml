@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -21,28 +21,30 @@
             android:layout_marginHorizontal="5dp"
             android:textSize="18sp"
             tools:text="SomePole" />
+        <ImageView
+            android:id="@+id/image_panel"
+            android:background="@drawable/rounded_border_white"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="300dp"
+            android:layout_height="300dp" />
 
-        <EditText
-            android:id="@+id/content_txt"
+        <Button
+            android:id="@+id/load_image_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="10dp"
-            android:maxLength="250"
-            android:background="@drawable/rounded_border_white"
-            android:paddingHorizontal="3dp"
-            android:textColor="@color/black"
-            tools:text="Some text" />
+            android:text="@string/load_image"
+            android:textAllCaps="false" />
+
     </LinearLayout>
 
     <ImageButton
         android:id="@+id/delete_btn"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:padding="20dp"
         android:background="@drawable/rounded_transparent"
+        android:padding="20dp"
         android:src="@drawable/ic_delete"
-        android:layout_marginBottom="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

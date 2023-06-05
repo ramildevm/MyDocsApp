@@ -20,7 +20,6 @@ public class AccountSettingsActivity extends AppCompatActivity {
     ActivityAccountSettingsBinding binding;
     private DBHelper db;
     private User User;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +30,6 @@ public class AccountSettingsActivity extends AppCompatActivity {
         binding.menubarBack.setOnClickListener(v->onBackPressed());
         loadUserData();
     }
-
     private void loadUserData() {
         User = db.getUserById(AppService.getUserId(this));
         ((TextView)findViewById(R.id.editTextEmail)).setText(User.Email);
@@ -39,7 +37,6 @@ public class AccountSettingsActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.editTextPasswordConfirm)).setText(User.Password);
         ((TextView)findViewById(R.id.editTextLogin)).setText(User.Login);
     }
-
     private void saveMethod() {
         String email = ((TextView)findViewById(R.id.editTextEmail)).getText().toString();
         String login = ((TextView)findViewById(R.id.editTextLogin)).getText().toString();
@@ -55,7 +52,6 @@ public class AccountSettingsActivity extends AppCompatActivity {
             msg.show();
             return;
         }
-        //fromAPI(login, password);
         if(!email.equals(User.Email)) {
             User user = db.getUserByEmail(email);
             if (user != null) {
@@ -68,7 +64,6 @@ public class AccountSettingsActivity extends AppCompatActivity {
             editor.remove("Id").commit();
             editor.putString("email", User.Login);
             AppService.setUserId(User.Id,this);
-
         }
         User.Email = email;
         User.Login = login;

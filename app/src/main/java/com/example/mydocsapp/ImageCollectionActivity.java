@@ -185,23 +185,13 @@ public class ImageCollectionActivity extends AppCompatActivity {
         InputStream is = new ByteArrayInputStream(stream.toByteArray());
         try {
             MyEncrypter.encryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), is, new FileOutputStream(imgFile));
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
     private void fillPhotoArray(int itemId) {
         photoList = (ArrayList<Photo>) db.getPhotos(itemId);
     }
-
     private String createPhoto(Bitmap bitmap, int index) {
         File rootDir = getApplicationContext().getFilesDir();
         String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME +"/"+ AppService.getUserId(this)+ "/Item" + CurrentItem.Id + "/";
@@ -215,14 +205,6 @@ public class ImageCollectionActivity extends AppCompatActivity {
         InputStream is = new ByteArrayInputStream(stream.toByteArray());
         try {
             MyEncrypter.encryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), is, new FileOutputStream(imgFile));
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -231,7 +213,6 @@ public class ImageCollectionActivity extends AppCompatActivity {
         db.insertPhoto(photo);
         return filePath;
     }
-
     private Item createItem(int count) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
         String time = df.format(new Date());
@@ -245,7 +226,6 @@ public class ImageCollectionActivity extends AppCompatActivity {
         CurrentItem = item;
         return item;
     }
-
     private void createSession() {
         if(SessionMode==SESSION_MODE_CREATE){
             Intent intent = new Intent(Intent.ACTION_PICK);
@@ -261,17 +241,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
                 File filePath = new File(photo.Path);
                 try {
                     MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(filePath), new FileOutputStream(outputFile));
-                } catch (NoSuchPaddingException e) {
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (InvalidAlgorithmParameterException e) {
-                    e.printStackTrace();
-                } catch (InvalidKeyException e) {
-                    e.printStackTrace();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
+                }  catch (IOException e) {
                     e.printStackTrace();
                 }
                 imagesService.add(ImageService.fileToBitmap(outputFile));
@@ -282,12 +252,10 @@ public class ImageCollectionActivity extends AppCompatActivity {
             changeArrowColor();
         }
     }
-
     private void getExtraData(Intent intent) {
         SessionMode = intent.getIntExtra("mode",0);
         CurrentItem = getIntent().getParcelableExtra("item");
     }
-
     private void changeArrowColor() {
         if (imagesService.getSize() != 1) {
             binding.goPreviousBtn.setVisibility(View.VISIBLE);
@@ -307,11 +275,9 @@ public class ImageCollectionActivity extends AppCompatActivity {
         }
         binding.currentImageTxt.setText(binding.viewPager2.getCurrentItem()+1 + "/" + imagesService.getSize());
     }
-
     public void goBackClick(View view) {
         onBackPressed();
     }
-
     @Override
     public void onBackPressed() {
         if(CurrentItem!=null) {
@@ -324,7 +290,6 @@ public class ImageCollectionActivity extends AppCompatActivity {
         }
         super.onBackPressed();
     }
-
     public void saveCropImage(View view) {
         Bitmap bitmap = binding.imageCropper.getCroppedImage();
         binding.imageCropper.setImageBitmap(bitmap);
@@ -333,18 +298,15 @@ public class ImageCollectionActivity extends AppCompatActivity {
         changePhotoFile(bitmap);
         goCropBackClick(new View(this));
     }
-
     public void goCropBackClick(View view) {
         binding.cropLayout.setVisibility(View.INVISIBLE);
         binding.motionLayout.setVisibility(View.VISIBLE);
     }
-
     public void menuCropBtnClick(View view) {
         binding.cropLayout.setVisibility(View.VISIBLE);
         binding.motionLayout.setVisibility(View.INVISIBLE);
         binding.imageCropper.setImageBitmap(imagesService.get(imagesService.getCurrentImage()));
     }
-
     public void rotateCropImage(View view) {
         Bitmap originalBitmap = binding.imageCropper.getCroppedImage();
         Matrix matrix = new Matrix();
@@ -352,16 +314,11 @@ public class ImageCollectionActivity extends AppCompatActivity {
         Bitmap rotatedBitmap = Bitmap.createBitmap(originalBitmap, 0, 0, originalBitmap.getWidth(), originalBitmap.getHeight(), matrix, true);
         binding.imageCropper.setImageBitmap(rotatedBitmap);
     }
-
     public void menuChangeImageClick(View view) {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         registerForARImageChange.launch(intent);
     }
-
-    public void menuSaveAsClick(View view) {
-
-    }
-
+    public void menuSaveAsClick(View view) {}
     public void menuOptionsBtnClick(View v) {
         if (v.getTag().equals("off")) {
             MotionLayout ml = findViewById(R.id.motion_layout);

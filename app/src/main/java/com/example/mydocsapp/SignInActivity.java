@@ -32,7 +32,6 @@ public class SignInActivity extends AppCompatActivity {
         findViewById(R.id.sign_up_btn).setOnClickListener(v->signupBtnClick(v));
         findViewById(R.id.cancel_btn).setOnClickListener(v->cancelBtnClick(v));
     }
-
     public void cancelBtnClick(View view) {
         overridePendingTransition(0, 0);
         NavUtils.navigateUpFromSameTask(this);
@@ -69,7 +68,6 @@ public class SignInActivity extends AppCompatActivity {
         //fromAPI(login, password);
         fromDB(email, password);
     }
-
     private void fromDB(String email, String password) {
         User user = db.getUserByEmail(email);
         if(user!=null){
@@ -79,7 +77,6 @@ public class SignInActivity extends AppCompatActivity {
         db.insertUser(new User(0,email,email,password,"None","None",null));
         Toast msg = Toast.makeText(SignInActivity.this, R.string.result_successful_user_adding, Toast.LENGTH_SHORT);
         msg.show();
-
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove("email").commit();
@@ -87,16 +84,13 @@ public class SignInActivity extends AppCompatActivity {
         editor.putString("email",email);
         editor.apply();
         AppService.setUserId(db.selectLastUserId(),this);
-
         user = db.getUserByEmail(email);
         AppService.setUserId(user.Id,this);
         AppService.setHideMode(false);
-
         Intent intent = new Intent(SignInActivity.this, MainContentActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
     }
-
     private void fromAPI(String email, String password) {
         MainApi.CreateUser(new User(0, email, email, password,"None","None",null), new UserPostCallback() {
             @Override
@@ -112,9 +106,6 @@ public class SignInActivity extends AppCompatActivity {
             }
             @Override
             public void onError(Throwable e) {
-                Log.e("ErrorSQL",e.toString());
-                Toast msg = Toast.makeText(SignInActivity.this, e.getMessage(), Toast.LENGTH_SHORT);
-                msg.show();
             }
         });
     }

@@ -100,16 +100,6 @@ public class FolderItemAdapter extends BaseAdapter {
                 viewHolder.imageView.setImageBitmap(image);
                 //Glide.with(context).load(image).transform(new RoundedCorners(radius)).into(viewHolder.imageView);
                 outputFile.delete();
-            } catch (NoSuchPaddingException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (InvalidAlgorithmParameterException e) {
-                e.printStackTrace();
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }

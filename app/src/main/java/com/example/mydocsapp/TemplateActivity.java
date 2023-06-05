@@ -1,14 +1,21 @@
 package com.example.mydocsapp;
 
+import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
@@ -23,10 +30,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
 
+import com.example.mydocsapp.apputils.ImageService;
+import com.example.mydocsapp.apputils.MyEncrypter;
+import com.example.mydocsapp.apputils.PDFMaker;
 import com.example.mydocsapp.databinding.ActivityTemplateBinding;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Template;
@@ -35,7 +48,15 @@ import com.example.mydocsapp.models.TemplateDocumentData;
 import com.example.mydocsapp.models.TemplateObject;
 import com.example.mydocsapp.services.AppService;
 import com.example.mydocsapp.services.DBHelper;
+import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,6 +71,8 @@ public class TemplateActivity extends AppCompatActivity {
     private static final int DIALOG_NUMBER_TEXT = 2;
     private static final int DIALOG_CHECKBOX = 3;
     private static final int DIALOG_TEMPLATE_NAME = 4;
+    private static final int DIALOG_IMAGE = 5;
+    private static final int DB_IMAGE = 1;
     ActivityTemplateBinding binding;
     List<TemplateObject> templateObjects;
     DBHelper db;
@@ -63,7 +86,10 @@ public class TemplateActivity extends AppCompatActivity {
     private boolean isShowing = false;
     private int userId;
     Map<TemplateObject, View> templateViews = new HashMap<>();
+    Map<View, Bitmap> templateViewBitmaps = new HashMap<>();
     private boolean isReview;
+    private ActivityResultLauncher<Intent> registerForARImage;
+    private View currentLoadPhotoView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,11 +104,35 @@ public class TemplateActivity extends AppCompatActivity {
         isReview = getIntent().getIntExtra("isReview", 0) == 1;
         setCheckParameters();
         setWindowData();
+        registerForARImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK) {
+                CropImage.ActivityResult cropImageResult = CropImage.getActivityResult(result.getData());
+                if (result.getData() != null) {
+                    final Uri uri = cropImageResult.getUri();
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                        Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+                        loadPhotoFromBitmap(decoded);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            currentLoadPhotoView = null;
+        });
         if(isCreateDocumentMode)
             setTopPatternPanelData();
         setOnClickListeners();
     }
-
+    private void loadPhotoFromBitmap(Bitmap bitmap) {
+        ImageView imageView = (ImageView) currentLoadPhotoView;
+        templateViewBitmaps.put(imageView,bitmap);
+        bitmap = ImageService.scaleDown(bitmap, ImageService.dpToPx(this, imageView.getWidth()), true);
+        imageView.setBackgroundColor(Color.TRANSPARENT);
+        imageView.setImageBitmap(bitmap);
+    }
     private void setCheckParameters() {
         if (templateDoc != null & template != null)
             isUpdateDocumentMode = true;
@@ -98,7 +148,6 @@ public class TemplateActivity extends AppCompatActivity {
                 isCreateDocumentMode = true;
         }
     }
-
     private void setWindowData() {
         binding.rightMenuSaveBtn.setVisibility(View.VISIBLE);
         binding.rightMenuDeleteBtn.setVisibility(View.VISIBLE);
@@ -150,7 +199,6 @@ public class TemplateActivity extends AppCompatActivity {
             binding.confirmButton.setBackgroundResource(R.drawable.ic_round_download);
         }
     }
-
     private void setTopPatternPanelData() {
         LinearLayout patternContainer = findViewById(R.id.pattern_container_layout);
         ArrayList<Template> templates = (ArrayList<Template>) db.getTemplateByUserId(AppService.getUserId(this));
@@ -167,7 +215,6 @@ public class TemplateActivity extends AppCompatActivity {
             patternContainer.addView(makePatternTopButton(template));
         }
     }
-
     private View makePatternTopButton(Template template) {
         Button button = (Button) getLayoutInflater().inflate(R.layout.pattern_button_layout, null);
         button.setText(template.Name);
@@ -204,6 +251,8 @@ public class TemplateActivity extends AppCompatActivity {
                 makeEditText(templateObj);
             else if (templateObj.Type.equals("CheckBox"))
                 makeCheckBox(templateObj);
+            else if (templateObj.Type.equals("Photo"))
+                makePhoto(templateObj);
         }
     }
     private void setOnClickListeners() {
@@ -213,7 +262,7 @@ public class TemplateActivity extends AppCompatActivity {
         binding.bottomAddEdittextPanel.setOnClickListener(v -> getTitleDialog(DIALOG_EDITTEXT));
         binding.bottomAddNumberTextPanel.setOnClickListener(v -> getTitleDialog(DIALOG_NUMBER_TEXT));
         binding.bottomAddCheckboxPanel.setOnClickListener(v -> getTitleDialog(DIALOG_CHECKBOX));
-        binding.bottomAddPhotoPanel.setOnClickListener(v -> makePhoto());
+        binding.bottomAddPhotoPanel.setOnClickListener(v -> getTitleDialog(DIALOG_IMAGE));
         binding.hideBottomPanelBtn.setOnClickListener(v -> showHideBottomPanel());
         if (isCreateTemplateMode) {
             Consumer<View> d = (v) -> {
@@ -231,8 +280,8 @@ public class TemplateActivity extends AppCompatActivity {
             binding.confirmButton.setOnClickListener(v -> downloadTemplateBtnClick());
         }
         if (isCreateDocumentMode) {
-            binding.rightMenuSaveBtn.setOnClickListener(v->saveDocumentBtnClick());
-            binding.confirmButton.setOnClickListener(v -> saveDocumentBtnClick());
+            binding.rightMenuSaveBtn.setOnClickListener(v->{saveDocumentBtnClick();onBackPressed();});
+            binding.confirmButton.setOnClickListener(v -> {saveDocumentBtnClick();onBackPressed();});
         }
         if (isUpdateDocumentMode) {
             binding.rightMenuSaveBtn.setOnClickListener(v->updateDocumentBtnClick());
@@ -268,11 +317,14 @@ public class TemplateActivity extends AppCompatActivity {
         db.deleteTemplate(template.Id);
         onBackPressed();
     }
-
     private void saveAsBtnClick(View v) {
-
+        if(isCreateDocumentMode)
+            saveDocumentBtnClick();
+        if(isUpdateDocumentMode)
+            updateDocumentBtnClick();
+        if(PDFMaker.createTemplatePDF(templateObjects, templateViews,AppService.getUserId(this)))
+            Toast.makeText(this,R.string.create_document,Toast.LENGTH_SHORT).show();
     }
-
     private void menuOptionsBtnClick(View v) {
         if (v.getTag().equals("off")) {
             MotionLayout ml = findViewById(R.id.main_panel);
@@ -286,48 +338,85 @@ public class TemplateActivity extends AppCompatActivity {
             v.setTag("off");
         }
     }
-
-
     private void updateDocumentBtnClick() {
-        for (Map.Entry<TemplateObject, View> entry : templateViews.entrySet()) {
-            TemplateObject templateObject = entry.getKey();
-            View view = entry.getValue();
-            TemplateDocumentData docData = db.getTemplateDocumentData(templateObject.Id, templateDoc.Id);
-            if (docData != null) {
-                if (view instanceof EditText) {
+        for (TemplateObject templateObject : templateObjects) {
+            View view = templateViews.get(templateObject);
+            TemplateDocumentData tempData = db.getTemplateDocumentData(templateObject.Id, templateDoc.Id);
+            if (tempData != null) {
+                if (templateObject.Type.equals("EditText") || templateObject.Type.equals("NumberText")) {
                     EditText editText = (EditText) view;
-                    docData.Value = editText.getText().toString();
-                    db.updateTemplateDocumentData(docData.Id, docData);
-                } else if (view instanceof CheckBox) {
+                    tempData.Value = editText.getText().toString();
+                    db.updateTemplateDocumentData(tempData.Id, tempData);
+                } else if (templateObject.Type.equals("CheckBox")) {
                     CheckBox checkBox = (CheckBox) view;
-                    docData.Value = checkBox.isChecked() ? "true" : "false";
-                    db.updateTemplateDocumentData(docData.Id, docData);
+                    tempData.Value = checkBox.isChecked() ? "true" : "false";
+                    db.updateTemplateDocumentData(tempData.Id, tempData);
+                }else if (templateObject.Type.equals("Photo")) {
+                    Item item = db.getItemById(templateDoc.Id);
+                    tempData.Value = savePhoto(view, tempData, item);
+                    db.updateTemplateDocumentData(tempData.Id, tempData);
                 }
             }
         }
-        onBackPressed();
     }
-
     private void saveDocumentBtnClick() {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
         String time = df.format(new Date());
-        db.insertItem(new Item(0, template.Name + db.selectLastItemId(), "Template", null, 0, 0, 0, time, 0, AppService.getUserId(this)));
+        Item item = new Item(0, template.Name + db.selectLastItemId(), "Template", null, 0, 0, 0, time, 0, AppService.getUserId(this));
+        db.insertItem(item);
         int id = db.selectLastItemId();
+        item.Id = id;
         db.insertTemplateDocument(new TemplateDocument(id, template.Id));
         id = db.selectLastTemplateDocumentId();
-        for (Map.Entry<TemplateObject, View> entry : templateViews.entrySet()) {
-            TemplateObject templateObject = entry.getKey();
-            View view = entry.getValue();
-            if (view instanceof EditText) {
+        for (TemplateObject templateObject : templateObjects) {
+            View view = templateViews.get(templateObject);
+            if(view==null)
+                continue;
+            if (templateObject.Type.equals("EditText") || templateObject.Type.equals("NumberText")) {
                 EditText editText = (EditText) view;
                 db.insertTemplateDocumentData(new TemplateDocumentData(0, editText.getText().toString(), templateObject.Id, id));
-            } else if (view instanceof CheckBox) {
+            } else if (templateObject.Type.equals("CheckBox")) {
                 CheckBox checkBox = (CheckBox) view;
                 String value = checkBox.isChecked() ? "true" : "false";
                 db.insertTemplateDocumentData(new TemplateDocumentData(0, value, templateObject.Id, id));
+            }else if (templateObject.Type.equals("Photo")) {
+                TemplateDocumentData tempData = new TemplateDocumentData(0, null, templateObject.Id, id);
+                db.insertTemplateDocumentData(tempData);
+                tempData.Id = db.selectLastTemplateDocumentDataId();
+                tempData.Value = savePhoto(view, tempData, item);
+                db.updateTemplateDocumentData(tempData.Id, tempData);
             }
         }
-        onBackPressed();
+    }
+
+    private String savePhoto(View view,TemplateDocumentData templateDocumentData, Item item) {
+        if(templateViewBitmaps.get(view)==null) {
+            if (templateDocumentData.Value == null)
+                return null;
+            else
+                return templateDocumentData.Value;
+        }
+        File rootDir = getApplicationContext().getFilesDir();
+        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME+"/"+ AppService.getUserId(this) + "/Item" + item.Id + "/";
+        File dir = new File(imgPath);
+        if (!dir.exists())
+            dir.mkdirs();
+        String imgName = item.Title + System.currentTimeMillis();
+        File imgFile = new File(dir, imgName);
+        if (templateDocumentData.Value != null) {
+            File filePath = new File(templateDocumentData.Value);
+            filePath.delete();
+            imgFile = new File(templateDocumentData.Value);
+        }
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        templateViewBitmaps.get(view).compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        InputStream is = new ByteArrayInputStream(stream.toByteArray());
+        try {
+            MyEncrypter.encryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), is, new FileOutputStream(imgFile));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return imgFile.getAbsolutePath();
     }
 
     private void downloadTemplateBtnClick() {
@@ -344,7 +433,6 @@ public class TemplateActivity extends AppCompatActivity {
         startActivity(new Intent(this, MainTemplateActivity.class));
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
-
     private void saveTemplateBtnClick(String name) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
         String time = df.format(new Date());
@@ -359,8 +447,6 @@ public class TemplateActivity extends AppCompatActivity {
         startActivity(new Intent(this, MainTemplateActivity.class));
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
-
-
     @Override
     public void onBackPressed() {
         if (isCreateDocumentMode || isUpdateDocumentMode)
@@ -369,7 +455,6 @@ public class TemplateActivity extends AppCompatActivity {
             startActivity(new Intent(this, MainTemplateActivity.class));
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
-
     private void showHideBottomPanel() {
         float initialY = binding.bottomPanel.getTranslationY();
         float finalY = binding.mainPanel.getHeight();
@@ -398,7 +483,6 @@ public class TemplateActivity extends AppCompatActivity {
         isShowing = !isShowing;
         animatorSet.start();
     }
-
     private void makeEditText(final TemplateObject templateObject) {
         if (isCreateTemplateMode)
             templateObjects.add(templateObject);
@@ -428,11 +512,6 @@ public class TemplateActivity extends AppCompatActivity {
             templateViews.put(templateObject, editTxt);
         binding.mainContentPanel.addView(layout);
     }
-
-    private void makePhoto() {
-
-    }
-
     private void getTitleDialog(int mode) {
         Dialog makeRenameDialog = new Dialog(TemplateActivity.this);
         makeRenameDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -440,7 +519,6 @@ public class TemplateActivity extends AppCompatActivity {
         makeRenameDialog.setCancelable(true);
         makeRenameDialog.setCanceledOnTouchOutside(false);
         makeRenameDialog.getWindow().getAttributes().windowAnimations = R.style.MakeRenameDialogAnimation;
-
         EditText editText = makeRenameDialog.findViewById(R.id.folderNameTxt);
         editText.setSelection(editText.getText().length());
         editText.requestFocus();
@@ -448,7 +526,6 @@ public class TemplateActivity extends AppCompatActivity {
         imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
         if (mode != DIALOG_TEMPLATE_NAME)
             editText.setHint(R.string.enter_object_name);
-
         ((Button) makeRenameDialog.findViewById(R.id.make_rename_item_btn)).setText(R.string.create_a_folder);
         makeRenameDialog.findViewById(R.id.make_rename_item_btn).setOnClickListener(view -> {
             if (editText.getText().toString().replace(" ", "").equals(""))
@@ -468,6 +545,10 @@ public class TemplateActivity extends AppCompatActivity {
                         templateObject = new TemplateObject(0, templateObjects.size(), "CheckBox", editText.getText().toString(), 0);
                         makeCheckBox(templateObject);
                         break;
+                    case DIALOG_IMAGE:
+                        templateObject = new TemplateObject(0, templateObjects.size(), "Photo", editText.getText().toString(), 0);
+                        makePhoto(templateObject);
+                        break;
                     case DIALOG_TEMPLATE_NAME:
                         saveTemplateBtnClick(editText.getText().toString());
                         break;
@@ -479,6 +560,73 @@ public class TemplateActivity extends AppCompatActivity {
             makeRenameDialog.dismiss();
         });
         makeRenameDialog.show();
+    }
+
+    private void makePhoto(TemplateObject templateObject) {
+        if (isCreateTemplateMode)
+            templateObjects.add(templateObject);
+        ConstraintLayout layout = (ConstraintLayout) getLayoutInflater().inflate(R.layout.template_image_layout, null);
+        TextView titleTxt = layout.findViewById(R.id.title_txt);
+        titleTxt.setText(templateObject.Title);
+        ImageView imageView = layout.findViewById(R.id.image_panel);
+        Button imageLoadBtn = layout.findViewById(R.id.load_image_btn);
+        ImageButton deleteBtn = layout.findViewById(R.id.delete_btn);
+        if (!isCreateTemplateMode)
+            deleteBtn.setVisibility(View.GONE);
+        else {
+            deleteBtn.setOnClickListener(v -> {
+                templateObjects.remove(templateObject);
+                db.deleteTemplateObject(templateObject.Id);
+                binding.mainContentPanel.removeView(layout);
+            });
+            imageLoadBtn.setVisibility(View.GONE);
+        }
+        if(isReviewUserTemplateMode | isReviewTemplateMode)
+            imageLoadBtn.setVisibility(View.GONE);
+        if (isUpdateDocumentMode) {
+            TemplateDocumentData docData = db.getTemplateDocumentData(templateObject.Id, templateDoc.Id);
+            if (docData != null) {
+                imageView.setOnClickListener(v->{
+                    if (docData.Value == null)
+                        return;
+                    if(templateViewBitmaps.get(imageView)==null) {
+                        Intent intent = new Intent(this, ImageActivity.class);
+                        intent.putExtra("text", templateObject.Title);
+                        String fileName = docData.Value;
+                        intent.putExtra("type", DB_IMAGE);
+                        intent.putExtra("imageFile", fileName);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+                    }
+                });
+                if(docData.Value != null) {
+                    imageView.setBackgroundColor(Color.TRANSPARENT);
+                    File outputFile = new File(docData.Value + "_copy");
+                    File encFile = new File(docData.Value);
+                    try {
+                        MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
+                        imageView.setImageURI(Uri.fromFile(outputFile));
+                        outputFile.delete();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        if (isCreateDocumentMode || isUpdateDocumentMode) {
+            templateViews.put(templateObject, imageView);
+            imageLoadBtn.setOnClickListener(v->{
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    Intent intent = CropImage.activity()
+                            .getIntent(this);
+                    currentLoadPhotoView = imageView;
+                    registerForARImage.launch(intent);
+                } else {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
+                }
+            });
+        }
+        binding.mainContentPanel.addView(layout);
     }
 
     private void makeCheckBox(TemplateObject templateObject) {

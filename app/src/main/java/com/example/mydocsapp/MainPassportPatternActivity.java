@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.TransitionDrawable;
@@ -15,11 +16,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.core.app.NavUtils;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -27,6 +30,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.mydocsapp.apputils.MyEncrypter;
+import com.example.mydocsapp.apputils.PDFMaker;
 import com.example.mydocsapp.interfaces.Changedable;
 import com.example.mydocsapp.interfaces.IFragmentDataSaver;
 import com.example.mydocsapp.models.Item;
@@ -36,9 +41,16 @@ import com.example.mydocsapp.models.Template;
 import com.example.mydocsapp.services.AppService;
 import com.example.mydocsapp.services.DBHelper;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class MainPassportPatternActivity extends AppCompatActivity implements Changedable {
@@ -47,27 +59,22 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
     PassportStateViewModel model;
     private IFragmentDataSaver listenerForF1;
     private IFragmentDataSaver listenerForF2;
-
     public static final int SELECT_USER_PHOTO = 1;
-    public static final int SELECT_PAGE1_PHOTO = 2;
-    public static final int SELECT_PAGE2_PHOTO = 3;
     private Item CurrentItem;
     private Boolean isChanged = false;
     private boolean isCreateMode = false;
+    private ViewPager2 viewPager2;
 
     public Item getCurrentItem() {
         return CurrentItem;
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_passport_pattern);
         getExtraData(getIntent());
-
         db = new DBHelper(this, AppService.getUserId(this));
         setDataFromDb();
-
         model = new ViewModelProvider(this).get(PassportStateViewModel.class);
         model.getState().observe(this, item -> {
             this.Passport = item;
@@ -78,9 +85,8 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         setOnClickListeners();
         setTopPatternPanelData();
     }
-
     private void setWindowData() {
-        ViewPager2 viewPager2 = findViewById(R.id.frame_container);
+        viewPager2 = findViewById(R.id.frame_container);
         viewPager2.setAdapter(new MyFragmentAdapter(getSupportFragmentManager(), getLifecycle(), this));
         viewPager2.registerOnPageChangeCallback(
                 new ViewPager2.OnPageChangeCallback()
@@ -107,7 +113,7 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         if(isCreateMode) {
             findViewById(R.id.arrow_image_view).setVisibility(View.VISIBLE);
             (findViewById(R.id.passport_txt)).setOnClickListener(v -> {
-                Boolean btnFlag = v.getTag().equals("off");
+                boolean btnFlag = v.getTag().equals("off");
                 ImageView arrowImageView = findViewById(R.id.arrow_image_view);
                 ObjectAnimator animator = btnFlag ? ObjectAnimator.ofFloat(arrowImageView, View.ROTATION_X, 0f, 180f) : ObjectAnimator.ofFloat(arrowImageView, View.ROTATION_X, 180f, 0f);
                 animator.setDuration(600);
@@ -126,23 +132,26 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
             findViewById(R.id.right_menu_save_as_btn).setVisibility(View.GONE);
         }
     }
-
     private void setOnClickListeners() {
-        findViewById(R.id.menubar_options).setOnClickListener(v->menuOptionsBtnClick(v));
-        findViewById(R.id.confirm_button).setOnClickListener(v->savePassportMethod());
-        findViewById(R.id.menubar_Back).setOnClickListener(v->goBackMainPageClick(v));
-        findViewById(R.id.INN_top_btn).setOnClickListener(v->goInnClick(v));
-        findViewById(R.id.policy_top_btn).setOnClickListener(v->goPolicyClick(v));
-        findViewById(R.id.right_menu_save_btn).setOnClickListener(v->savePassportMethod());
-        findViewById(R.id.right_menu_save_as_btn).setOnClickListener(v->saveAsBtnClick(v));
-        findViewById(R.id.right_menu_delete_btn).setOnClickListener(v->deleteBtnClick(v));
+        findViewById(R.id.menubar_options).setOnClickListener(this::menuOptionsBtnClick);
+        findViewById(R.id.confirm_button).setOnClickListener(v->{
+            savePassportMethod();
+            onBackPressed();
+        });
+        findViewById(R.id.menubar_Back).setOnClickListener(this::goBackMainPageClick);
+        findViewById(R.id.INN_top_btn).setOnClickListener(this::goInnClick);
+        findViewById(R.id.policy_top_btn).setOnClickListener(this::goPolicyClick);
+        findViewById(R.id.right_menu_save_btn).setOnClickListener(v->{
+            savePassportMethod();
+            onBackPressed();
+        });
+        findViewById(R.id.right_menu_save_as_btn).setOnClickListener(this::saveAsBtnClick);
+        findViewById(R.id.right_menu_delete_btn).setOnClickListener(this::deleteBtnClick);
     }
-
     private void deleteBtnClick(View v) {
         db.deleteItem(CurrentItem.Id);
         onBackPressed();
     }
-
     private void setTopPatternPanelData() {
         LinearLayout patternContainer = findViewById(R.id.pattern_container_layout);
         ArrayList<Template> templates = (ArrayList<Template>) db.getTemplateByUserId(AppService.getUserId(this));
@@ -159,7 +168,6 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
             patternContainer.addView(makePatternTopButton(template));
         }
     }
-
     private View makePatternTopButton(Template template) {
         Button button = (Button) getLayoutInflater().inflate(R.layout.pattern_button_layout, null);
         button.setText(template.Name);
@@ -187,16 +195,13 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         textView.setTypeface(null, Typeface.BOLD);
         return textView;
     }
-
     private void getExtraData(Intent intent) {
         CurrentItem = intent.getParcelableExtra("item");
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
     }
-
     private void setDataFromDb() {
         Item item = CurrentItem;
         if (item != null) {
@@ -204,7 +209,6 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         } else
             this.Passport = new Passport(0,"","","","","","","M","","",null,null,null);
     }
-
     public void copyTextClick(View view) {
         listenerForF1.copyTextClick(view);
     }
@@ -231,12 +235,13 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         positiveButton.setTextColor(Color.parseColor("#FFC700"));
         Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
         negativeButton.setTextColor(Color.WHITE);
-
     }
-
     private void saveAsBtnClick(View v) {
+        savePassportMethod();
+        isChanged = false;
+        if(PDFMaker.createPassportPDF( Passport,AppService.getUserId(this)))
+            Toast.makeText(this,R.string.pdf_document_created,Toast.LENGTH_SHORT).show();
     }
-
     public void menuOptionsBtnClick(View v) {
         if (v.getTag().equals("off")) {
             MotionLayout ml = findViewById(R.id.motion_layout);
@@ -251,8 +256,15 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         }
     }
     private void savePassportMethod() {
+        if(viewPager2.getCurrentItem()==0) {
+            viewPager2.setCurrentItem(0);
+            viewPager2.setCurrentItem(1);
+        }
+        else{
+            viewPager2.setCurrentItem(1);
+            viewPager2.setCurrentItem(0);
+        }
         listenerForF1.SaveData();
-        String itemImagePath = null;
         Item item;
         if (isCreateMode) {
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
@@ -262,82 +274,102 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
             int ItemId = db.selectLastItemId();
             this.Passport.Id = ItemId;
             db.insertPassport(this.Passport);
-            listenerForF1.SavePhotos(ItemId);
-            itemImagePath = this.Passport.FacePhoto;
-            if (listenerForF2 != null) {
-                listenerForF2.SavePhotos(ItemId);
-            }
+            List<Bitmap> bitmaps = listenerForF1.getPhotos();
+            Passport.FacePhoto = savePhoto(bitmaps.get(0),ItemId,null,"ProfileImage");
+            bitmaps = listenerForF2.getPhotos();
+            Passport.PhotoPage1 = savePhoto(bitmaps.get(0),ItemId,null,"Page1");
+            Passport.PhotoPage2 = savePhoto(bitmaps.get(1),ItemId,null,"Page2");
             db.updatePassport(ItemId, this.Passport);
-            item.Image = itemImagePath;
+            item.Image = this.Passport.FacePhoto;
             db.updateItem(ItemId, item);
         } else {
-            listenerForF1.SavePhotos(CurrentItem.Id);
-            itemImagePath = this.Passport.FacePhoto;
-            if (listenerForF2 != null) {
-                listenerForF2.SavePhotos(CurrentItem.Id);
-            }
-            if (listenerForF2 != null)
-                CurrentItem.Image = itemImagePath;
+            List<Bitmap> bitmaps = listenerForF1.getPhotos();
+            Passport.FacePhoto = savePhoto(bitmaps.get(0),CurrentItem.Id,Passport.FacePhoto,"ProfileImage");
+            bitmaps = listenerForF2.getPhotos();
+            Passport.PhotoPage1 = savePhoto(bitmaps.get(0),CurrentItem.Id,Passport.PhotoPage1,"Page1");
+            Passport.PhotoPage2 = savePhoto(bitmaps.get(1),CurrentItem.Id,Passport.PhotoPage2,"Page2");
+            CurrentItem.Image = this.Passport.FacePhoto;
             db.updatePassport(CurrentItem.Id, this.Passport);
             db.updateItem(CurrentItem.Id, CurrentItem);
         }
-        onBackPressed();
+    }
+
+    private String savePhoto(Bitmap photo, int ItemId, String passportField, String name) {
+        if (photo != null) {
+            File rootDir = getApplicationContext().getFilesDir();
+            String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME +"/"+ AppService.getUserId(this)+ "/Item" + ItemId + "/";
+            File dir = new File(imgPath);
+            if (!dir.exists())
+                dir.mkdirs();
+            String imgName = name + ItemId + System.currentTimeMillis();
+            File imgFile = new File(dir, imgName);
+            if (passportField != null) {
+                File filePath = new File(passportField);
+                filePath.delete();
+                imgFile = new File(passportField);
+            }
+            try {
+                imgFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            InputStream is = new ByteArrayInputStream(stream.toByteArray());
+            try {
+                MyEncrypter.encryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), is, new FileOutputStream(imgFile));
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+            return imgFile.getAbsolutePath();
+        }
+        return passportField;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
     }
-
     public void goInnClick(View view) {
         startActivity(new Intent(MainPassportPatternActivity.this, INNPatternActivity.class));
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
-
     public void goPolicyClick(View view) {
         startActivity(new Intent(MainPassportPatternActivity.this, PolicyPatternActivity.class));
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
-
     @Override
     public void onBackPressed() {
         NavUtils.navigateUpFromSameTask(this);
         super.onBackPressed();
     }
-
     void setListenerForF1(IFragmentDataSaver fragment) {
         listenerForF1 = fragment;
     }
-
     void setListenerForF2(IFragmentDataSaver fragment2) {
         listenerForF2 = fragment2;
     }
-
     @Override
     public void setIsChanged(Boolean value) {
         isChanged = value;
     }
-
     @Override
     public Boolean getIsChanged() {
         return isChanged;
     }
-
-
     public static class MyFragmentAdapter extends FragmentStateAdapter {
         private static int NUM_ITEMS = 2;
         MainPassportPatternActivity activity;
-
+        PassportFirstFragment f1 = new PassportFirstFragment();
+        PassportSecondFragment f2 = new PassportSecondFragment();
         public MyFragmentAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, MainPassportPatternActivity activity) {
             super(fragmentManager, lifecycle);
             this.activity = activity;
         }
-
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            PassportFirstFragment f1 = new PassportFirstFragment();
-            PassportSecondFragment f2 = new PassportSecondFragment();
             switch (position) {
                 case 0:
                     activity.setListenerForF1(f1);
@@ -354,5 +386,4 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
             return NUM_ITEMS;
         }
     }
-
 }

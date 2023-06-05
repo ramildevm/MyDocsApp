@@ -21,9 +21,10 @@
         <LinearLayout
             android:id="@+id/main_content_panel"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="fill_parent"
             android:layout_margin="10dp"
-            android:orientation="vertical" />
+            android:orientation="vertical"
+            android:paddingBottom="120dp" />
     </ScrollView>
     <ScrollView
         android:id="@+id/pattern_container"
@@ -214,6 +215,7 @@
         android:layout_height="35dp"
         android:layout_marginHorizontal="70dp"
         android:layout_marginTop="10dp"
+        android:backgroundTint="@color/gray"
         android:background="@drawable/ic_hide_folder_btn"
         app:layout_constraintBottom_toTopOf="@+id/bottom_panel"
         app:layout_constraintEnd_toEndOf="parent"

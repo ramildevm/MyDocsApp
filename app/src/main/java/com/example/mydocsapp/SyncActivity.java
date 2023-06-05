@@ -18,14 +18,10 @@ public class SyncActivity extends AppCompatActivity {
         binding.uploadBtn.setOnClickListener(v->uploadBtnClick());
         binding.downloadBtn.setOnClickListener(v->downloadBtnClick());
     }
-
     private void uploadBtnClick() {
-
     }
-
     private void downloadBtnClick() {
     }
-
     public void goBackSettingsClick(View view) {
         onBackPressed();
     }

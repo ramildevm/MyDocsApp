@@ -10,7 +10,7 @@
         <ImageView
             android:id="@+id/first_passport_photo"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="250dp"
             android:background="@drawable/view_round_white"
             android:layout_marginRight="35dp"
             android:layout_marginLeft="35dp"
@@ -23,7 +23,8 @@
             />
         <Button
             android:id="@+id/load_page1_photo_btn"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="20dp"
             android:text="@string/load_image"
             android:textAllCaps="false"
             android:layout_height="wrap_content"
@@ -36,7 +37,7 @@
         <ImageView
             android:id="@+id/second_passport_photo"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="250dp"
             android:layout_marginLeft="35dp"
             android:layout_marginRight="35dp"
             android:layout_marginTop="10dp"
@@ -49,7 +50,8 @@
             />
         <Button
             android:id="@+id/load_page2_photo_btn"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="20dp"
             android:text="@string/load_image"
             android:textAllCaps="false"
             android:layout_height="wrap_content"

@@ -69,7 +69,6 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
     private void makePinCodeDialog(String pinCode) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LinearLayout layout = (LinearLayout) getLayoutInflater().inflate(R.layout.pin_code_dialog_layout,null);
@@ -90,15 +89,9 @@ public class LoginActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         pinCodeTxt.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
             public void afterTextChanged(Editable editable) {
                 if (pinCodeTxt.getText().toString().length() == 4) {
@@ -147,31 +140,25 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
         fromDB(email, password);
-
         //fromAPI(email, password);
     }
 
     private void fromDB(String email, String password) {
         User user = db.getUserByEmail(email);
         if (user == null) {
-            Toast msg = Toast.makeText(LoginActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT);
-            msg.show();
+            Toast.makeText(LoginActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT).show();
             return;
         }
         if (password.isEmpty()) {
-            Toast msg = Toast.makeText(LoginActivity.this, R.string.error_input_password, Toast.LENGTH_SHORT);
-            msg.show();
+            Toast.makeText(LoginActivity.this, R.string.error_input_password, Toast.LENGTH_SHORT).show();
             return;
         }
         if (!password.equals(user.Password)) {
-            Toast msg = Toast.makeText(LoginActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
-            msg.show();
+            Toast.makeText(LoginActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT).show();
             return;
         }
-
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
-
         editor.remove("email").commit();
         editor.remove("Id").commit();
         editor.putString("email", user.Login);
@@ -183,9 +170,45 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
             overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
         }
-        else{
+        else
             makePinCodeDialog(pinCode);
+    }
+    public void loginBtnClick(View view) {loginMethod();}
+    public void reginBtnClick(View view) {
+        Bundle bundle = null;
+        Pair<View, String> pair1 = Pair.create(findViewById(R.id.sign_up_btn), findViewById(R.id.sign_up_btn).getTransitionName());
+        Pair<View, String> pair2 = Pair.create(findViewById(R.id.email_txt), findViewById(R.id.email_txt).getTransitionName());
+        Pair<View, String> pair3 = Pair.create(findViewById(R.id.editTextEmail), findViewById(R.id.editTextEmail).getTransitionName());
+        Pair<View, String> pair4 = Pair.create(findViewById(R.id.password_txt), findViewById(R.id.password_txt).getTransitionName());
+        Pair<View, String> pair7 = Pair.create(findViewById(R.id.without_login), findViewById(R.id.without_login).getTransitionName());
+        ActivityOptions options;
+        options = ActivityOptions.makeSceneTransitionAnimation(LoginActivity.this, pair1, pair2, pair3, pair4, pair7);
+        bundle = options.toBundle();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove("email").commit();
+        editor.remove("Id").commit();
+        Intent intent = new Intent(this, SignInActivity.class);
+        startActivity(intent, bundle);
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+    }
+    public void goGuestModeClick(View view) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove("email").commit();
+        editor.remove("Id").commit();
+        editor.putString("email", "0" );
+        editor.apply();
+        AppService.setUserId(0, this);
+        AppService.setHideMode(false);
+        String pinCode = preferences.getString(0+"", "");
+        if(pinCode.equalsIgnoreCase("")) {
+            Intent intent = new Intent(LoginActivity.this, MainContentActivity.class);
+            startActivity(intent);
+            overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
         }
+        else
+            makePinCodeDialog(pinCode);
     }
 
     private void fromAPI(String email, String password) {
@@ -216,47 +239,4 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void loginBtnClick(View view) {
-        loginMethod();
-    }
-
-    public void reginBtnClick(View view) {
-        Bundle bundle = null;
-        Pair<View, String> pair1 = Pair.create(findViewById(R.id.sign_up_btn), findViewById(R.id.sign_up_btn).getTransitionName());
-        Pair<View, String> pair2 = Pair.create(findViewById(R.id.email_txt), findViewById(R.id.email_txt).getTransitionName());
-        Pair<View, String> pair3 = Pair.create(findViewById(R.id.editTextEmail), findViewById(R.id.editTextEmail).getTransitionName());
-        Pair<View, String> pair4 = Pair.create(findViewById(R.id.password_txt), findViewById(R.id.password_txt).getTransitionName());
-        Pair<View, String> pair7 = Pair.create(findViewById(R.id.without_login), findViewById(R.id.without_login).getTransitionName());
-
-        ActivityOptions options;
-        options = ActivityOptions.makeSceneTransitionAnimation(LoginActivity.this, pair1, pair2, pair3, pair4, pair7);
-        bundle = options.toBundle();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.remove("email").commit();
-        editor.remove("Id").commit();
-        Intent intent = new Intent(this, SignInActivity.class);
-        startActivity(intent, bundle);
-        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
-    }
-
-    public void goGuestModeClick(View view) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.remove("email").commit();
-        editor.remove("Id").commit();
-        editor.putString("email", "0" );
-        editor.apply();
-        AppService.setUserId(0, this);
-        AppService.setHideMode(false);
-        String pinCode = preferences.getString(0+"", "");
-        if(pinCode.equalsIgnoreCase("")) {
-            Intent intent = new Intent(LoginActivity.this, MainContentActivity.class);
-            startActivity(intent);
-            overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
-        }
-        else{
-            makePinCodeDialog(pinCode);
-        }
-    }
 }

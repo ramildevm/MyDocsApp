@@ -22,10 +22,8 @@ import com.example.mydocsapp.databinding.ActivityMainTemplateBinding;
 import com.example.mydocsapp.interfaces.Template1FragmentListener;
 
 public class MainTemplateActivity extends AppCompatActivity {
-
     ActivityMainTemplateBinding binding;
     private FragmentAdapter adapter;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,63 +56,44 @@ public class MainTemplateActivity extends AppCompatActivity {
                 });
         setOnClickListeners();
     }
-
     private void setOnClickListeners() {
         binding.bottomDeleteBtn.setOnClickListener(v-> onDeleteBtnClick(v));
         binding.bottomDeleteTxt.setOnClickListener(v-> onDeleteBtnClick(v));
         binding.bottomAddBtn.setOnClickListener(v->onAddBtnClick(v));
         binding.bottomPublishBtn.setOnClickListener(v->onPublishBtnClick(v));
     }
-
     private void onAddBtnClick(View v) {
         startActivity(new Intent(MainTemplateActivity.this,TemplateActivity.class).putExtra("template", (Parcelable[]) null));
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);}
-
     private void onDeleteBtnClick(View v) {
             adapter.onTemplateDelete();
     }
     private void onPublishBtnClick(View v) {
             adapter.onTemplatePublish();
     }
-
     private void hideShowBottomButtons(float start, float end) {
         ObjectAnimator fadeOutAnimatorBottomPanel = ObjectAnimator.ofFloat(binding.bottomPanel, "alpha", start, end).setDuration(200);
         ObjectAnimator transitionOutBottomPanel = ObjectAnimator.ofFloat(binding.bottomPanel, "translationY", end*95, start*95).setDuration(200);
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.addListener(new Animator.AnimatorListener() {
             @Override
-            public void onAnimationStart(Animator animator) {
-                if(end > start) {
-                    binding.bottomPanel.setVisibility(View.VISIBLE);
-                }
-            }
+            public void onAnimationStart(Animator animator) { if(end > start) binding.bottomPanel.setVisibility(View.VISIBLE);}
             @Override
-            public void onAnimationEnd(Animator animator) {
-                if(start > end) {
-                    binding.bottomPanel.setVisibility(View.GONE);
-                }
-            }
+            public void onAnimationEnd(Animator animator) {if(start > end) binding.bottomPanel.setVisibility(View.GONE);}
             @Override
-            public void onAnimationCancel(Animator animator) {
-            }
+            public void onAnimationCancel(Animator animator) {}
             @Override
-            public void onAnimationRepeat(Animator animator) {
-            }
+            public void onAnimationRepeat(Animator animator) {}
         });
         animatorSet.playTogether(transitionOutBottomPanel,fadeOutAnimatorBottomPanel);
         animatorSet.start();
     }
-
-    public void goBackMainMenuClick(View view) {
-        onBackPressed();
-    }
-
+    public void goBackMainMenuClick(View view) { onBackPressed();}
     @Override
     public void onBackPressed() {
         startActivity(new Intent(this,MainMenuActivity.class));
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
-
     public class FragmentAdapter extends FragmentStateAdapter {
         Template1FragmentListener template1FragmentListener;
         public FragmentAdapter(FragmentManager fragmentManager, Lifecycle lifecycle) {
@@ -135,7 +114,6 @@ public class MainTemplateActivity extends AppCompatActivity {
                 return new Template2Fragment();
             }
         }
-
         @Override
         public int getItemCount() {
             return 2;

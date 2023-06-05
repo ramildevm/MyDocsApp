@@ -11,6 +11,7 @@
             android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:id="@+id/folderNameTxt"
+            android:maxLength="20"
             android:inputType="textCapWords"
             android:hint="@string/enter_a_name"
             android:textColor="@color/white"/>

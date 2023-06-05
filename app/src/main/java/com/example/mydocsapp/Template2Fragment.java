@@ -30,13 +30,11 @@ public class Template2Fragment extends Fragment {
     private DBHelper db;
     private TemplateAdapter adapter;
     private List<Template> publishedTemplatesList;
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = Template2FragmentBinding.inflate(getLayoutInflater());
         View rootView = binding.getRoot();
-
         db= new DBHelper(getContext(), AppService.getUserId(getContext()));
         setListData();
         adapter = new TemplateAdapter(getContext(), publishedTemplatesList, false);
@@ -67,11 +65,9 @@ public class Template2Fragment extends Fragment {
                 adapter.onItemFilter((ArrayList<Template>) publishedTemplatesList,filter );
             }
         });
-
         return rootView;
     }
     private void setListData() {
         publishedTemplatesList = db.getTemplatePublished();
     }
-
 }

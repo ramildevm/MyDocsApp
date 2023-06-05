@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Template1Fragment extends Fragment implements Template1FragmentListener {
-
     Template1FragmentBinding binding;
     Boolean isSelectMode;
     private List<Template> selectedItemsSet;
@@ -31,12 +30,10 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
     private ArrayList<Template> downloadedTemplatesList;
     private TemplateAdapter adapter;
     DBHelper db;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -73,7 +70,6 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
                     getActivity().overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
                 }
             }
-
             @Override
             public void onLongItemClick(View view, int position) {
                 Template item = adapter.getTemplate(position);
@@ -87,7 +83,6 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
         }));
         return rootView;
     }
-
     private void reFillRecyclerView() {
         adapter.setSelectMode(isSelectMode);
         for (Template temp :
@@ -95,7 +90,6 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
             adapter.onItemChanged(temp);
         }
     }
-
     private void setListData() {
         selectedItemsSet = new ArrayList<>();
         userTemplatesList = (ArrayList<Template>) db.getTemplateByUserId(AppService.getUserId(getContext()));
@@ -104,7 +98,6 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
         downloadedTemplatesList = (ArrayList<Template>) db.getTemplateDownload(AppService.getUserId(getContext()));
         userTemplatesList.addAll(downloadedTemplatesList);
     }
-
     @Override
     public void onTemplateDelete() {
         for (Template template :
@@ -116,7 +109,6 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
         isSelectMode = false;
         reFillRecyclerView();
     }
-
     @Override
     public void onTemplatePublish() {
         adapter.onItemPublished(selectedItemsSet);

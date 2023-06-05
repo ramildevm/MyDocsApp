@@ -34,7 +34,6 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setOnClickListeners();
     }
-
     private void setOnClickListeners() {
         binding.menubarBack.setOnClickListener(v->goBackAccountClick(v));
         binding.languageImage.setOnClickListener(v->onLanguageBtnClick());
@@ -48,7 +47,6 @@ public class SettingsActivity extends AppCompatActivity {
         binding.aboutAppImage.setOnClickListener(v->onAboutBtnClick());
         binding.aboutAppTxt.setOnClickListener(v->onAboutBtnClick());
     }
-
     private void onSafetyBtnClick() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LinearLayout layout = (LinearLayout) getLayoutInflater().inflate(R.layout.pin_code_dialog_layout,null);
@@ -109,7 +107,6 @@ public class SettingsActivity extends AppCompatActivity {
         editor.putString(AppService.getUserId(this)+"",pinCode);
         editor.apply();
     }
-
     private void onNumberClick(View v, TextView pinCodeTxt, TextInputLayout textInputLayout) {
         textInputLayout.setError(null);
         if(pinCodeTxt.getText().toString().length()<4) {
@@ -117,27 +114,17 @@ public class SettingsActivity extends AppCompatActivity {
             pinCodeTxt.setText(text+((Button) v).getText());
         }
     }
-
     private void onAboutBtnClick() {
-        String text = "Приложение MyDocs разработано с целью создания мобильного инструмента для хранения и организации личных данных. В рамках этого приложения под личными данными понимаются персональные документы (паспорт, СНИЛС и т.п.), банковские карты и другие ценные информации, которая важна для пользователей.\n" +
-                "\nНаше приложение помогает пользователю структурировать и хранить его персональные данные, обеспечивая быстрый доступ к ним и гарантируя полную безопасность. Мы предоставляем возможность создавать сканы документов, а также обеспечиваем защиту данных, чтобы ваши личные сведения оставались в безопасности.\n" +
-                "\nMyDocs позволяет хранить данные непосредственно на вашем устройстве, обеспечивая доступ к ним в любое удобное время. Помимо этого, мы предлагаем возможность синхронизации ваших данных с сервером, чтобы вы могли иметь доступ к своим личным данным в любом месте и на разных устройствах.\n" +
-                "\nМы придерживаемся высоких стандартов безопасности и конфиденциальности данных, и мы уделяем особое внимание защите ваших личных данных. Мы стремимся предоставить вам надежный инструмент для хранения и организации вашей ценной информации.\n" +
-                "\nЕсли у вас возникнут вопросы или предложения, не стесняйтесь обращаться к нам. Мы всегда готовы помочь вам с использованием приложения MyDocs." +
-                "\nЕсли у вас возникнут вопросы или предложения, не стесняйтесь обращаться к нам. Ссылка разработчика: http:/vk.com/ebooii";
+        String text = getString(R.string.long_about_text);
         makeSettingsDialog(text);
     }
-
     private void onPrivacyPolicyBtnClick() {
         makeSettingsDialog(getString(R.string.privacy_policy_dialog_text));
     }
-
     private void onHelpBtnClick() {
         String link = "http:/vk.com/ebooii";
         makeSettingsDialog(getString(R.string.help_dialog_text) + link);
-
     }
-
     private void makeSettingsDialog(String text) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         ScrollView scrollView = (ScrollView) getLayoutInflater().inflate(R.layout.settings_dialog_layout,null);
@@ -145,12 +132,10 @@ public class SettingsActivity extends AppCompatActivity {
         textView.setText(text);
         builder.setView(scrollView);
         builder.setPositiveButton("ОК", (dialog, which) -> dialog.dismiss());
-
         AlertDialog dialog = builder.create();
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.item_layout_bg);
         dialog.show();
     }
-
     private void onLanguageBtnClick() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.select_language);

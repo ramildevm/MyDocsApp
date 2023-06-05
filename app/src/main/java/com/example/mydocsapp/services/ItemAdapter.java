@@ -221,21 +221,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 holder.imageView.setImageBitmap(image);
                 //Glide.with(context).load(image).transform(new RoundedCorners(radius)).into(holder.imageView);
 
-            } catch (NoSuchPaddingException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (InvalidAlgorithmParameterException e) {
-                e.printStackTrace();
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            }catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
         if (item.Type.equals("Папка"))
             holder.icoImg.setImageResource(R.drawable.ic_folder);
         else if (item.Type.equals("Паспорт"))

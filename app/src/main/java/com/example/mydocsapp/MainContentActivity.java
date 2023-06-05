@@ -58,18 +58,14 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     Dialog makeRenameDialog;
     ItemAdapter adapter;
     CurrentItemsService itemsService;
-
     private User CurrentUser;
     private ArrayList<Item> CurrentFolderItemsSet;
     private ArrayList<Item> selectedItemsSet = new ArrayList<>();
     private boolean isTitleClicked = false;
-
     public static final int RECYCLER_ADAPTER_EVENT_CHANGE = 1;
     public static final int RECYCLER_ADAPTER_EVENT_MOVE = 2;
     private static final int RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE = 3;
-
     public static final String APPLICATION_NAME = "MyDocs";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,25 +78,17 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         });
         db = new DBHelper(this, AppService.getUserId(this));
         setCurrentUserFromDB();
-        //setCurrentUserFromAPI();
         isSelectMode = false;
-
         itemsService = new CurrentItemsService(db, AppService.isHideMode());
         itemsService.setInitialData();
         itemsService.setSelectedPropertyZero();
-
         CurrentFolderItemsSet = null;
         isTitleClicked = false;
-
         setViewsTagOff();
         recyclerView = findViewById(R.id.container);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        // создаем адаптер
         adapter = new ItemAdapter(this, itemsService.getCurrentItemsSet(), isSelectMode);
-        //adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
-        // устанавливаем для списка адаптер
         recyclerView.setAdapter(adapter);
-
         int spanCount = 2; // 2 columns
         int spacing = 20; // 10px
         boolean includeEdge = true;
@@ -190,18 +178,13 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                     dialog.setContentView(R.layout.folder_items_panel_layout);
                                     dialog.getWindow().setGravity(Gravity.CENTER);
                                     dialog.setCancelable(true);
-
                                     int width = LinearLayout.LayoutParams.MATCH_PARENT;
                                     int height = LinearLayout.LayoutParams.MATCH_PARENT;
                                     dialog.getWindow().setLayout(width, height);
-
                                     TextView text = dialog.findViewById(R.id.title_folder_txt);
                                     text.setText(item.Title);
-
                                     CurrentFolderItemsSet = itemsService.getFolderItemsFromDb(item.Id);
-
                                     recyclerFolderView = dialog.findViewById(R.id.folder_container);
-
                                     recyclerFolderView.setLayoutManager(new GridLayoutManager(MainContentActivity.this, 2));
                                     ItemAdapter adapter = new ItemAdapter(MainContentActivity.this, CurrentFolderItemsSet, false);
                                     recyclerFolderView.setAdapter(adapter);
@@ -215,31 +198,19 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                                         makeRenameDialogMethod(CurrentFolderItemsSet, "FRename");
                                                         makeRenameDialog.show();
                                                     } else if (itemsService.getCurrentItem().Type.equals("Паспорт")) {
-                                                        Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
-                                                        intent.putExtra("item", itemsService.getCurrentItem());
-                                                        startActivity(intent);
-                                                        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+                                                        goPassportItemClick(itemsService.getCurrentItem());
                                                     } else if (itemsService.getCurrentItem().Type.equals("Карта")) {
-                                                        Intent intent = new Intent(MainContentActivity.this, CardPatternActivity.class);
-                                                        intent.putExtra("item", itemsService.getCurrentItem());
-                                                        startActivity(intent);
-                                                        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
-                                                    }else if (item.Type.equals("Изображение")) {
-                                                        Intent intent = new Intent(MainContentActivity.this, ImageActivity.class);
-                                                        intent.putExtra("text", item.Title);
-                                                        intent.putExtra("type", DB_IMAGE);
-                                                        intent.putExtra("item", itemsService.getCurrentItem());
-                                                        intent.putExtra("imageFile", item.Image);
-                                                        startActivity(intent);
-                                                        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+                                                        goCreditCardItemClick(itemsService.getCurrentItem());
+                                                    }else if (itemsService.getCurrentItem().Type.equals("Изображение")| itemsService.getCurrentItem().Type.equals("Альбом")) {
+                                                        goImageItemClick(itemsService.getCurrentItem());
+                                                    }else if (itemsService.getCurrentItem().Type.equals("Template")) {
+                                                        goTemplateItemClick(itemsService.getCurrentItem());
                                                     }
                                                 }
-
                                                 @Override
                                                 public void onLongItemClick(View view, int position) {
                                                 }
                                             }));
-                                    //set buttons
                                     Button flowButton = dialog.findViewById(R.id.flow_folder_button);
                                     flowButton.setOnClickListener(view1 -> {
                                         Intent i = new Intent(MainContentActivity.this, FolderAddItemActivity.class);
@@ -248,48 +219,20 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                         registerForARFolder.launch(i);
                                         overridePendingTransition(R.anim.alpha, R.anim.alpha_to_zero);
                                     });
-
                                     Button hideButton = dialog.findViewById(R.id.hide_folder_btn);
                                     hideButton.setOnClickListener(v -> {
                                         dialog.cancel();
                                     });
-
                                     dialog.getWindow().setWindowAnimations(R.style.PauseDialogAnimation);
                                     dialog.show();
                                 } else if (item.Type.equals("Паспорт")) {
-                                    Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
-                                    intent.putExtra("item", itemsService.getCurrentItem());
-                                    startActivity(intent);
-                                    overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+                                    goPassportItemClick(item);
                                 } else if (item.Type.equals("Карта")) {
-                                    Intent intent = new Intent(MainContentActivity.this, CardPatternActivity.class);
-                                    intent.putExtra("item", itemsService.getCurrentItem());
-                                    startActivity(intent);
-                                    overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
-                                }else if (item.Type.equals("Изображение")) {
-                                    Intent intent = new Intent(MainContentActivity.this, ImageCollectionActivity.class);
-                                    intent.putExtra("userId",CurrentUser.Id);
-                                    intent.putExtra("mode",SESSION_MODE_OPEN);
-                                    intent.putExtra("item",item);
-                                    startActivity(intent);
-                                    overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
-                                }else if (item.Type.equals("Альбом")) {
-                                    Intent intent = new Intent(MainContentActivity.this, ImageCollectionActivity.class);
-                                    intent.putExtra("userId",CurrentUser.Id);
-                                    intent.putExtra("mode",SESSION_MODE_OPEN);
-                                    intent.putExtra("item",item);
-                                    startActivity(intent);
-                                    overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+                                    goCreditCardItemClick(item);
+                                }else if (item.Type.equals("Изображение") | item.Type.equals("Альбом")) {
+                                    goImageItemClick(item);
                                 }else if (item.Type.equals("Template")) {
-                                    Intent intent = new Intent(MainContentActivity.this, TemplateActivity.class);
-                                    TemplateDocument templateDocument = db.getTemplateDocumentById(item.Id);
-                                    Template template = db.getTemplateById(templateDocument.TemplateId);
-                                    intent.putExtra("template", template);
-                                    intent.putExtra("document", templateDocument);
-                                    if (template != null) {
-                                        startActivity(intent);
-                                        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
-                                    }
+                                    goTemplateItemClick(item);
                                 }
                             }
                         }
@@ -306,19 +249,15 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                 ((TextView)findViewById(R.id.bottom_pin_txt)).setText(R.string.unpin_string);
                             else
                                 ((TextView)findViewById(R.id.bottom_pin_txt)).setText(R.string.pin_string);
-
                             MotionLayout ml = findViewById(R.id.motion_layout);
                             ml.setTransition(R.id.transGoSelect);
                             ml.transitionToEnd();
                             isSelectMode = true;
-
                             item.isSelected = 1;
                             selectedItemsNum = 1;
                             ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + +selectedItemsNum);
-
                             itemsService.setItem(position, item);
                             view.setTag(item);
-
                             reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
                         }
                     }
@@ -327,7 +266,37 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         Button flowBtn = findViewById(R.id.flow_button);
         flowBtn.setOnClickListener(view -> openAddMenuClick(view));
     }
-
+    private void goCreditCardItemClick(Item item) {
+        Intent intent = new Intent(MainContentActivity.this, CardPatternActivity.class);
+        intent.putExtra("item", item);
+        startActivity(intent);
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+    }
+    private void goTemplateItemClick(Item item) {
+        Intent intent = new Intent(MainContentActivity.this, TemplateActivity.class);
+        TemplateDocument templateDocument = db.getTemplateDocumentById(item.Id);
+        Template template = db.getTemplateById(templateDocument.TemplateId);
+        intent.putExtra("template", template);
+        intent.putExtra("document", templateDocument);
+        if (template != null) {
+            startActivity(intent);
+            overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+        }
+    }
+    private void goImageItemClick(Item item) {
+        Intent intent = new Intent(MainContentActivity.this, ImageCollectionActivity.class);
+        intent.putExtra("userId",CurrentUser.Id);
+        intent.putExtra("mode",SESSION_MODE_OPEN);
+        intent.putExtra("item",item);
+        startActivity(intent);
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+    }
+    private void goPassportItemClick(Item item) {
+        Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
+        intent.putExtra("item", item);
+        startActivity(intent);
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+    }
     private void makeRenameDialogMethod(ArrayList<Item> items, String mode) {
         makeRenameDialog = new Dialog(MainContentActivity.this);
         makeRenameDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -335,13 +304,11 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         makeRenameDialog.setCancelable(true);
         makeRenameDialog.setCanceledOnTouchOutside(false);
         makeRenameDialog.getWindow().getAttributes().windowAnimations = R.style.MakeRenameDialogAnimation;
-
         EditText editText = makeRenameDialog.findViewById(R.id.folderNameTxt);
         editText.setSelection(editText.getText().length());
         editText.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
-
         if (mode.equals("Make")) {
             ((Button) makeRenameDialog.findViewById(R.id.make_rename_item_btn)).setText(R.string.create_a_folder);
             editText.setText("");
@@ -386,7 +353,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             (findViewById(R.id.flow_button)).setEnabled(true);
         }
     }
-
     public void goAccountClick(View view) {
         startActivity(new Intent(MainContentActivity.this, MainMenuActivity.class));
         overridePendingTransition(R.anim.slide_in_left, R.anim.alpha_out);
@@ -398,7 +364,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         startActivity(intent);
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
-
     public void openSortMenuClick(View view) {
         setViewsTagOff();
         MotionLayout ml = findViewById(R.id.motion_layout);
@@ -416,7 +381,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             (findViewById(R.id.flow_button)).setEnabled(true);
         }
     }
-
     public void openAddMenuClick(View view) {
         setViewsTagOff();
         MotionLayout ml = findViewById(R.id.motion_layout);
@@ -426,24 +390,20 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             view.setTag("on");
             (findViewById(R.id.menubar_options)).setEnabled(false);
         } else {
-            //ml.setTransition(R.id.trans2);
             ml.transitionToStart();
             view.setTag("off");
             (findViewById(R.id.menubar_options)).setEnabled(true);
         }
     }
-
     public void menuMakeFolderClick(View view) {
         makeRenameDialogMethod(itemsService.getCurrentItemsSet(), "Make");
         makeRenameDialog.show();
     }
-
     public void menuMakeCardClick(View view) {
         Intent intent = new Intent(MainContentActivity.this, CardPatternActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
-
     public void menuMakeImageClick(View view) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Intent intent = new Intent(this,ImageCollectionActivity.class);
@@ -455,7 +415,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
         }
     }
-    //сортировка
     public void sortFolderClick(View view) {
         if (itemsService.isFoldersAvailable)
             view.setAlpha(0.5f);
@@ -466,7 +425,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         itemsService.isFoldersAvailable = !itemsService.isFoldersAvailable;
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getSortedCurrentItemsSet());
     }
-    //сортировка
     public void sortCardClick(View view) {
         if (itemsService.isCardsAvailable)
             view.setAlpha(0.5f);
@@ -477,7 +435,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         itemsService.isCardsAvailable = !itemsService.isCardsAvailable;
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getSortedCurrentItemsSet());
     }
-    //сортировка
     public void sortImageClick(View view) {
         if (itemsService.isImagesAvailable)
             view.setAlpha(0.5f);
@@ -488,7 +445,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         itemsService.isImagesAvailable = !itemsService.isImagesAvailable;
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getSortedCurrentItemsSet());
     }
-    //сортировка
     public void sortDocClick(View view) {
         if (itemsService.isDocsAvailable)
             view.setAlpha(0.5f);
@@ -499,13 +455,11 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         itemsService.isDocsAvailable = !itemsService.isDocsAvailable;
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getSortedCurrentItemsSet());
     }
-
     void reFillContentPanel(RecyclerView _recyclerView, ArrayList<Item> _items) {
         _recyclerView.removeAllViews();
         adapter = new ItemAdapter(this, _items, isSelectMode);
         _recyclerView.setAdapter(adapter);
     }
-    //прорисовка
     void reFillContentPanel(int mode, ArrayList<Item> _items) {
         adapter.setSelectMode(isSelectMode);
         switch (mode) {
@@ -545,7 +499,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
         topSelectBackClick(new View(this));
     }
-
     public void bottomHideClick(View view) {
         for (Item x : selectedItemsSet) {
             if(x.Type.equals("Папка")){
@@ -569,7 +522,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
         topSelectBackClick(new View(this));
     }
-
     public void bottomDeleteClick(View view) {
         for (Item x : itemsService.getCurrentItemsSet()) {
             if (x.isSelected == 1) {
@@ -598,7 +550,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         itemsService.setInitialData();
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
     }
-
     public void topSelectAllClick(View view) {
         selectedItemsNum = 0;
         for (Item x :
@@ -611,7 +562,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
     }
-
     public void topSelectBackClick(View view) {
         MotionLayout ml = findViewById(R.id.motion_layout);
         ml.setTransition(R.id.transGoSelect);
@@ -621,7 +571,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         itemsService.setInitialData();
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
     }
-
     @Override
     public void onBackPressed() {
         itemsService.setInitialData();
@@ -641,15 +590,12 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             startActivity(new Intent(MainContentActivity.this, MainMenuActivity.class));
             overridePendingTransition(R.anim.slide_in_left, R.anim.alpha_out);
         }
-
     }
-
     @Override
     protected void onRestart() {
         super.onRestart();
         reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
     }
-
     @Override
     public boolean getIsTitleClicked() {
         return isTitleClicked;
@@ -658,5 +604,4 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     public void setIsTitleClicked(boolean value) {
         this.isTitleClicked = value;
     }
-
 }

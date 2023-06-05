@@ -27,25 +27,20 @@ public class MainMenuActivity extends AppCompatActivity {
     ActivityMainMenuBinding binding;
     private boolean isGuest = false;
     private DBHelper db;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainMenuBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         gestureDetector = new GestureDetectorCompat(this, new SwipeGestureListener());
-
-
         setWindowData();
         setOnClickListeners(isGuest);
     }
-
     @Override
     protected void onResume() {
         super.onResume();
         setWindowData();
     }
-
     private void setWindowData() {
         int userId = AppService.getUserId(this);
         db = new DBHelper(this, userId);
@@ -71,7 +66,6 @@ public class MainMenuActivity extends AppCompatActivity {
             binding.loginTxt.setText(user.Login);
         }
     }
-
     private void setOnClickListeners(Boolean isGuest) {
         binding.changeAccountTxt.setOnClickListener(v->changeAccountClickBack(v));
         binding.settingsImage.setOnClickListener(v->goSettingsClick(v));
@@ -91,15 +85,14 @@ public class MainMenuActivity extends AppCompatActivity {
             binding.hiddenPanel.setOnClickListener(v -> goHidenFilesClick(v));
         }
     }
-
     private void goAccountSettingsClick(View v) {
         startActivity(new Intent(this,AccountSettingsActivity.class));
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
-
     private void goSyncingClick(View v) {
+        startActivity(new Intent(this,SyncActivity.class));
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
-
     private void makeAccountDialog() {
         Dialog dialog = new Dialog(MainMenuActivity.this);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -111,13 +104,11 @@ public class MainMenuActivity extends AppCompatActivity {
         int height = LinearLayout.LayoutParams.MATCH_PARENT;
         dialog.getWindow().setLayout(width, height);
     }
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         gestureDetector.onTouchEvent(event);
         return super.onTouchEvent(event);
     }
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -136,7 +127,6 @@ public class MainMenuActivity extends AppCompatActivity {
         startActivity(new Intent(this, LoginActivity.class));
         overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
     }
-
     public void goSettingsClick(View view) {
         startActivity(new Intent(MainMenuActivity.this, SettingsActivity.class));
         overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
@@ -151,10 +141,8 @@ public class MainMenuActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.alpha_in,R.anim.slide_out_left);
     }
     public class SwipeGestureListener extends GestureDetector.SimpleOnGestureListener {
-
-        private static final int SWIPE_THRESHOLD = 100; // Пороговое значение для определения свайпа
-        private static final int SWIPE_VELOCITY_THRESHOLD = 100; // Пороговое значение для определения скорости свайпа
-
+        private static final int SWIPE_THRESHOLD = 100;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
         @Override
         public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
             float diffX = event2.getX() - event1.getX();

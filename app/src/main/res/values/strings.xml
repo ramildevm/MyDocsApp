@@ -102,4 +102,7 @@
     <string name="pin_code_not_enough">PIN code is too short</string>
     <string name="pin_code_is_not_correct">PIN code is not correct</string>
     <string name="pin_code_deleted">PIN code deleted</string>
+    <string name="long_about_text">empty</string>
+    <string name="pdf_document_created">Pdf document was created</string>
+    <string name="image_saved">Image saved</string>
 </resources>

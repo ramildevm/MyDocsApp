@@ -35,6 +35,7 @@
             android:drawableStart="@drawable/ic_round_search"
             android:hint="@string/search"
             android:textColorHint="@color/gray"
+            android:maxLength="20"
             android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890_"
             android:inputType="textFilter"
             android:textColor="#000"

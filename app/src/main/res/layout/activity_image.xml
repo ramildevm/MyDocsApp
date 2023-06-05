@@ -28,6 +28,7 @@
         app:layout_constraintTop_toBottomOf="@id/top_panel">
 
         <TextView
+            android:id="@+id/right_menu_save_as_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -35,17 +36,16 @@
             android:padding="5dp"
             android:text="@string/save_as"
             android:textColor="#fff"
-            android:onClick="saveAsClick"
             android:textSize="24dp"
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/right_menu_change_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginHorizontal="10dp"
             android:padding="5dp"
-            android:onClick="changeImageClick"
             android:text="@string/change_photo"
             android:textColor="#fff"
             android:textSize="24dp"
