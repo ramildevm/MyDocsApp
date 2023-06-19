@@ -1,7 +1,6 @@
 package com.example.mydocsapp.services;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,7 +107,7 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateAdapter.ViewHo
                 continue;
             temp.Status = "Published";
             temp.isSelected = false;
-            db.updateTemplate(temp.Id,temp);
+            db.updateTemplate(temp.Id,temp, false);
             int position = items.indexOf(temp);
             items.set(position,temp);
             notifyItemChanged(position);

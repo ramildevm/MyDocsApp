@@ -22,9 +22,7 @@ public class MyEncrypter {
     public static void encryptToFile(String keyStr, String specStr, InputStream in, OutputStream out) {
         try {
             IvParameterSpec iv = new IvParameterSpec(specStr.getBytes(StandardCharsets.UTF_8));
-
             SecretKeySpec keySpec = new SecretKeySpec(keyStr.getBytes(StandardCharsets.UTF_8), ALGO_SECRET_KEY);
-
             Cipher c = Cipher.getInstance(ALGO_IMAGE_ENCRYPTER);
             c.init(Cipher.ENCRYPT_MODE, keySpec, iv);
             out = new CipherOutputStream(out, c);

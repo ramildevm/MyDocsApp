@@ -61,7 +61,7 @@
                 android:textAllCaps="false"
                 android:drawableLeft="@drawable/ic_document"
                 android:background="@drawable/rounded_transparent"
-                android:text="@string/file_add_passport"
+                android:text="@string/passport"
                 android:textSize="20dp"
                 android:textStyle="bold" />
             <Button
@@ -74,7 +74,7 @@
                 android:drawablePadding="4dp"
                 android:drawableLeft="@drawable/ic_document"
                 android:background="@drawable/rounded_transparent"
-                android:text="@string/file_add_inn"
+                android:text="@string/inn"
                 android:textSize="20dp"
                 android:textStyle="bold" />
             <Button
@@ -87,7 +87,7 @@
                 android:drawableLeft="@drawable/ic_document"
                 android:textAllCaps="false"
                 android:background="@drawable/rounded_transparent"
-                android:text="@string/file_add_policy"
+                android:text="@string/policy"
                 android:textSize="20dp"
                 android:textStyle="bold" />
         </LinearLayout>

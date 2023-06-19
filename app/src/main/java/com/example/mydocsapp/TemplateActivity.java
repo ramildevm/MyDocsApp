@@ -1,5 +1,7 @@
 package com.example.mydocsapp;
 
+import static com.example.mydocsapp.services.AppService.NULL_UUID;
+
 import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -64,6 +66,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class TemplateActivity extends AppCompatActivity {
@@ -209,7 +212,8 @@ public class TemplateActivity extends AppCompatActivity {
                 templates) {
             patternContainer.addView(makePatternTopButton(template));
         }
-        patternContainer.addView(makePatternTopTextView(getString(R.string.downloaded)));
+        if(downloadedTemplates.size() > 0)
+            patternContainer.addView(makePatternTopTextView(getString(R.string.downloaded)));
         for (Template template :
                 downloadedTemplates) {
             patternContainer.addView(makePatternTopButton(template));
@@ -360,13 +364,13 @@ public class TemplateActivity extends AppCompatActivity {
         }
     }
     private void saveDocumentBtnClick() {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.US);
         String time = df.format(new Date());
-        Item item = new Item(0, template.Name + db.selectLastItemId(), "Template", null, 0, 0, 0, time, 0, AppService.getUserId(this));
-        db.insertItem(item);
-        int id = db.selectLastItemId();
-        item.Id = id;
-        db.insertTemplateDocument(new TemplateDocument(id, template.Id));
+        Item item = new Item(NULL_UUID, template.Name + db.selectLastItemId(), "Template", null, 0, 0, 0, time, NULL_UUID, AppService.getUserId(this),"");
+
+        UUID id;
+        item.Id = db.insertItem(item, true);
+        db.insertTemplateDocument(new TemplateDocument(item.Id, template.Id,null));
         id = db.selectLastTemplateDocumentId();
         for (TemplateObject templateObject : templateObjects) {
             View view = templateViews.get(templateObject);
@@ -374,13 +378,13 @@ public class TemplateActivity extends AppCompatActivity {
                 continue;
             if (templateObject.Type.equals("EditText") || templateObject.Type.equals("NumberText")) {
                 EditText editText = (EditText) view;
-                db.insertTemplateDocumentData(new TemplateDocumentData(0, editText.getText().toString(), templateObject.Id, id));
+                db.insertTemplateDocumentData(new TemplateDocumentData(NULL_UUID, editText.getText().toString(), templateObject.Id, id));
             } else if (templateObject.Type.equals("CheckBox")) {
                 CheckBox checkBox = (CheckBox) view;
                 String value = checkBox.isChecked() ? "true" : "false";
-                db.insertTemplateDocumentData(new TemplateDocumentData(0, value, templateObject.Id, id));
+                db.insertTemplateDocumentData(new TemplateDocumentData(NULL_UUID, value, templateObject.Id, id));
             }else if (templateObject.Type.equals("Photo")) {
-                TemplateDocumentData tempData = new TemplateDocumentData(0, null, templateObject.Id, id);
+                TemplateDocumentData tempData = new TemplateDocumentData(NULL_UUID, null, templateObject.Id, id);
                 db.insertTemplateDocumentData(tempData);
                 tempData.Id = db.selectLastTemplateDocumentDataId();
                 tempData.Value = savePhoto(view, tempData, item);
@@ -397,11 +401,11 @@ public class TemplateActivity extends AppCompatActivity {
                 return templateDocumentData.Value;
         }
         File rootDir = getApplicationContext().getFilesDir();
-        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME+"/"+ AppService.getUserId(this) + "/Item" + item.Id + "/";
+        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME+"/"+ AppService.getUserId(this) + "/Item" + item.Id + "/Template/";
         File dir = new File(imgPath);
         if (!dir.exists())
             dir.mkdirs();
-        String imgName = item.Title + System.currentTimeMillis();
+        String imgName = item.Title + templateDocumentData.Id;
         File imgFile = new File(dir, imgName);
         if (templateDocumentData.Value != null) {
             File filePath = new File(templateDocumentData.Value);
@@ -420,11 +424,11 @@ public class TemplateActivity extends AppCompatActivity {
     }
 
     private void downloadTemplateBtnClick() {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.US);
         String time = df.format(new Date());
-        Template temp = new Template(0, template.Name, "Downloaded", time, userId);
-        db.insertTemplate(temp);
-        int id = db.selectLastTemplateId();
+        Template temp = new Template(NULL_UUID, template.Name, "Downloaded", time,null ,userId);
+
+        UUID id = db.insertTemplate(temp);
         for (TemplateObject templateObject :
                 templateObjects) {
             templateObject.TemplateId = id;
@@ -434,11 +438,11 @@ public class TemplateActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
     private void saveTemplateBtnClick(String name) {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.US);
         String time = df.format(new Date());
-        Template template = new Template(0, name, "New", time, userId);
+        Template template = new Template(NULL_UUID, name, "New", time,null, userId);
         db.insertTemplate(template);
-        int id = db.selectLastTemplateId();
+        UUID id = db.selectLastTemplateId();
         for (TemplateObject templateObject :
                 templateObjects) {
             templateObject.TemplateId = id;
@@ -534,19 +538,19 @@ public class TemplateActivity extends AppCompatActivity {
                 TemplateObject templateObject;
                 switch (mode) {
                     case DIALOG_EDITTEXT:
-                        templateObject = new TemplateObject(0, templateObjects.size(), "EditText", editText.getText().toString(), 0);
+                        templateObject = new TemplateObject(NULL_UUID, templateObjects.size(), "EditText", editText.getText().toString(), NULL_UUID);
                         makeEditText(templateObject);
                         break;
                     case DIALOG_NUMBER_TEXT:
-                        templateObject = new TemplateObject(0, templateObjects.size(), "NumberText", editText.getText().toString(), 0);
+                        templateObject = new TemplateObject(NULL_UUID, templateObjects.size(), "NumberText", editText.getText().toString(), NULL_UUID);
                         makeEditText(templateObject);
                         break;
                     case DIALOG_CHECKBOX:
-                        templateObject = new TemplateObject(0, templateObjects.size(), "CheckBox", editText.getText().toString(), 0);
+                        templateObject = new TemplateObject(NULL_UUID, templateObjects.size(), "CheckBox", editText.getText().toString(), NULL_UUID);
                         makeCheckBox(templateObject);
                         break;
                     case DIALOG_IMAGE:
-                        templateObject = new TemplateObject(0, templateObjects.size(), "Photo", editText.getText().toString(), 0);
+                        templateObject = new TemplateObject(NULL_UUID, templateObjects.size(), "Photo", editText.getText().toString(), NULL_UUID);
                         makePhoto(templateObject);
                         break;
                     case DIALOG_TEMPLATE_NAME:

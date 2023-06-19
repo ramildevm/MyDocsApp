@@ -27,6 +27,18 @@ android {
     buildFeatures {
         viewBinding true
     }
+    def secretsPropertiesFile = rootProject.file("secrets.properties")
+    if (secretsPropertiesFile.exists()) {
+        def secretsProperties = new Properties()
+        secretsProperties.load(new FileInputStream(secretsPropertiesFile))
+
+        defaultConfig {
+            buildConfigField("String", "ENCRYPTION_KEY", "\"${secretsProperties['encryption.key']}\"")
+            buildConfigField("String", "ENCRYPTION_IV", "\"${secretsProperties['encryption.iv']}\"")
+        }
+    } else {
+        throw new GradleException("secrets.properties file not found!")
+    }
 }
 dependencies {
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.5.+'

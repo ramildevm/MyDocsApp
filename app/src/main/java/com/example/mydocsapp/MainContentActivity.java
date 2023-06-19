@@ -1,5 +1,7 @@
 package com.example.mydocsapp;
 
+import static com.example.mydocsapp.services.AppService.NULL_UUID;
+
 import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
@@ -7,7 +9,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -26,7 +27,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.mydocsapp.api.User;
+import com.example.mydocsapp.models.User;
 import com.example.mydocsapp.apputils.RecyclerItemClickListener;
 import com.example.mydocsapp.interfaces.IItemAdapterActivity;
 import com.example.mydocsapp.models.Item;
@@ -37,7 +38,6 @@ import com.example.mydocsapp.services.CurrentItemsService;
 import com.example.mydocsapp.services.DBHelper;
 import com.example.mydocsapp.services.ItemAdapter;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -172,7 +172,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                 makeRenameDialogMethod(itemsService.getCurrentItemsSet(), "Rename");
                                 makeRenameDialog.show();
                             } else {
-                                if (item.Type.equals("Папка")) {
+                                if (item.Type.equals("Folder")) {
                                     Dialog dialog = new Dialog(MainContentActivity.this);
                                     dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                                     dialog.setContentView(R.layout.folder_items_panel_layout);
@@ -197,11 +197,11 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                                     if (isTitleClicked) {
                                                         makeRenameDialogMethod(CurrentFolderItemsSet, "FRename");
                                                         makeRenameDialog.show();
-                                                    } else if (itemsService.getCurrentItem().Type.equals("Паспорт")) {
+                                                    } else if (itemsService.getCurrentItem().Type.equals("Passport")) {
                                                         goPassportItemClick(itemsService.getCurrentItem());
-                                                    } else if (itemsService.getCurrentItem().Type.equals("Карта")) {
+                                                    } else if (itemsService.getCurrentItem().Type.equals("CreditCard")) {
                                                         goCreditCardItemClick(itemsService.getCurrentItem());
-                                                    }else if (itemsService.getCurrentItem().Type.equals("Изображение")| itemsService.getCurrentItem().Type.equals("Альбом")) {
+                                                    }else if (itemsService.getCurrentItem().Type.equals("Collection")) {
                                                         goImageItemClick(itemsService.getCurrentItem());
                                                     }else if (itemsService.getCurrentItem().Type.equals("Template")) {
                                                         goTemplateItemClick(itemsService.getCurrentItem());
@@ -225,11 +225,11 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                     });
                                     dialog.getWindow().setWindowAnimations(R.style.PauseDialogAnimation);
                                     dialog.show();
-                                } else if (item.Type.equals("Паспорт")) {
+                                } else if (item.Type.equals("Passport")) {
                                     goPassportItemClick(item);
-                                } else if (item.Type.equals("Карта")) {
+                                } else if (item.Type.equals("CreditCard")) {
                                     goCreditCardItemClick(item);
-                                }else if (item.Type.equals("Изображение") | item.Type.equals("Альбом")) {
+                                }else if (item.Type.equals("Collection")) {
                                     goImageItemClick(item);
                                 }else if (item.Type.equals("Template")) {
                                     goTemplateItemClick(item);
@@ -320,13 +320,13 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             if (editText.getText().toString().equals(""))
                 return;
             if (mode.equals("Make")) {
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.US);
                 String time = df.format(new Date());
-                db.insertItem(new Item(0, editText.getText().toString(), "Папка", null, 0, AppService.isHideMode()?1:0, 0, time, 0, 0));
+                db.insertItem(new Item(NULL_UUID, editText.getText().toString(), "Folder", null, 0, AppService.isHideMode()?1:0, 0, time, NULL_UUID, 0,""), true);
             } else {
                 Item item = itemsService.getCurrentItem();
                 item.Title = editText.getText().toString();
-                db.updateItem(item.Id, item);
+                db.updateItem(item.Id, item,false);
             }
             if (mode.equals("Rename") | mode.equals("Make")) {
                 itemsService.setInitialData();
@@ -492,7 +492,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                 x.Priority = (unpinCount==selectedItemsSet.size()&unpinCount!=0)?0:1;
                 x.isSelected = 0;
                 selectedItemsNum--;
-                db.updateItem(x.Id, x);
+                db.updateItem(x.Id, x,false);
             }
         }
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_MOVE, (ArrayList<Item>) db.getItemsByFolder0());
@@ -501,18 +501,18 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     }
     public void bottomHideClick(View view) {
         for (Item x : selectedItemsSet) {
-            if(x.Type.equals("Папка")){
+            if(x.Type.equals("Folder")){
                 List<Item> itemList = itemsService.getFolderItemsFromDb(x.Id);
                 for (Item item : itemList) {
-                    item.isHiden = item.isHiden==1?0:1;
-                    db.updateItem(item.Id, item);
+                    item.IsHidden = item.IsHidden==1?0:1;
+                    db.updateItem(item.Id, item,false);
                 }
             }
             if (x.isSelected == 1) {
-                x.isHiden = x.isHiden==1?0:1;
+                x.IsHidden = x.IsHidden==1?0:1;
                 x.isSelected = 0;
                 selectedItemsNum--;
-                db.updateItem(x.Id, x);
+                db.updateItem(x.Id, x,false);
             }
         }
         for (Item delItem :
@@ -525,21 +525,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     public void bottomDeleteClick(View view) {
         for (Item x : itemsService.getCurrentItemsSet()) {
             if (x.isSelected == 1) {
-                if(x.Type.equals("Папка"))
-                    db.deleteFolder(x.Id, 1);
-                else
-                    db.deleteItem(x.Id);
-                try {
-                    File dir = Environment.getExternalStoragePublicDirectory("Pictures/" + APPLICATION_NAME+"/"+ AppService.getUserId(this) + "/Item" + x.Id);
-                    if (dir.isDirectory()) {
-                        String[] children = dir.list();
-                        for (int i = 0; i < children.length; i++) {
-                            new File(dir, children[i]).delete();
-                        }
-                    }
-                    dir.delete();
-                } catch (Exception e) {
-                }
+                db.deleteItem(x.Id);
                 selectedItemsNum--;
             }
         }
@@ -595,10 +581,6 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     protected void onRestart() {
         super.onRestart();
         reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
-    }
-    @Override
-    public boolean getIsTitleClicked() {
-        return isTitleClicked;
     }
     @Override
     public void setIsTitleClicked(boolean value) {

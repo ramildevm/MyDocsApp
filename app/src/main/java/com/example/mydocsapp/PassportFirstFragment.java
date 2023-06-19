@@ -41,6 +41,7 @@ import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.PassportStateViewModel;
 import com.example.mydocsapp.services.AppService;
+import com.example.mydocsapp.services.ValidationService;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.ByteArrayInputStream;
@@ -83,6 +84,23 @@ public class PassportFirstFragment extends Fragment implements IFragmentDataSave
             copyToClipboard(linkedView);
         }
     }
+
+    @Override
+    public boolean IsValidData() {
+        String dateIssue = binding.editTextDateIssue.getText().toString();
+        String dateBirth = binding.editTextDateBirth.getText().toString();
+        boolean flag = true;
+        if (!ValidationService.isValidDateFormat(dateBirth,"dd-MM-yyyy") & !dateBirth.isEmpty()){
+            binding.editTextDateBirth.setError(getString(R.string.invalid_date));
+            flag =  false;
+        }
+        if (!ValidationService.isValidDateFormat(dateIssue,"dd-MM-yyyy") & !dateIssue.isEmpty()){
+            binding.editTextDateIssue.setError(getString(R.string.invalid_date));
+            flag =  false;
+        }
+        return flag;
+    }
+
     public void copyToClipboard(EditText editText) {
         String text = editText.getText().toString().trim();
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(getContext().CLIPBOARD_SERVICE);

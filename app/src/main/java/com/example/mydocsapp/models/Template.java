@@ -3,29 +3,35 @@ package com.example.mydocsapp.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.UUID;
+
 public class Template implements Parcelable {
-    public int Id;
+    public UUID Id;
     public String Name;
     public String Status;
     public String Date;
+    public String UpdateTime;
     public int UserId;
     public boolean isSelected;
-    public Template(int id, String name, String status, String date, int userId) {
+
+    public Template(UUID id, String name, String status, String date, String updateTime, int userId) {
         Id = id;
-        this.Name = name;
-        this.Date = date;
-        this.Status = status;
-        this.UserId = userId;
+        Name = name;
+        Status = status;
+        Date = date;
+        UpdateTime = updateTime;
+        UserId = userId;
         this.isSelected = false;
     }
 
     protected Template(Parcel in) {
-        Id = in.readInt();
+        Id = UUID.fromString(in.readString());
         Name = in.readString();
         Status = in.readString();
         Date = in.readString();
         UserId = in.readInt();
         isSelected = in.readByte() != 0;
+        UpdateTime = in.readString();
     }
 
     public static final Creator<Template> CREATOR = new Creator<Template>() {
@@ -47,11 +53,12 @@ public class Template implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(Id);
+        parcel.writeString(Id.toString());
         parcel.writeString(Name);
         parcel.writeString(Status);
         parcel.writeString(Date);
         parcel.writeInt(UserId);
         parcel.writeByte((byte) (isSelected ? 1 : 0));
+        parcel.writeString(UpdateTime);
     }
 }

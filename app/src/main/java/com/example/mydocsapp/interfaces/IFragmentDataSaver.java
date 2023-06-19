@@ -9,4 +9,5 @@ public interface IFragmentDataSaver {
     void SaveData();
     List<Bitmap> getPhotos();
     void copyTextClick(View view);
+    boolean IsValidData();
 }

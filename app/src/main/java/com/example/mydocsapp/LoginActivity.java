@@ -4,12 +4,10 @@ import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Pair;
@@ -17,6 +15,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,17 +23,17 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.AppCompatTextView;
-import androidx.core.content.ContextCompat;
 
-import com.example.mydocsapp.api.MainApi;
-import com.example.mydocsapp.api.User;
-import com.example.mydocsapp.api.UserGetCallback;
+import com.example.mydocsapp.api.MainApiService;
+import com.example.mydocsapp.api.ResponseCallback;
+import com.example.mydocsapp.models.User;
 import com.example.mydocsapp.services.AppService;
+import com.example.mydocsapp.services.CryptoService;
 import com.example.mydocsapp.services.DBHelper;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.util.Locale;
 
 public class LoginActivity extends AppCompatActivity {
     DBHelper db;
@@ -52,8 +51,8 @@ public class LoginActivity extends AppCompatActivity {
             int id = user.Id;
             AppService.setUserId(id, this);
             AppService.setHideMode(false);
-            String pinCode = preferences.getString(id+"", "");
-            if(pinCode.equalsIgnoreCase("")) {
+            String pinCode = user.PinCode;
+            if(pinCode == null) {
                 Intent intent = new Intent(LoginActivity.this, MainContentActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
@@ -65,15 +64,33 @@ public class LoginActivity extends AppCompatActivity {
         try {
             db.create_db();
         } catch (IOException e) {
-            Log.e("SQLError", e.getMessage());
             e.printStackTrace();
         }
+        EditText editTextEmail = findViewById(R.id.editTextEmail);
+        editTextEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String email = s.toString().trim();
+                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    editTextEmail.setError(getString(R.string.invalid_email));
+                }else {
+                    editTextEmail.setError(null);
+                }
+            }
+        });
     }
     private void makePinCodeDialog(String pinCode) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LinearLayout layout = (LinearLayout) getLayoutInflater().inflate(R.layout.pin_code_dialog_layout,null);
         AppCompatTextView pinCodeTxt = layout.findViewById(R.id.pinTextView);
-        layout.findViewById(R.id.buttonConfirm).setVisibility(View.INVISIBLE);
         TextInputLayout textInputLayout = layout.findViewById(R.id.textInputLayout);
         layout.findViewById(R.id.button0).setOnClickListener(v->onNumberClick(v,pinCodeTxt,textInputLayout));
         layout.findViewById(R.id.button1).setOnClickListener(v->onNumberClick(v,pinCodeTxt,textInputLayout));
@@ -85,26 +102,17 @@ public class LoginActivity extends AppCompatActivity {
         layout.findViewById(R.id.button7).setOnClickListener(v->onNumberClick(v,pinCodeTxt,textInputLayout));
         layout.findViewById(R.id.button8).setOnClickListener(v->onNumberClick(v,pinCodeTxt,textInputLayout));
         layout.findViewById(R.id.button9).setOnClickListener(v->onNumberClick(v,pinCodeTxt,textInputLayout));
+
         builder.setView(layout);
         AlertDialog dialog = builder.create();
-        pinCodeTxt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-            @Override
-            public void afterTextChanged(Editable editable) {
-                if (pinCodeTxt.getText().toString().length() == 4) {
-                    if (pinCodeTxt.getText().toString().equals(pinCode)) {
-                        Intent intent = new Intent(LoginActivity.this, MainContentActivity.class);
-                        startActivity(intent);
-                        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
-                    } else {
-                        textInputLayout.setError(getString(R.string.pin_code_is_not_correct));
-                        pinCodeTxt.setText("");
-                        new Handler().postDelayed(() -> textInputLayout.setError(null), 400);
-                    }
-                }
+        layout.findViewById(R.id.buttonConfirm).setOnClickListener(v->{
+            if (pinCodeTxt.getText().toString().equals(pinCode)) {
+                Intent intent = new Intent(LoginActivity.this, MainContentActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+            } else {
+                textInputLayout.setError(getString(R.string.pin_code_is_not_correct));
+                pinCodeTxt.setText("");
             }
         });
         layout.findViewById(R.id.buttonDelete).setOnClickListener(v->{
@@ -113,6 +121,10 @@ public class LoginActivity extends AppCompatActivity {
                 String text = pinCodeTxt.getText().toString();
                 pinCodeTxt.setText(text.substring(0, text.length() - 1));
             }
+        });
+        layout.findViewById(R.id.buttonRemoveBack).setBackgroundResource(R.drawable.left_arrow_white);
+        layout.findViewById(R.id.buttonRemoveBack).setOnClickListener(v->{
+            dialog.dismiss();
         });
         dialog.show();
         Window window = dialog.getWindow();
@@ -134,13 +146,20 @@ public class LoginActivity extends AppCompatActivity {
     private void loginMethod() {
         String email = ((TextView) findViewById(R.id.editTextEmail)).getText().toString();
         String password = ((TextView) findViewById(R.id.editTextPassword)).getText().toString();
+        email = "e@mail.ru";
+        password = "12345678"; //TODO: delete
         if (email.isEmpty() | password.isEmpty()) {
             Toast msg = Toast.makeText(LoginActivity.this, R.string.error_not_all_fields_filled, Toast.LENGTH_SHORT);
             msg.show();
             return;
         }
-        fromDB(email, password);
-        //fromAPI(email, password);
+        //fromDB(email, password);
+        fromAPI(email, password);
+    }
+
+    @Override
+    public void onBackPressed() {
+        this.onDestroy();
     }
 
     private void fromDB(String email, String password) {
@@ -212,29 +231,48 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void fromAPI(String email, String password) {
-        MainApi.GetUser(email, new UserGetCallback() {
+        MainApiService mainApiService = new MainApiService(this);
+        mainApiService.GetUser(email, password, new ResponseCallback() {
             @Override
-            public void onResult(User user) {
-                if (user != null) {
-                    if (!password.equals(user.Password) && !password.isEmpty()) {
-                        Toast msg = Toast.makeText(LoginActivity.this, R.string.error_passwords_are_not_same, Toast.LENGTH_SHORT);
-                        msg.show();
-                    } else {
+            public void onSuccess(String encryptedData) {
+                String decryptedData = null;
+                try {
+                    decryptedData = CryptoService.Decrypt(encryptedData);
+                    User user = new Gson().fromJson(decryptedData, User.class);
+                    if(db.getUserById(user.Id)==null)
                         db.insertUser(user);
+                    db.updateUserDate(user.Id, user.UpdateTime);
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.remove("email").commit();
+                    editor.remove("Id").commit();
+                    editor.putString("email", user.Login);
+                    editor.apply();
+                    AppService.setUserId(user.Id, LoginActivity.this);
+                    String pinCode = preferences.getString(user.Id+"", "");
+                    if(pinCode.equalsIgnoreCase("")) {
                         Intent intent = new Intent(LoginActivity.this, MainContentActivity.class);
                         startActivity(intent);
                         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
                     }
-                } else {
-                    Toast msg = Toast.makeText(LoginActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT);
-                    msg.show();
+                    else
+                        makePinCodeDialog(pinCode);
+                }
+                catch (Exception ex){
+
                 }
             }
 
             @Override
-            public void onError(Throwable e) {
-                Toast msg = Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT);
+            public void onConflict() {
+                Toast msg = Toast.makeText(LoginActivity.this, R.string.error_user_doesnt_exists, Toast.LENGTH_SHORT);
                 msg.show();
+
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e("Login error",errorMessage);
             }
         });
     }

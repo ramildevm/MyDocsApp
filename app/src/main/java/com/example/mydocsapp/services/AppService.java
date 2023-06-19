@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.util.UUID;
+
 public class AppService {
     private static String my_key = "r6Nuf3tD9MF0oCcA";
     private static String my_spec_key = "yWP30I1zO92r83Kt";
+    public static final UUID NULL_UUID = new UUID(0L, 0L);
     public static String getMy_key() {
         return my_key;
     }

@@ -75,9 +75,9 @@ public class FolderItemAdapter extends BaseAdapter {
         Item item = items.get(position);
         if(item.Image==null) {
             viewHolder.folderItemPanel.setBackgroundResource(R.drawable.rounded_border_white_14);
-            if (item.Type.equals("Паспорт"))
+            if (item.Type.equals("Passport"))
                 viewHolder.imageView.setImageResource(R.drawable.passport_image_folder);
-            else if (item.Type.equals("Паспорт"))
+            else if (item.Type.equals("Passport"))
                 viewHolder.imageView.setImageResource(R.drawable.image_credit_card_folder);
             else
                 viewHolder.imageView.setImageResource(R.drawable.passport_image_folder);

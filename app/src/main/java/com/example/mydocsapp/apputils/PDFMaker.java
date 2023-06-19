@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.TemplateObject;
 import com.example.mydocsapp.services.AppService;
+import com.example.mydocsapp.services.ValidationService;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -92,11 +93,7 @@ public class PDFMaker {
     private static void makeTemplate(PdfDocument pdfDocument, PdfDocument.PageInfo pageInfo, PdfDocument.Page page1, Canvas canvas1, Paint paint, Paint boldPaint, float x, float y, Map<TemplateObject, View> templateViews, List<TemplateObject> templateObjects) {
         for (TemplateObject templateObject : templateObjects) {
             if(y<PDF_HEIGHT-200) {
-                Log.e("dedPerded", templateObject.Title);
-                Log.e("dedPerded", y+"");
-                Log.e("dedPerded", PDF_HEIGHT+"");
                 View view = templateViews.get(templateObject);
-                Log.e("TemplateDed",templateObject.Title );
                 if (templateObject.Type.equals("EditText") | templateObject.Type.equals("NumberText")) {
                     EditText editText = (EditText) view;
                     String value = editText.getText().toString();
@@ -171,20 +168,17 @@ public class PDFMaker {
             canvas2.drawText("Обратная сторона: ", x, y, paint);
             canvas2.drawBitmap(photo, x, y +40, null);
         }
-        if(!isNullOrEmpty(passport.PhotoPage1) & !isNullOrEmpty(passport.PhotoPage2))
+        if(!ValidationService.isNullOrEmpty(passport.PhotoPage1) & !ValidationService.isNullOrEmpty(passport.PhotoPage2))
             pdfDocument.finishPage(page2);
     }
 
     private static float getYMakeText(Canvas canvas1, Paint paint, Paint boldPaint, float x, float y, String s, String seriaNomer) {
         canvas1.drawText(s, x, y, boldPaint);
-        canvas1.drawText(isNullOrEmpty(seriaNomer) ? "нет данных" : seriaNomer, x + boldPaint.measureText(s), y, paint);
+        canvas1.drawText(ValidationService.isNullOrEmpty(seriaNomer) ? "нет данных" : seriaNomer, x + boldPaint.measureText(s), y, paint);
         y += 40;
         return y;
     }
 
-    private static boolean isNullOrEmpty(String str) {
-        return str == null || str.isEmpty();
-    }
     private static Bitmap addPhoto(String photoPath, int width, int height){
         String directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
         if(photoPath==null)
@@ -219,9 +213,7 @@ public class PDFMaker {
     private static Bitmap bitmapToSquare(Bitmap originalBitmap){
         int originalWidth = originalBitmap.getWidth();
         int originalHeight = originalBitmap.getHeight();
-
         int squareSize = Math.max(originalWidth, originalHeight);
-
         Bitmap resizedBitmap = Bitmap.createBitmap(squareSize, squareSize, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(resizedBitmap);
         canvas.drawColor(Color.WHITE);

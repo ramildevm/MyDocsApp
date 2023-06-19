@@ -17,7 +17,7 @@ import androidx.core.view.GestureDetectorCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.mydocsapp.api.User;
+import com.example.mydocsapp.models.User;
 import com.example.mydocsapp.databinding.ActivityMainMenuBinding;
 import com.example.mydocsapp.services.AppService;
 import com.example.mydocsapp.services.DBHelper;

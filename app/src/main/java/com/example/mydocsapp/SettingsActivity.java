@@ -2,11 +2,9 @@ package com.example.mydocsapp;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -20,19 +18,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import com.example.mydocsapp.databinding.ActivitySettingsBinding;
+import com.example.mydocsapp.models.User;
 import com.example.mydocsapp.services.AppService;
+import com.example.mydocsapp.services.DBHelper;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Locale;
 
 public class SettingsActivity extends AppCompatActivity {
     ActivitySettingsBinding binding;
+    DBHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivitySettingsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setOnClickListeners();
+        db = new DBHelper(this,AppService.getUserId(this));
     }
     private void setOnClickListeners() {
         binding.menubarBack.setOnClickListener(v->goBackAccountClick(v));
@@ -52,7 +54,7 @@ public class SettingsActivity extends AppCompatActivity {
         LinearLayout layout = (LinearLayout) getLayoutInflater().inflate(R.layout.pin_code_dialog_layout,null);
         AppCompatTextView pinCodeTxt = layout.findViewById(R.id.pinTextView);
         layout.findViewById(R.id.buttonConfirm).setVisibility(View.VISIBLE);
-        layout.findViewById(R.id.buttonRemove).setVisibility(View.VISIBLE);
+        layout.findViewById(R.id.buttonRemoveBack).setVisibility(View.VISIBLE);
         TextInputLayout textInputLayout = layout.findViewById(R.id.textInputLayout);
         layout.findViewById(R.id.button0).setOnClickListener(v->onNumberClick(v,pinCodeTxt,textInputLayout));
         layout.findViewById(R.id.button1).setOnClickListener(v->onNumberClick(v,pinCodeTxt,textInputLayout));
@@ -67,17 +69,18 @@ public class SettingsActivity extends AppCompatActivity {
         builder.setView(layout);
         AlertDialog dialog = builder.create();
         layout.findViewById(R.id.buttonConfirm).setOnClickListener(v->{
-            if(pinCodeTxt.getText().toString().length()==4) {
+            if(pinCodeTxt.getText().toString().length()>=4) {
                 onConfirmPinCodeClick(pinCodeTxt.getText().toString());
                 dialog.dismiss();
             }
             else
-                textInputLayout.setError(getString(R.string.pin_code_not_enough));
+                textInputLayout.setError(getString(R.string.pin_code_short));
         });
-        layout.findViewById(R.id.buttonRemove).setOnClickListener(v->{
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.remove(AppService.getUserId(this)+"").commit();
+        layout.findViewById(R.id.buttonRemoveBack).setOnClickListener(v->{
+            int id =AppService.getUserId(this);
+            User user = db.getUserById(id);
+            user.PinCode = null;
+            db.updateUser(id,user);
             Toast.makeText(this,R.string.pin_code_deleted,Toast.LENGTH_LONG).show();
             dialog.dismiss();
         });
@@ -101,11 +104,10 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void onConfirmPinCodeClick(String pinCode) {
         Toast.makeText(this,R.string.pin_code_created,Toast.LENGTH_LONG).show();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.remove(AppService.getUserId(this)+"").commit();
-        editor.putString(AppService.getUserId(this)+"",pinCode);
-        editor.apply();
+        int id =AppService.getUserId(this);
+        User user = db.getUserById(id);
+        user.PinCode = pinCode;
+        db.updateUser(id,user);
     }
     private void onNumberClick(View v, TextView pinCodeTxt, TextInputLayout textInputLayout) {
         textInputLayout.setError(null);

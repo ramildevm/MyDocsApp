@@ -3,17 +3,22 @@ package com.example.mydocsapp.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.UUID;
+
 public class TemplateDocument implements Parcelable {
-    public int Id;
-    public int TemplateId;
-    public TemplateDocument(int id, int templateId) {
+    public UUID Id;
+    public UUID TemplateId;
+    public String UpdateTime;
+    public TemplateDocument(UUID id, UUID templateId, String updateTime) {
         Id = id;
         TemplateId = templateId;
+        UpdateTime = updateTime;
     }
 
     protected TemplateDocument(Parcel in) {
-        Id = in.readInt();
-        TemplateId = in.readInt();
+        Id = UUID.fromString(in.readString());
+        TemplateId = UUID.fromString(in.readString());
+        UpdateTime = in.readString();
     }
 
     public static final Creator<TemplateDocument> CREATOR = new Creator<TemplateDocument>() {
@@ -35,7 +40,8 @@ public class TemplateDocument implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(Id);
-        parcel.writeInt(TemplateId);
+        parcel.writeString(Id.toString());
+        parcel.writeString(TemplateId.toString());
+        parcel.writeString(UpdateTime);
     }
 }

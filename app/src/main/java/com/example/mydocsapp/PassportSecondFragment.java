@@ -141,12 +141,10 @@ public class PassportSecondFragment extends Fragment implements IFragmentDataSav
             getActivity().startActivity(intent);
         });
         binding.loadPage1PhotoBtn.setOnClickListener(v -> {
-            Log.e("dedPerded", "clickecd");
             if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = CropImage.activity()
                         .getIntent(getContext());
                 registerForARPage1.launch(intent);
-                Log.e("dedPerded", "launched");
             } else {
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
             }
@@ -194,6 +192,10 @@ public class PassportSecondFragment extends Fragment implements IFragmentDataSav
                     e.printStackTrace();
                 }}}}
 
+    @Override
+    public boolean IsValidData() {
+        return true;
+    }
     @Override
     public void SaveData() {
     }

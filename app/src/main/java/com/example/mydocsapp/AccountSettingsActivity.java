@@ -8,13 +8,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.mydocsapp.api.User;
+import com.example.mydocsapp.models.User;
 import com.example.mydocsapp.databinding.ActivityAccountSettingsBinding;
 import com.example.mydocsapp.services.AppService;
 import com.example.mydocsapp.services.DBHelper;
-import com.google.android.material.textfield.TextInputLayout;
-
-import java.time.LocalDateTime;
 
 public class AccountSettingsActivity extends AppCompatActivity {
     ActivityAccountSettingsBinding binding;

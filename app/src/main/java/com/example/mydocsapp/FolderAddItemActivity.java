@@ -1,8 +1,9 @@
 package com.example.mydocsapp;
 
+import static com.example.mydocsapp.services.AppService.NULL_UUID;
+
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,16 +19,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mydocsapp.apputils.RecyclerItemClickListener;
 import com.example.mydocsapp.interfaces.IItemAdapterActivity;
+import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.services.AppService;
 import com.example.mydocsapp.services.DBHelper;
-import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.services.ItemAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class FolderAddItemActivity extends AppCompatActivity implements IItemAdapterActivity {
-    ArrayList<Item> items = new ArrayList<Item>();
+    ArrayList<Item> items = new ArrayList<>();
     ItemAdapter adapter;
     DBHelper db;
     private int selectedItemsNum;
@@ -84,7 +86,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
                 selectedItemsNum++;
                 ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
             }
-            if(!(item.Type.equals("Папка")))
+            if(!(item.Type.equals("Folder")))
                 items.add(item);
         }
     }
@@ -113,11 +115,11 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
     }
     public void saveSelectedClick(View view) {
         for (Item x: items) {
-            int flag;
+            UUID flag;
             if(x.isSelected == 1)
                 flag = CurrentItem.Id;
             else
-                flag = 0;
+                flag = NULL_UUID;
             selectedItemsNum--;
             db.updateItemFolder(x.Id, flag);
         }
@@ -128,8 +130,6 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
         setResult(Activity.RESULT_CANCELED,returnIntent);
         finish();
     }
-    @Override
-    public boolean getIsTitleClicked() {return false;}
     @Override
     public void setIsTitleClicked(boolean value) {}
 }

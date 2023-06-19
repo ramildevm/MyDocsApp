@@ -289,7 +289,7 @@
         android:textSize="16dp"
         android:layout_height="wrap_content"
         android:translationY="-60dp"
-        android:text="@string/folder_string"
+        android:text="@string/folder"
         app:layout_constraintBottom_toBottomOf="@id/flow_button"
         app:layout_constraintTop_toTopOf="@id/flow_button"
         app:layout_constraintEnd_toStartOf="@id/flow_button"

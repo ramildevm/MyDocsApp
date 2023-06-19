@@ -1,5 +1,7 @@
 package com.example.mydocsapp.services;
 
+import static com.example.mydocsapp.services.AppService.NULL_UUID;
+
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,25 +10,30 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.mydocsapp.api.User;
 import com.example.mydocsapp.models.CreditCard;
+import com.example.mydocsapp.models.Inn;
 import com.example.mydocsapp.models.Item;
 import com.example.mydocsapp.models.Passport;
 import com.example.mydocsapp.models.Photo;
 import com.example.mydocsapp.models.Polis;
+import com.example.mydocsapp.models.Snils;
 import com.example.mydocsapp.models.Template;
 import com.example.mydocsapp.models.TemplateDocument;
 import com.example.mydocsapp.models.TemplateDocumentData;
 import com.example.mydocsapp.models.TemplateObject;
-import com.example.mydocsapp.models.UserTemplate;
+import com.example.mydocsapp.models.User;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 public class DBHelper extends SQLiteOpenHelper {
     private static String DB_PATH = null; // полный путь к базе данных
@@ -60,7 +67,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public void create_db() throws IOException {
         File file = new File(DB_PATH);
         if (!file.exists()) {
-            //получаем локальную бд как поток
             InputStream is = myContext.getAssets().open(DB_NAME);
             OutputStream fos = new FileOutputStream(DB_PATH);
             int length = 0;
@@ -79,52 +85,83 @@ public class DBHelper extends SQLiteOpenHelper {
         return SQLiteDatabase.openDatabase(DB_PATH, null, SQLiteDatabase.OPEN_READWRITE);
     }
 
+    private String getCurrentTime() {
+        long datetimeMillis = new Date().getTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String formattedDateTime = dateFormat.format(new Date(datetimeMillis));
+        return formattedDateTime;
+    }
+
+    private void deletePhotoFile(String image) {
+        if(image==null)
+            return;
+        File file = new File(image);
+        File directory = new File(file.getAbsolutePath());
+        deleteDirectory(directory);
+
+    }
+    public void deleteDirectory(File directory){
+        if (directory.exists()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        deleteDirectory(file);
+                    } else {
+                        file.delete();
+                    }
+                }
+            }
+        }
+    }
     //*********************************************************************************************
     //Item table
-    public Boolean insertItem(Item item) {
+    public UUID insertItem(Item item, boolean isNew) {
+        UUID id = isNew?UUID.randomUUID():item.Id;
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        cv.put("Id", id.toString());
         cv.put("Title", item.Title);
         cv.put("Type", item.Type);
         cv.put("Image", item.Image);
         cv.put("Priority", item.Priority);
-        cv.put("isHiden", item.isHiden);
-        cv.put("FolderId", item.FolderId);
+        cv.put("IsHidden", item.IsHidden);
+        cv.put("FolderId", item.FolderId.toString());
         cv.put("DateCreation", item.DateCreation);
         cv.put("UserId", UserId);
-        cv.put("isSelected", item.isSelected);
+        cv.put("UpdateTime", getCurrentTime());
         long result = db.insert("Item", null, cv);
         if (result == -1)
-            return false;
+            return NULL_UUID;
         else
-            return true;
+            return id;
     }
 
     private List<Item> getItemsFromCursor(Cursor cur) {
         List<Item> items = new ArrayList<>();
         Item item;
         while (cur.moveToNext()) {
-            item = new Item(cur.getInt(0),
+            item = new Item(UUID.fromString(cur.getString(0)),
                     cur.getString(1),
                     cur.getString(2),
                     cur.getString(3),
                     cur.getInt(4),
                     cur.getInt(5),
-                    cur.getInt(6),
-                    cur.getString(7),
+                    0,
+                    cur.getString(6),
+                    UUID.fromString(cur.getString(7)),
                     cur.getInt(8),
-                    cur.getInt(8));
+                    cur.getString(9));
             items.add(item);
         }
         return items;
     }
 
-    public Boolean updateItemFolder(int id, int i) {
+    public Boolean updateItemFolder(UUID id, UUID i) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("FolderId", i);
-        cv.put("isSelected", 0);
-        long result = db.update("Item", cv, "id=?", new String[]{"" + id});
+        cv.put("FolderId", i.toString());
+        long result = db.update("Item", cv, "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
             return false;
         else {
@@ -132,92 +169,275 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public Boolean updateItem(int id, Item item) {
+    public Boolean updateItem(UUID id, Item item, boolean isDelete) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        if (isDelete)
+            item.setValuesNull();
+        else
+            item.UpdateTime = getCurrentTime();
         cv.put("Title", item.Title);
         cv.put("Type", item.Type);
         cv.put("Image", item.Image);
         cv.put("Priority", item.Priority);
-        cv.put("isHiden", item.isHiden);
-        cv.put("FolderId", item.FolderId);
+        cv.put("IsHidden", item.IsHidden);
+        cv.put("FolderId", item.FolderId.toString());
         cv.put("DateCreation", item.DateCreation);
         cv.put("UserId", UserId);
-        cv.put("isSelected", item.isSelected);
-        long result = db.update("Item", cv, "id=?", new String[]{"" + id});
+        cv.put("UpdateTime", item.UpdateTime);
+        long result = db.update("Item", cv, "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
             return false;
         else {
             return true;
         }
-    }
-
-    public List<Item> getItemsByFolder(int id, int hideMode) {
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where isHiden=? and FolderId=? and UserId=? order by Priority desc, id asc", new String[]{hideMode + "", "" + id, UserId + ""});
-        return getItemsFromCursor(cursor);
-    }
-
-    public List<Item> getItemsByFolder0() {
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where isHiden=0 and FolderId=0 and UserId=? order by Priority desc, id asc", new String[]{this.UserId + ""});
-        return getItemsFromCursor(cursor);
-    }
-    public Item getItemById(int id) {
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where Id=? and UserId=? order by Priority desc, id asc", new String[]{id+"",this.UserId + ""});
-        return getItemsFromCursor(cursor).get(0);
-    }
-
-    public List<Item> getHiddenItemsByFolder0() {
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where isHiden=1 and FolderId=0 and UserId=? order by Priority desc, id asc", new String[]{this.UserId + ""});
-        return getItemsFromCursor(cursor);
-    }
-
-    public List<Item> getItemsByFolderIdForAdding(int id, int hideMode) {
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where isHiden=? and UserId=? and FolderId=0 or FolderId=? order by Priority desc, id asc", new String[]{hideMode + "", UserId + "", "" + id});
-        return getItemsFromCursor(cursor);
-    }
-
-    public int getItemFolderItemsCount(int id) {
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where FolderId=? and UserId=? order by Priority desc, id asc", new String[]{"" + id, UserId + ""});
-        return cursor.getCount();
-    }
-
-    public Boolean deleteItem(int id) {
-        SQLiteDatabase db = open();
-        db.delete("Item", "Id=?", new String[]{"" + id});
-        db.delete("Passport", "Id=?", new String[]{"" + id});
-        db.delete("CreditCard", "Id=?", new String[]{"" + id});
-        db.delete("INN", "Id=?", new String[]{"" + id});
-        db.delete("SNILS", "Id=?", new String[]{"" + id});
-        db.delete("Polis", "Id=?", new String[]{"" + id});
-        deleteTemplateDocument(id);
-        db.delete("Photo", "CollectionId=?", new String[]{"" + id});
-        return true;
-    }
-
-    public Boolean deleteFolder(int id, int deleteAll) {
-        SQLiteDatabase db = open();
-        db.delete("Item", "Id=?", new String[]{"" + id});
-        db.delete("Item", "FolderId=?", new String[]{"" + id});
-        return true;
     }
 
     @SuppressLint("Range")
     public int selectLastItemId() {
         SQLiteDatabase db = open();
-        Cursor cur = db.rawQuery("SELECT rowid from Item order by ROWID DESC limit 1", null);
-        cur.moveToFirst();
+        Cursor cursor = db.rawQuery("SELECT rowid from TemplateDocumentData order by ROWID DESC limit 1", null);
         int id;
-        if (cur != null && cur.getCount() > 0)
-            id = cur.getInt(0);
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(cursor.getColumnIndex("rowid"));
+            return id;
+        } else
+            return 0;
+    }
+
+    public List<Item> getItemsByFolder(UUID id, int hideMode) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Item where UserId=? order by Priority desc, rowid asc", new String[]{UserId + ""});
+        return getItemsFromCursor(cursor);
+    }
+
+    public List<Item> getItemsByUser() {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Item where UserId=?", new String[]{ this.UserId + ""});
+        return getItemsFromCursor(cursor);
+    }
+    public List<Item> getAllItemsByUser(String type) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Item where UserId=? and Type=?", new String[]{ this.UserId + "", type});
+        return getItemsFromCursor(cursor);
+    }
+    public List<Item> getItemsByFolder0() {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Item where UpdateTime IS NOT NULL and IsHidden=0 and FolderId=? and UserId=? order by Priority desc, rowid asc", new String[]{NULL_UUID.toString(), this.UserId + ""});
+        return getItemsFromCursor(cursor);
+    }
+
+    public Item getItemById(UUID id) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Item where Id=? and UserId=? order by Priority desc, id asc", new String[]{id.toString(), this.UserId + ""});
+        return cursor.getCount()==0?null: getItemsFromCursor(cursor).get(0);
+    }
+
+    public List<Item> getHiddenItemsByFolder0() {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Item where UpdateTime IS NOT NULL and IsHidden=1 and FolderId=? and UserId=? order by Priority desc, rowid asc", new String[]{NULL_UUID.toString(), this.UserId + ""});
+        return getItemsFromCursor(cursor);
+    }
+
+    public List<Item> getItemsByFolderIdForAdding(UUID id, int hideMode) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Item where UpdateTime IS NOT NULL and IsHidden=? and UserId=? and FolderId=? or FolderId=? order by Priority desc, rowid asc", new String[]{ hideMode + "", UserId + "", NULL_UUID.toString(), "" + id.toString()});
+        return getItemsFromCursor(cursor);
+    }
+
+    public int getItemFolderItemsCount(UUID id) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Item where UpdateTime IS NOT NULL and FolderId=? and UserId=? order by Priority desc, rowid asc", new String[]{"" + id.toString(), UserId + ""});
+        return cursor.getCount();
+    }
+
+    public Boolean deleteItem(UUID id) {
+        Item item = getItemById(id);
+        updateItem(item.Id, item, true);
+        deletePhotoFile(item.Image);
+        deletePassport(id);
+        deleteCreditCard(id);
+        deleteINN(id);
+        deleteSnils(id);
+        deletePolis(id);
+        deletePhotos(id);
+        deleteTemplateDocument(id);
+        return true;
+    }
+
+    private void deleteCreditCard(UUID id) {
+        CreditCard object = getCreditCardById(id);
+        if (object != null) {
+            updateCreditCard(object.Id, object, true);
+            deletePhotoFile(object.PhotoPage1);
+        }
+    }
+
+    private void deleteINN(UUID id) {
+        Inn object = getInnById(id);
+        if (object != null) {
+            updateInn(object.Id, object, true);
+            deletePhotoFile(object.PhotoPage1);
+        }
+    }
+
+    public Boolean deleteItemConfirm(UUID id) {
+        SQLiteDatabase db = open();
+        db.delete("Item", "Id=?", new String[]{"" + id.toString()});
+        db.delete("Passport", "Id=?", new String[]{"" + id.toString()});
+        db.delete("CreditCard", "Id=?", new String[]{"" + id.toString()});
+        db.delete("INN", "Id=?", new String[]{"" + id.toString()});
+        db.delete("SNILS", "Id=?", new String[]{"" + id.toString()});
+        db.delete("Polis", "Id=?", new String[]{"" + id.toString()});
+        deleteTemplateDocumentConfirm(id);
+        db.delete("Photo", "CollectionId=?", new String[]{"" + id.toString()});
+        db.delete("Item", "FolderId=?", new String[]{"" + id.toString()});
+        return true;
+    }
+
+    //SNILS table
+    private List<Snils> getSnilsFromCursor(Cursor cur) {
+        List<Snils> snilsList = new ArrayList<>();
+        Snils snils;
+        while (cur.moveToNext()) {
+            snils = new Snils(UUID.fromString(cur.getString(0)),
+                    cur.getString(1),
+                    cur.getString(2),
+                    cur.getString(3).charAt(0),
+                    cur.getString(4),
+                    cur.getString(5),
+                    cur.getString(6),
+                    cur.getString(7),
+                    cur.getString(8));
+            snilsList.add(snils);
+        }
+        return snilsList;
+    }
+
+    public void deleteSnils(UUID id) {
+        Snils object = getSnilsById(id);
+        if (object != null) {
+            updateSnils(object.Id, object, true);
+            deletePhotoFile(object.PhotoPage1);
+        }
+    }
+
+    public Snils getSnilsById(UUID objectId) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("SELECT * FROM SNILS WHERE Id=?", new String[]{objectId.toString()});
+        return cursor.getCount()==0? null:getSnilsFromCursor(cursor).get(0);
+    }
+
+    public boolean updateSnils(UUID id, Snils snils, boolean isDelete) {
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        if (isDelete)
+            snils.setValuesNull();
         else
-            id = 0;
-        return id;
+            snils.UpdateTime = getCurrentTime();
+        cv.put("Number", snils.Number);
+        cv.put("FIO", snils.FIO);
+        cv.put("Gender", String.valueOf(snils.Gender));
+        cv.put("BirthDate", snils.BirthDate);
+        cv.put("BirthPlace", snils.BirthPlace);
+        cv.put("RegistrationDate", snils.RegistrationDate);
+        cv.put("PhotoPage1", snils.PhotoPage1);
+        cv.put("UpdateTime", snils.UpdateTime);
+        int result = db.update("SNILS", cv, "Id=?", new String[]{id.toString()});
+        return result > 0;
+    }
+
+    public UUID insertSnils(Snils snils) {
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("Id", snils.Id.toString());
+        cv.put("Number", snils.Number);
+        cv.put("FIO", snils.FIO);
+        cv.put("Gender", String.valueOf(snils.Gender));
+        cv.put("BirthDate", snils.BirthDate);
+        cv.put("BirthPlace", snils.BirthPlace);
+        cv.put("RegistrationDate", snils.RegistrationDate);
+        cv.put("PhotoPage1", snils.PhotoPage1);
+        cv.put("UpdateTime", getCurrentTime());
+        long result = db.insert("SNILS", null, cv);
+        return result > 0 ? snils.Id : NULL_UUID;
+    }
+
+
+    // Inn table
+    private List<Inn> getInnsFromCursor(Cursor cur) {
+        List<Inn> inns = new ArrayList<>();
+        Inn inn;
+        while (cur.moveToNext()) {
+            inn = new Inn(UUID.fromString(cur.getString(0)),
+                    cur.getString(1),
+                    cur.getString(2),
+                    cur.getString(3).charAt(0),
+                    cur.getString(4),
+                    cur.getString(5),
+                    cur.getString(6),
+                    cur.getString(7),
+                    cur.getString(8));
+            inns.add(inn);
+        }
+        return inns;
+    }
+
+    public void deleteInn(UUID id) {
+        Inn object = getInnById(id);
+        if (object != null) {
+            updateInn(object.Id, object, true);
+            deletePhotoFile(object.PhotoPage1);
+        }
+    }
+
+    public Inn getInnById(UUID objectId) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from INN where Id=?", new String[]{"" + objectId.toString()});
+        return cursor.getCount()==0? null: getInnsFromCursor(cursor).get(0);
+    }
+
+    public Boolean updateInn(UUID id, Inn inn, boolean isDelete) {
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        if (isDelete)
+            inn.setValuesNull();
+        else
+            inn.UpdateTime = getCurrentTime();
+        cv.put("Number", inn.Number);
+        cv.put("FIO", inn.FIO);
+        cv.put("Gender", String.valueOf(inn.Gender));
+        cv.put("BirthDate", inn.BirthDate);
+        cv.put("BirthPlace", inn.BirthPlace);
+        cv.put("RegistrationDate", inn.RegistrationDate);
+        cv.put("PhotoPage1", inn.PhotoPage1);
+        cv.put("UpdateTime", inn.UpdateTime);
+        long result = db.update("Inn", cv, "id=?", new String[]{"" + id.toString()});
+        if (result <= 0)
+            return false;
+        else {
+            return true;
+        }
+    }
+
+    public UUID insertInn(Inn inn) {
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("Id", inn.Id.toString());
+        cv.put("Number", inn.Number);
+        cv.put("FIO", inn.FIO);
+        cv.put("Gender", String.valueOf(inn.Gender));
+        cv.put("BirthDate", inn.BirthDate);
+        cv.put("BirthPlace", inn.BirthPlace);
+        cv.put("RegistrationDate", inn.RegistrationDate);
+        cv.put("PhotoPage1", inn.PhotoPage1);
+        cv.put("UpdateTime", getCurrentTime());
+        long result = db.insert("Inn", null, cv);
+        if (result <= 0)
+            return NULL_UUID;
+        else {
+            return inn.Id;
+        }
     }
 
     //*********************************************************************************************
@@ -226,8 +446,7 @@ public class DBHelper extends SQLiteOpenHelper {
         List<Passport> passports = new ArrayList<>();
         Passport passport;
         while (cur.moveToNext()) {
-            passport = new Passport(
-                    cur.getInt(0),
+            passport = new Passport(UUID.fromString(cur.getString(0)),
                     cur.getString(1),
                     cur.getString(2),
                     cur.getString(3),
@@ -239,21 +458,45 @@ public class DBHelper extends SQLiteOpenHelper {
                     cur.getString(9),
                     cur.getString(10),
                     cur.getString(11),
-                    cur.getString(12));
+                    cur.getString(12),
+                    cur.getString(13));
             passports.add(passport);
         }
         return passports;
     }
 
-    public Passport getPassportById(int objectId) {
+    public List<Passport> getPassportsByUser() {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Passport where Id=?", new String[]{"" + objectId});
-        return getPassportsFromCursor(cursor).get(0);
+        Cursor cursor = db.rawQuery("select * from Passport where UserId=?", new String[]{this.UserId + ""});
+        return getPassportsFromCursor(cursor);
+    }
+    public void deletePassport(UUID id) {
+        Passport object = getPassportById(id);
+        if (object != null) {
+            updatePassport(object.Id, object, true);
+            deletePhotoFile(object.FacePhoto);
+            deletePhotoFile(object.PhotoPage1);
+            deletePhotoFile(object.PhotoPage2);
+        }
+    }
+    public void deletePassportConfirm(UUID id) {
+        SQLiteDatabase db = open();
+        db.delete("Passport", "Id=?", new String[]{"" + id.toString()});
     }
 
-    public Boolean updatePassport(int id, Passport passport) {
+    public Passport getPassportById(UUID objectId) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Passport where Id=?", new String[]{"" + objectId.toString()});
+        return cursor.getCount()==0? null:getPassportsFromCursor(cursor).get(0);
+    }
+
+    public Boolean updatePassport(UUID id, Passport passport, boolean isDelete) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        if (isDelete)
+            passport.setValuesNull();
+        else
+            passport.UpdateTime = getCurrentTime();
         cv.put("SeriaNomer", passport.SeriaNomer);
         cv.put("DivisionCode", passport.DivisionCode);
         cv.put("GiveDate", passport.GiveDate);
@@ -266,7 +509,8 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("FacePhoto", passport.FacePhoto);
         cv.put("PhotoPage1", passport.PhotoPage1);
         cv.put("PhotoPage2", passport.PhotoPage2);
-        long result = db.update("Passport", cv, "id=?", new String[]{"" + id});
+        cv.put("UpdateTime", passport.UpdateTime);
+        long result = db.update("Passport", cv, "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
             return false;
         else {
@@ -274,10 +518,10 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public Boolean insertPassport(Passport passport) {
+    public UUID insertPassport(Passport passport) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Id", passport.Id);
+        cv.put("Id", passport.Id.toString());
         cv.put("SeriaNomer", passport.SeriaNomer);
         cv.put("DivisionCode", passport.DivisionCode);
         cv.put("GiveDate", passport.GiveDate);
@@ -290,11 +534,12 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("FacePhoto", passport.FacePhoto);
         cv.put("PhotoPage1", passport.PhotoPage1);
         cv.put("PhotoPage2", passport.PhotoPage2);
+        cv.put("UpdateTime", getCurrentTime());
         long result = db.insert("Passport", null, cv);
         if (result <= 0)
-            return false;
+            return NULL_UUID;
         else {
-            return true;
+            return passport.Id;
         }
     }
 
@@ -341,6 +586,20 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("Email", user.Email);
         cv.put("Login", user.Login);
         cv.put("Password", user.Password);
+        cv.put("Photo", user.Photo);
+        cv.put("PinCode", user.PinCode);
+        long result = db.update("User", cv, "id=?", new String[]{"" + id});
+        if (result <= 0)
+            return false;
+        else {
+            return true;
+        }
+    }
+
+    public Boolean updateUserDate(int id, String datetimeMillis) {
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("UpdateTime", datetimeMillis);
         long result = db.update("User", cv, "id=?", new String[]{"" + id});
         if (result <= 0)
             return false;
@@ -352,12 +611,13 @@ public class DBHelper extends SQLiteOpenHelper {
     public Boolean insertUser(User user) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        cv.put("Id", user.Id);
         cv.put("Email", user.Email);
         cv.put("Login", user.Login);
         cv.put("Password", user.Password);
-        cv.put("PremiumStatus", user.PremiumStatus);
-        cv.put("Syncing", user.Syncing);
         cv.put("Photo", user.Photo);
+        cv.put("PinCode", user.PinCode);
+        cv.put("UpdateTime", user.UpdateTime);
         long result = db.insert("User", null, cv);
         if (result <= 0)
             return false;
@@ -385,23 +645,24 @@ public class DBHelper extends SQLiteOpenHelper {
         Photo photo;
         while (cur.moveToNext()) {
             photo = new Photo(
-                    cur.getInt(0),
+                    UUID.fromString(cur.getString(0)),
                     cur.getString(1),
-                    cur.getInt(2));
+                    UUID.fromString(cur.getString(2)),
+                    cur.getString(3));
             photos.add(photo);
         }
         return photos;
     }
 
-    public List<Photo> getPhotos(int id) {
+    public List<Photo> getPhotos(UUID id) {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Photo where CollectionId=?", new String[]{"" + id});
+        Cursor cursor = db.rawQuery("select * from Photo where CollectionId=?", new String[]{"" + id.toString()});
         return getPhotosFromCursor(cursor);
     }
 
-    public Boolean deletePhoto(int id) {
+    public Boolean deletePhoto(UUID id) {
         SQLiteDatabase db = open();
-        long result = db.delete("Photo", "id=?", new String[]{"" + id});
+        long result = db.delete("Photo", "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
             return false;
         else {
@@ -409,12 +670,25 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public Boolean updatePhoto(int id, Photo photo) {
+    public Boolean deletePhotos(UUID id) {
+        List<Photo> photos = getPhotos(id);
+        for (Photo photo :
+                photos) {
+            deletePhotoFile(photo.Image);
+            photo.Image = null;
+            photo.UpdateTime = null;
+            updatePhoto(photo.Id, photo);
+        }
+        return true;
+    }
+
+    public Boolean updatePhoto(UUID id, Photo photo) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Path", photo.Path);
-        cv.put("CollectionId", photo.Path);
-        long result = db.update("Photo", cv, "id=?", new String[]{"" + id});
+        cv.put("Image", photo.Image);
+        cv.put("CollectionId", photo.CollectionId.toString());
+        cv.put("UpdateTime", photo.UpdateTime);
+        long result = db.update("Photo", cv, "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
             return false;
         else {
@@ -423,10 +697,13 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public Boolean insertPhoto(Photo photo) {
+        UUID id = UUID.randomUUID();
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Path", photo.Path);
-        cv.put("CollectionId", photo.CollectionId);
+        cv.put("Id", id.toString());
+        cv.put("Image", photo.Image);
+        cv.put("CollectionId", photo.CollectionId.toString());
+        cv.put("UpdateTime", getCurrentTime());
         long result = db.insert("Photo", null, cv);
         if (result <= 0)
             return false;
@@ -443,33 +720,39 @@ public class DBHelper extends SQLiteOpenHelper {
         CreditCard creditCard;
         while (cur.moveToNext()) {
             creditCard = new CreditCard(
-                    cur.getInt(0),
+                    UUID.fromString(cur.getString(0)),
                     cur.getString(1),
                     cur.getString(2),
                     cur.getString(3),
                     cur.getInt(4),
-                    cur.getString(5));
+                    cur.getString(5),
+                    cur.getString(6));
             creditCards.add(creditCard);
         }
         return creditCards;
     }
 
-    public CreditCard getCreditCardById(int objectId) {
+    public CreditCard getCreditCardById(UUID objectId) {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from CreditCard where Id=?", new String[]{"" + objectId});
+        Cursor cursor = db.rawQuery("select * from CreditCard where Id=?", new String[]{"" + objectId.toString()});
         List<CreditCard> cards = getCreditCardsFromCursor(cursor);
         return cards.size() == 0 ? null : cards.get(0);
     }
 
-    public Boolean updateCreditCard(int id, CreditCard creditCard) {
+    public Boolean updateCreditCard(UUID id, CreditCard creditCard, boolean isDelete) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        if (isDelete)
+            creditCard.setValuesNull();
+        else
+            creditCard.UpdateTime = getCurrentTime();
         cv.put("Number", creditCard.Number);
         cv.put("FIO", creditCard.FIO);
         cv.put("ExpiryDate", creditCard.ExpiryDate);
         cv.put("CVV", creditCard.CVV);
         cv.put("PhotoPage1", creditCard.PhotoPage1);
-        long result = db.update("CreditCard", cv, "id=?", new String[]{"" + id});
+        cv.put("UpdateTime", creditCard.UpdateTime);
+        long result = db.update("CreditCard", cv, "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
             return false;
         else {
@@ -477,57 +760,76 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public Boolean insertCreditCard(CreditCard creditCard) {
+    public UUID insertCreditCard(CreditCard creditCard) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Id", creditCard.Id);
+        cv.put("Id", creditCard.Id.toString());
         cv.put("Number", creditCard.Number);
         cv.put("FIO", creditCard.FIO);
         cv.put("ExpiryDate", creditCard.ExpiryDate);
         cv.put("CVV", creditCard.CVV);
         cv.put("PhotoPage1", creditCard.PhotoPage1);
+        cv.put("UpdateTime", getCurrentTime());
         long result = db.insert("CreditCard", null, cv);
         if (result <= 0)
-            return false;
+            return NULL_UUID;
         else {
-            return true;
+            return creditCard.Id;
         }
     }
+
     //Polis
     private List<Polis> getPolisFromCursor(Cursor cur) {
         List<Polis> polisList = new ArrayList<>();
         Polis polis;
         while (cur.moveToNext()) {
             polis = new Polis(
-                    cur.getInt(0),
+                    UUID.fromString(cur.getString(0)),
                     cur.getString(1),
                     cur.getString(2),
                     cur.getString(3).charAt(0),
                     cur.getString(4),
                     cur.getString(5),
-                    cur.getString(6));
+                    cur.getString(6),
+                    cur.getString(7),
+                    cur.getString(8));
             polisList.add(polis);
         }
         return polisList;
     }
 
-    public Polis getPolisById(int objectId) {
+    public void deletePolis(UUID id) {
+        Polis object = getPolisById(id);
+        if (object != null) {
+            updatePolis(object.Id, object, true);
+            deletePhotoFile(object.PhotoPage1);
+            deletePhotoFile(object.PhotoPage2);
+        }
+    }
+
+    public Polis getPolisById(UUID objectId) {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Polis where Id=?", new String[]{"" + objectId});
+        Cursor cursor = db.rawQuery("select * from Polis where Id=?", new String[]{"" + objectId.toString()});
         List<Polis> polisList = getPolisFromCursor(cursor);
         return polisList.size() == 0 ? null : polisList.get(0);
     }
 
-    public Boolean updatePolis(int id, Polis polis) {
+    public Boolean updatePolis(UUID id, Polis polis, boolean isDelete) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        if (isDelete)
+            polis.setValuesNull();
+        else
+            polis.UpdateTime = getCurrentTime();
         cv.put("Number", polis.Number);
         cv.put("FIO", polis.FIO);
         cv.put("Gender", String.valueOf(polis.Gender));
         cv.put("BirthDate", polis.BirthDate);
         cv.put("PhotoPage1", polis.PhotoPage1);
         cv.put("PhotoPage2", polis.PhotoPage2);
-        long result = db.update("Polis", cv, "id=?", new String[]{"" + id});
+        cv.put("ValidUntil", polis.ValidUntil);
+        cv.put("UpdateTime", polis.UpdateTime);
+        long result = db.update("Polis", cv, "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
             return false;
         else {
@@ -538,13 +840,15 @@ public class DBHelper extends SQLiteOpenHelper {
     public Boolean insertPolis(Polis polis) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Id", polis.Id);
+        cv.put("Id", polis.Id.toString());
         cv.put("Number", polis.Number);
         cv.put("FIO", polis.FIO);
         cv.put("Gender", String.valueOf(polis.Gender));
         cv.put("BirthDate", polis.BirthDate);
         cv.put("PhotoPage1", polis.PhotoPage1);
         cv.put("PhotoPage2", polis.PhotoPage2);
+        cv.put("ValidUntil", polis.ValidUntil);
+        cv.put("UpdateTime", getCurrentTime());
         long result = db.insert("Polis", null, cv);
         if (result <= 0)
             return false;
@@ -552,67 +856,82 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         }
     }
+
     //Template
     private List<Template> getTemplatesFromCursor(Cursor cur) {
         List<Template> templates = new ArrayList<>();
         Template template;
         while (cur.moveToNext()) {
             template = new Template(
-                    cur.getInt(0),
+                    UUID.fromString(cur.getString(0)),
                     cur.getString(1),
                     cur.getString(2),
                     cur.getString(3),
+                    cur.getString(5),
                     cur.getInt(4));
             templates.add(template);
         }
         return templates;
     }
-
+    public List<Template> getAllTemplatesByUser() {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Template where UserId=?", new String[]{ this.UserId + ""});
+        return getTemplatesFromCursor(cursor);
+    }
     public List<Template> getTemplateDownload(int userId) {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Template where UserId=? and Status=?", new String[]{"" + userId, "Downloaded"});
+        Cursor cursor = db.rawQuery("select * from Template where UpdateTime IS NOT NULL and UserId=? and Status=?", new String[]{"" + userId, "Downloaded"});
         List<Template> templates = getTemplatesFromCursor(cursor);
         return templates;
     }
+
     public List<Template> getTemplatePublished() {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Template where UserId!=? and Status=?", new String[]{"" + UserId, "Published"});
+        Cursor cursor = db.rawQuery("select * from Template where UpdateTime IS NOT NULL and UserId!=? and Status=?", new String[]{"" + UserId, "Published"});
         List<Template> templates = getTemplatesFromCursor(cursor);
         return templates;
     }
-    public Template getTemplateById(int objectId) {
+
+    public Template getTemplateById(UUID objectId) {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Template where Id=?", new String[]{"" + objectId});
+        Cursor cursor = db.rawQuery("select * from Template where Id=?", new String[]{"" + objectId.toString()});
         List<Template> templates = getTemplatesFromCursor(cursor);
         return templates.size() == 0 ? null : templates.get(0);
     }
+
     public List<Template> getTemplateByUserId(int userId) {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Template where UserId=? and Status!=?", new String[]{"" + userId, "Downloaded"});
+        Cursor cursor = db.rawQuery("select * from Template where UpdateTime IS NOT NULL and UserId=? and Status!=?", new String[]{"" + userId, "Downloaded"});
         List<Template> templates = getTemplatesFromCursor(cursor);
         return templates;
     }
 
     @SuppressLint("Range")
-    public int selectLastTemplateId() {
+    public UUID selectLastTemplateId() {
         SQLiteDatabase db = open();
-        Cursor cur = db.rawQuery("SELECT rowid from Template order by ROWID DESC limit 1", null);
+        Cursor cur = db.rawQuery("SELECT Id from Template order by ROWID DESC limit 1", null);
         cur.moveToFirst();
-        int id;
+        UUID id;
         if (cur != null && cur.getCount() > 0)
-            id = cur.getInt(0);
+            id = UUID.fromString(cur.getString(0));
         else
-            id = 0;
+            id = null;
         return id;
     }
-    public Boolean updateTemplate(int id, Template template) {
+
+    public Boolean updateTemplate(UUID id, Template template, boolean isDelete) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        if(isDelete)
+            template.UpdateTime = null;
+        else
+            template.UpdateTime = getCurrentTime();
         cv.put("Name", template.Name);
         cv.put("Status", template.Status);
         cv.put("Date", template.Date);
         cv.put("UserId", template.UserId);
-        long result = db.update("Template", cv, "id=?", new String[]{"" + id});
+        cv.put("UpdateTime", template.UpdateTime);
+        long result = db.update("Template", cv, "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
             return false;
         else {
@@ -620,21 +939,25 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public Boolean insertTemplate(Template template) {
+    public UUID insertTemplate(Template template) {
+        UUID id = UUID.randomUUID();
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        cv.put("Id", id.toString());
         cv.put("Name", template.Name);
         cv.put("Status", template.Status);
         cv.put("Date", template.Date);
         cv.put("UserId", template.UserId);
+        cv.put("UpdateTime", getCurrentTime());
         long result = db.insert("Template", null, cv);
         if (result <= 0)
-            return false;
+            return NULL_UUID;
         else {
-            return true;
+            return id;
         }
     }
-    public Boolean deleteTemplate(int id) {
+
+    public Boolean deleteTemplateConfirm(UUID id) {
         SQLiteDatabase db = open();
         long result = db.delete("Template", "id=?", new String[]{"" + id});
         db.delete("TemplateObject", "TemplateId=?", new String[]{"" + id});
@@ -647,14 +970,68 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         }
     }
+    public Boolean deleteTemplate(UUID id) {
+        SQLiteDatabase db = open();
+        Template template = getTemplateById(id);
+        updateTemplate(id,template,true);
+        List<TemplateDocument> templateDocuments = getTemplateDocumentByTemplate(id);
+        for (TemplateDocument templateDocument:
+             templateDocuments) {
+            deleteItem(templateDocument.Id);
+        }
+        for (TemplateDocument templateDocument:
+             templateDocuments) {
+            deleteTemplateObject(templateDocument.Id);
+        }
+        return true;
+    }
+
+    public Boolean deleteTemplateObject(UUID id) {
+        List<TemplateObject> templateObjects = getTemplateObjectsByTemplateId(id);
+        for (TemplateObject templateObj :
+                templateObjects) {
+            templateObj.Title = null;
+            templateObj.Type = "";
+            templateObj.Position = 0;
+            updateTemplateObject(templateObj.Id, templateObj);
+        }
+        return true;
+    }
+    public Boolean updateTemplateObject(UUID id, TemplateObject templateObject) {
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("Id", id.toString());
+        cv.put("Position", templateObject.Position);
+        cv.put("Type", templateObject.Type);
+        cv.put("Title", templateObject.Title);
+        cv.put("TemplateId", templateObject.TemplateId.toString());
+        cv.put("UpdateTime", (String)  null);
+        long result = db.update("Template", cv, "id=?", new String[]{"" + id.toString()});
+        if (result <= 0)
+            return false;
+        else {
+            return true;
+        }
+    }
+    public Boolean deleteTemplateObjectConfirm(UUID id) {
+        SQLiteDatabase db = open();
+        long result = db.delete("TemplateObject", "id=?", new String[]{"" + id.toString()});
+        db.delete("TemplateDocumentData", "TemplateObjectId=?", new String[]{"" + id});
+        if (result <= 0)
+            return false;
+        else {
+            return true;
+        }
+    }
     //TemplateDocument
     private List<TemplateDocument> getTemplateDocumentsFromCursor(Cursor cur) {
         List<TemplateDocument> templateDocuments = new ArrayList<>();
         TemplateDocument templateDocument;
         while (cur.moveToNext()) {
             templateDocument = new TemplateDocument(
-                    cur.getInt(0),
-                    cur.getInt(1));
+                    UUID.fromString(cur.getString(0)),
+                    UUID.fromString(cur.getString(1)),
+                    cur.getString(2));
             templateDocuments.add(templateDocument);
         }
         return templateDocuments;
@@ -662,27 +1039,51 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     @SuppressLint("Range")
-    public int selectLastTemplateDocumentId() {
+    public UUID selectLastTemplateDocumentId() {
         SQLiteDatabase db = open();
-        Cursor cur = db.rawQuery("SELECT rowid from TemplateDocument order by ROWID DESC limit 1", null);
+        Cursor cur = db.rawQuery("SELECT Id from TemplateDocument order by ROWID DESC limit 1", null);
         cur.moveToFirst();
-        int id;
+        UUID id;
         if (cur != null && cur.getCount() > 0)
-            id = cur.getInt(0);
+            id = UUID.fromString(cur.getString(0));
         else
-            id = 0;
+            id = null;
         return id;
     }
-    public TemplateDocument getTemplateDocumentById(int objectId) {
+
+    public TemplateDocument getTemplateDocumentById(UUID id) {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from TemplateDocument where Id=?", new String[]{"" + objectId});
+        Cursor cursor = db.rawQuery("select * from TemplateDocument where Id=?", new String[]{"" + id.toString()});
         List<TemplateDocument> documents = getTemplateDocumentsFromCursor(cursor);
         return documents.size() == 0 ? null : documents.get(0);
     }
-
-    public Boolean deleteTemplateDocument(int id) {
+    public List<TemplateDocument> getTemplateDocumentByTemplate(UUID id) {
         SQLiteDatabase db = open();
-        long result = db.delete("TemplateDocument", "id=?", new String[]{"" + id});
+        Cursor cursor = db.rawQuery("select * from TemplateDocument where TemplateId=?", new String[]{"" + id.toString()});
+        List<TemplateDocument> documents = getTemplateDocumentsFromCursor(cursor);
+        return documents;
+    }
+
+    public Boolean deleteTemplateDocument(UUID id) {
+        SQLiteDatabase db = open();
+        TemplateDocument templateDocument = getTemplateDocumentById(id);
+        templateDocument.UpdateTime = null;
+        ContentValues cv = new ContentValues();
+        cv.put("Id", templateDocument.Id.toString());
+        cv.put("TemplateId", templateDocument.TemplateId.toString());
+        cv.put("UpdateTime", templateDocument.UpdateTime);
+        db.update("TemplateDocument", cv, "id=?", new String[]{"" + id.toString()});
+
+        cv = new ContentValues();
+        cv.put("Value", (String) null);
+        cv.put("UpdateTime", (String) null);
+        db.update("TemplateDocumentData", cv, "TemplateDocumentId=?", new String[]{"" + id.toString()});
+        return true;
+    }
+
+    public Boolean deleteTemplateDocumentConfirm(UUID id) {
+        SQLiteDatabase db = open();
+        long result = db.delete("TemplateDocument", "id=?", new String[]{"" + id.toString()});
         db.delete("TemplateDocumentData", "TemplateDocumentId=?", new String[]{"" + id});
         if (result <= 0)
             return false;
@@ -690,16 +1091,18 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
         }
     }
-    public Boolean insertTemplateDocument(TemplateDocument templateDocument) {
+
+    public UUID insertTemplateDocument(TemplateDocument templateDocument) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Id", templateDocument.Id);
-        cv.put("TemplateId", templateDocument.TemplateId);
+        cv.put("Id", templateDocument.Id.toString());
+        cv.put("TemplateId", templateDocument.TemplateId.toString());
+        cv.put("UpdateTime", getCurrentTime());
         long result = db.insert("TemplateDocument", null, cv);
         if (result <= 0)
-            return false;
+            return NULL_UUID;
         else {
-            return true;
+            return templateDocument.Id;
         }
     }
 
@@ -709,67 +1112,69 @@ public class DBHelper extends SQLiteOpenHelper {
         TemplateDocumentData templateDocumentData;
         while (cur.moveToNext()) {
             templateDocumentData = new TemplateDocumentData(
-                    cur.getInt(0),
+                    UUID.fromString(cur.getString(0)),
                     cur.getString(1),
-                    cur.getInt(2),
-                    cur.getInt(3));
+                    UUID.fromString(cur.getString(2)),
+                    UUID.fromString(cur.getString(3)));
             templateDocumentDataList.add(templateDocumentData);
         }
         return templateDocumentDataList;
     }
 
-    public int selectLastTemplateDocumentDataId() {
+    public UUID selectLastTemplateDocumentDataId() {
         SQLiteDatabase db = open();
-        Cursor cur = db.rawQuery("SELECT rowid from TemplateDocumentData order by ROWID DESC limit 1", null);
+        Cursor cur = db.rawQuery("SELECT Id from TemplateDocumentData order by ROWID DESC limit 1", null);
         cur.moveToFirst();
-        int id;
+        UUID id;
         if (cur != null && cur.getCount() > 0)
-            id = cur.getInt(0);
+            id = UUID.fromString(cur.getString(0));
         else
-            id = 0;
+            id = null;
         return id;
     }
-    public TemplateDocumentData getTemplateDocumentData(int objectId, int docId) {
+
+    public TemplateDocumentData getTemplateDocumentData(UUID objectId, UUID docId) {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from TemplateDocumentData where TemplateObjectId=? and TemplateDocumentId=?", new String[]{"" + objectId,""+docId});
+        Cursor cursor = db.rawQuery("select * from TemplateDocumentData where TemplateObjectId=? and TemplateDocumentId=?", new String[]{"" + objectId.toString(), "" + docId.toString()});
         List<TemplateDocumentData> templateDocumentDataList = getTemplateDocumentDataFromCursor(cursor);
         return templateDocumentDataList.size() == 0 ? null : templateDocumentDataList.get(0);
     }
+    public List<TemplateDocumentData> getTemplateDocumentDataByDoc(UUID docId) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from TemplateDocumentData where TemplateDocumentId=?", new String[]{"" + docId.toString()});
+        List<TemplateDocumentData> templateDocumentDataList = getTemplateDocumentDataFromCursor(cursor);
+        return templateDocumentDataList;
+    }
 
-    public Boolean updateTemplateDocumentData(int id, TemplateDocumentData templateDocumentData) {
+    public Boolean updateTemplateDocumentData(UUID id, TemplateDocumentData templateDocumentData) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
         cv.put("Value", templateDocumentData.Value);
-        cv.put("TemplateObjectId", templateDocumentData.TemplateObjectId);
-        cv.put("TemplateDocumentId", templateDocumentData.TemplateDocumentId);
-        long result = db.update("TemplateDocumentData", cv, "id=?", new String[]{"" + id});
+        cv.put("TemplateObjectId", templateDocumentData.TemplateObjectId.toString());
+        cv.put("TemplateDocumentId", templateDocumentData.TemplateDocumentId.toString());
+        long result = db.update("TemplateDocumentData", cv, "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
             return false;
         else {
             return true;
         }
     }
-    public Boolean deleteTemplateObject(int id) {
-        SQLiteDatabase db = open();
-        long result = db.delete("TemplateObject", "id=?", new String[]{"" + id});
-        db.delete("TemplateDocumentData", "TemplateObjectId=?", new String[]{"" + id});
-        if (result <= 0)
-            return false;
-        else {
-            return true;
-        }
-    }
-    public Boolean insertTemplateDocumentData(TemplateDocumentData templateDocumentData) {
+
+
+    public UUID insertTemplateDocumentData(TemplateDocumentData templateDocumentData) {
+        UUID id = UUID.randomUUID();
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        cv.put("Id", id.toString());
         cv.put("Value", templateDocumentData.Value);
-        cv.put("TemplateObjectId", templateDocumentData.TemplateObjectId);
-        cv.put("TemplateDocumentId", templateDocumentData.TemplateDocumentId);
+        cv.put("TemplateObjectId", templateDocumentData.TemplateObjectId.toString());
+        cv.put("TemplateDocumentId", templateDocumentData.TemplateDocumentId.toString());
+        cv.put("UpdateTime", getCurrentTime());
         long result = db.insert("TemplateDocumentData", null, cv);
         if (result <= 0)
-            return false;
+            return NULL_UUID;
         else {
-            return true;
+            return id;
         }
     }
 
@@ -779,82 +1184,37 @@ public class DBHelper extends SQLiteOpenHelper {
         TemplateObject templateObject;
         while (cur.moveToNext()) {
             templateObject = new TemplateObject(
-                    cur.getInt(0),
+                    UUID.fromString(cur.getString(0)),
                     cur.getInt(1),
                     cur.getString(2),
                     cur.getString(3),
-                    cur.getInt(4));
+                    UUID.fromString(cur.getString(4)));
             templateObjects.add(templateObject);
         }
         return templateObjects;
     }
 
-    public List<TemplateObject> getTemplateObjectsByTemplateId(int templateId) {
+    public List<TemplateObject> getTemplateObjectsByTemplateId(UUID templateId) {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from TemplateObject where TemplateId=?", new String[]{"" + templateId});
+        Cursor cursor = db.rawQuery("select * from TemplateObject where TemplateId=?", new String[]{"" + templateId.toString()});
         return getTemplateObjectsFromCursor(cursor);
     }
 
-    public Boolean insertTemplateObject(TemplateObject templateObject) {
+    public UUID insertTemplateObject(TemplateObject templateObject) {
+        UUID id = UUID.randomUUID();
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        cv.put("Id", id.toString());
         cv.put("Position", templateObject.Position);
         cv.put("Type", templateObject.Type);
         cv.put("Title", templateObject.Title);
-        cv.put("TemplateId", templateObject.TemplateId);
+        cv.put("TemplateId", templateObject.TemplateId.toString());
+        cv.put("UpdateTime", getCurrentTime());
         long result = db.insert("TemplateObject", null, cv);
         if (result <= 0)
-            return false;
+            return NULL_UUID;
         else {
-            return true;
-        }
-    }
-
-    //UserTemplate
-    private List<UserTemplate> getUserTemplatesFromCursor(Cursor cur) {
-        List<UserTemplate> userTemplates = new ArrayList<>();
-        UserTemplate userTemplate;
-        while (cur.moveToNext()) {
-            userTemplate = new UserTemplate(
-                    cur.getInt(0),
-                    cur.getInt(1),
-                    cur.getInt(2));
-            userTemplates.add(userTemplate);
-        }
-        return userTemplates;
-    }
-
-    public UserTemplate getUserTemplateById(int objectId) {
-        SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from UserTemplate where Id=?", new String[]{"" + objectId});
-        List<UserTemplate> userTemplates = getUserTemplatesFromCursor(cursor);
-        return userTemplates.size() == 0 ? null : userTemplates.get(0);
-    }
-
-    public Boolean updateUserTemplate(int id, UserTemplate userTemplate) {
-        SQLiteDatabase db = open();
-        ContentValues cv = new ContentValues();
-        cv.put("UserId", userTemplate.UserId);
-        cv.put("TemplateId", userTemplate.TemplateId);
-        long result = db.update("UserTemplate", cv, "id=?", new String[]{"" + id});
-        if (result <= 0)
-            return false;
-        else {
-            return true;
-        }
-    }
-
-    public Boolean insertUserTemplate(UserTemplate userTemplate) {
-        SQLiteDatabase db = open();
-        ContentValues cv = new ContentValues();
-        cv.put("UserId", userTemplate.UserId);
-        cv.put("TemplateId", userTemplate.TemplateId);
-        long result = db.insert("UserTemplate", null, cv);
-        if (result <= 0)
-            return false;
-        else {
-            return true;
+            return id;
         }
     }
 }
-

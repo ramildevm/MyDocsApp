@@ -1,5 +1,7 @@
 package com.example.mydocsapp;
 
+import static com.example.mydocsapp.services.AppService.NULL_UUID;
+
 import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -29,19 +31,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-
-import javax.crypto.NoSuchPaddingException;
+import java.util.UUID;
 
 public class ImageCollectionActivity extends AppCompatActivity {
     private static final int SESSION_MODE_CREATE = 1;
@@ -102,7 +99,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
                         }
                     }
                     fillPhotoArray(CurrentItem.Id);
-                    db.updateItem(CurrentItem.Id,CurrentItem);
+                    db.updateItem(CurrentItem.Id,CurrentItem,false);
                     imageAdapter = new ImageAdapter(imagesService.get());
                     binding.viewPager2.setAdapter(imageAdapter);
                     changeArrowColor();
@@ -113,17 +110,13 @@ public class ImageCollectionActivity extends AppCompatActivity {
         });
         registerForARImageAddCollection = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                // get selected image URIs
                 ClipData clipData = result.getData().getClipData();
                 if (clipData != null) {
-                    // multiple images selected
                     for (int i = 0; i < clipData.getItemCount(); i++) {
                         Uri uri = clipData.getItemAt(i).getUri();
                         try {
-                            // convert selected image to bitmap
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                             createPhoto(bitmap, i);
-                            // add bitmap to array
                             imagesService.add(bitmap);
                             imageAdapter.notifyItemInserted(imagesService.getSize());
                         } catch (IOException e) {
@@ -140,21 +133,18 @@ public class ImageCollectionActivity extends AppCompatActivity {
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels);
             }
-
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 imagesService.setCurrentImage(position);
                 changeArrowColor();
             }
-
             @Override
             public void onPageScrollStateChanged(int state) {
                 super.onPageScrollStateChanged(state);
             }
         });
         setOnClickListeners();
-
         createSession();
     }
 
@@ -179,7 +169,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
 
     private void changePhotoFile(Bitmap bitmap) {
         Photo photo = photoList.get(imagesService.getCurrentImage());
-        File imgFile = new File(photo.Path);
+        File imgFile = new File(photo.Image);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         InputStream is = new ByteArrayInputStream(stream.toByteArray());
@@ -189,12 +179,12 @@ public class ImageCollectionActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    private void fillPhotoArray(int itemId) {
+    private void fillPhotoArray(UUID itemId) {
         photoList = (ArrayList<Photo>) db.getPhotos(itemId);
     }
     private String createPhoto(Bitmap bitmap, int index) {
         File rootDir = getApplicationContext().getFilesDir();
-        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME +"/"+ AppService.getUserId(this)+ "/Item" + CurrentItem.Id + "/";
+        String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME +"/"+ AppService.getUserId(this)+ "/Item" + CurrentItem.Id.toString() + "/Image/";
         File dir = new File(imgPath);
         if (!dir.exists())
             dir.mkdirs();
@@ -209,19 +199,18 @@ public class ImageCollectionActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         String filePath = imgFile.getAbsolutePath();
-        Photo photo = new Photo(0,filePath,CurrentItem.Id);
+        Photo photo = new Photo(NULL_UUID,filePath,CurrentItem.Id,null);
         db.insertPhoto(photo);
         return filePath;
     }
     private Item createItem(int count) {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.US);
         String time = df.format(new Date());
-        int ItemId = db.selectLastItemId();
-        String name = (count>1)?"Альбом":"Фото";
-        String type = (count>1)?"Альбом":"Изображение";
-        Item item =new Item(0, name + ItemId, type, null, 0, 0, 0, time, 0, 0);
-        db.insertItem(item);
-        ItemId = db.selectLastItemId();
+        int lastItemId = db.selectLastItemId();
+        String name = (count>1)?getString(R.string.album):getString(R.string.photo);
+        String type = "Collection";
+        Item item =new Item(NULL_UUID, name + lastItemId, type, null, 0, 0, 0, time, NULL_UUID, 0, "");
+        UUID ItemId =  db.insertItem(item, true);
         item.Id = ItemId;
         CurrentItem = item;
         return item;
@@ -237,8 +226,8 @@ public class ImageCollectionActivity extends AppCompatActivity {
             fillPhotoArray(CurrentItem.Id);
             for (Photo photo :
                     photoList) {
-                File outputFile = new File(photo.Path+"_copy");
-                File filePath = new File(photo.Path);
+                File outputFile = new File(photo.Image +"_copy");
+                File filePath = new File(photo.Image);
                 try {
                     MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(filePath), new FileOutputStream(outputFile));
                 }  catch (IOException e) {
@@ -281,12 +270,10 @@ public class ImageCollectionActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if(CurrentItem!=null) {
-            if (imagesService.getSize() == 1) {
-                CurrentItem.Type = "Изображение";
-            } else if (imagesService.getSize() > 1) {
-                CurrentItem.Type = "Альбом";
+            if (imagesService.getSize() >= 1) {
+                CurrentItem.Type = "Collection";
             }
-            db.updateItem(CurrentItem.Id,CurrentItem);
+            db.updateItem(CurrentItem.Id,CurrentItem,false);
         }
         super.onBackPressed();
     }
@@ -318,7 +305,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         registerForARImageChange.launch(intent);
     }
-    public void menuSaveAsClick(View view) {}
+    public void menuSaveAsClick(View view) { }
     public void menuOptionsBtnClick(View v) {
         if (v.getTag().equals("off")) {
             MotionLayout ml = findViewById(R.id.motion_layout);
@@ -337,17 +324,17 @@ public class ImageCollectionActivity extends AppCompatActivity {
         if(imagesService.getSize()==1){
             db.deletePhoto(photo.Id);
             db.deleteItem(photo.CollectionId);
-            File file = new File(photo.Path);
+            File file = new File(photo.Image);
             file.delete();
             onBackPressed();
             return;
         }
         if(imagesService.getCurrentImage()==0)
         {
-            CurrentItem.Image = photoList.get(1).Path;
-            db.updateItem(CurrentItem.Id,CurrentItem);
+            CurrentItem.Image = photoList.get(1).Image;
+            db.updateItem(CurrentItem.Id,CurrentItem,false);
         }
-        File file = new File(photo.Path);
+        File file = new File(photo.Image);
         file.delete();
         photoList.remove(imagesService.getCurrentImage());
         db.deletePhoto(photo.Id);

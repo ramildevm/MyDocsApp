@@ -5,6 +5,7 @@ import android.database.Cursor;
 import com.example.mydocsapp.models.Item;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class CurrentItemsService {
@@ -24,7 +25,7 @@ public class CurrentItemsService {
         isDocsAvailable = true;
         isFoldersAvailable = true;
         db = _db;
-        CurrentItemsSet = new ArrayList<Item>();
+        CurrentItemsSet = new ArrayList<>();
     }
 
     public void setSelectedPropertyZero() {
@@ -32,7 +33,6 @@ public class CurrentItemsService {
             int id = CurrentItemsSet.indexOf(x);
             x.isSelected = 0;
             CurrentItemsSet.set(id, x);
-            db.updateItem(x.Id, x);
         }
     }
 
@@ -42,7 +42,7 @@ public class CurrentItemsService {
         CurrentItem = null;
     }
 
-    public ArrayList<Item> getFolderItemsFromDb(int id) {
+    public ArrayList<Item> getFolderItemsFromDb(UUID id) {
         return (ArrayList<Item>) db.getItemsByFolder(id, AppService.isHideMode() ? 1 : 0);
     }
 
@@ -54,13 +54,13 @@ public class CurrentItemsService {
         setInitialData();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             if (!isFoldersAvailable)
-                CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Папка"))).collect(Collectors.toList()));
+                CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Folder"))).collect(Collectors.toList()));
             if (!isDocsAvailable)
-                CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Паспорт"))).collect(Collectors.toList()));
+                CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Passport") | x.Type.equals("Template"))).collect(Collectors.toList()));
             if (!isImagesAvailable)
                 CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Изображение") | x.Type.equals("Альбом"))).collect(Collectors.toList()));
             if (!isCardsAvailable)
-                CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("Карта"))).collect(Collectors.toList()));
+                CurrentItemsSet = new ArrayList<>(CurrentItemsSet.stream().filter((x) -> !(x.Type.equals("CreditCard"))).collect(Collectors.toList()));
         }
         return CurrentItemsSet;
     }

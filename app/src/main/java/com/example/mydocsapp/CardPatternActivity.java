@@ -1,5 +1,7 @@
 package com.example.mydocsapp;
 
+import static com.example.mydocsapp.services.AppService.NULL_UUID;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -7,7 +9,6 @@ import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -44,19 +45,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-
-import javax.crypto.NoSuchPaddingException;
+import java.util.UUID;
 
 public class CardPatternActivity extends AppCompatActivity {
     private static final int BITMAP_IMAGE = 0;
@@ -169,7 +164,7 @@ public class CardPatternActivity extends AppCompatActivity {
             Card = db.getCreditCardById(item.Id);
         }
         else
-            Card = new CreditCard(0,"","","",0,null);
+            Card = new CreditCard(null,"","","",0,null,null);
         binding.editTextCardNumber.setText(Card.Number);
         binding.editTextCVV.setText(String.valueOf(Card.CVV==0?"":Card.CVV));
         binding.editTextFullName.setText(Card.FIO);
@@ -220,37 +215,36 @@ public class CardPatternActivity extends AppCompatActivity {
         String itemImagePath = null;
         Item item;
         if(CurrentItem == null){
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.US);
             String time = df.format(new Date());
-            item = new Item(0, "Кредитная карта" + db.selectLastItemId(), "Карта", null, 0,0,0, time, 0, 0);
-            db.insertItem(item);
-            int ItemId = db.selectLastItemId();
+            item = new Item(NULL_UUID, getString(R.string.card) + db.selectLastItemId(), "CreditCard", null, 0,0,0, time, NULL_UUID,0, "");
+            UUID ItemId = db.insertItem(item, true);
             this.Card.Id = ItemId;
             db.insertCreditCard(this.Card);
             SavePhotos(ItemId);
             itemImagePath = this.Card.PhotoPage1;
-            db.updateCreditCard(ItemId,this.Card);
+            db.updateCreditCard(ItemId,this.Card, false);
             item.Image = itemImagePath;
-            db.updateItem(ItemId,item);
+            db.updateItem(ItemId,item,false);
         }
         else{
             SavePhotos(CurrentItem.Id);
             itemImagePath = this.Card.PhotoPage1;
             CurrentItem.Image = itemImagePath;
-            db.updateCreditCard(CurrentItem.Id, this.Card);
-            db.updateItem(CurrentItem.Id,CurrentItem);
+            db.updateCreditCard(CurrentItem.Id, this.Card, false);
+            db.updateItem(CurrentItem.Id,CurrentItem,false);
         }
         onBackPressed();
     }
 
-    private void SavePhotos(int ItemId) {
+    private void SavePhotos(UUID ItemId) {
         if (firstPagePhoto != null) {
             File rootDir = getApplicationContext().getFilesDir();
-            String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME+"/"+ AppService.getUserId(this) + "/Item" + ItemId + "/";
+            String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME+"/"+ AppService.getUserId(this) + "/Item" + ItemId + "/CreditCard/";
             File dir = new File(imgPath);
             if (!dir.exists())
                 dir.mkdirs();
-            String imgName = "CreditCardImage" + ItemId + System.currentTimeMillis();
+            String imgName = "CreditCardImage" + ItemId;
             File imgFile = new File(dir, imgName);
             if (Card.PhotoPage1 != null) {
                 File filePath = new File(Card.PhotoPage1);

@@ -1,7 +1,6 @@
 package com.example.mydocsapp.services;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,7 +8,6 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
@@ -18,7 +16,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -32,17 +29,11 @@ import com.example.mydocsapp.models.Photo;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.crypto.NoSuchPaddingException;
 
 import jp.wasabeef.blurry.Blurry;
 
@@ -93,7 +84,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                     }
                 }
                 else if(payload.equals(PAYLOAD_DELETE_MODE)){
-                    if (item.Type.equals("Папка")) {
+                    if (item.Type.equals("Folder")) {
                         holder.imageView.setVisibility(View.INVISIBLE);
                         holder.gridFolder.setVisibility(View.VISIBLE);
                     } else {
@@ -114,7 +105,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         holder.imageView.setVisibility(View.INVISIBLE);
         int radius = context.getResources().getDimensionPixelSize(R.dimen.corner_radius_14);
         if (item.Image == null) {
-            if (item.Type.equals("Папка")) {
+            if (item.Type.equals("Folder")) {
                 holder.imageView.setVisibility(View.INVISIBLE);
                 holder.gridFolder.setVisibility(View.VISIBLE);
                 if (db.getItemFolderItemsCount(item.Id) > 0) {
@@ -123,12 +114,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                     holder.gridFolder.setAdapter(adapter);
                 }
             }
-            else if (item.Type.equals("Паспорт")){
+            else if (item.Type.equals("Passport")){
                 holder.gridFolder.setVisibility(View.INVISIBLE);
                 Glide.with(context).load(R.drawable.passport_image).transform(new RoundedCorners(radius)).into(holder.imageView);
                 holder.imageView.setVisibility(View.VISIBLE);
             }
-            else if (item.Type.equals("Карта")){
+            else if (item.Type.equals("CreditCard")){
                 holder.gridFolder.setVisibility(View.INVISIBLE);
                 Glide.with(context).load(R.drawable.image_credit_card).transform(new RoundedCorners(radius)).into(holder.imageView);
                 holder.imageView.setVisibility(View.VISIBLE);
@@ -145,16 +136,15 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             File outputFile;
             File encFile;
             try {
-                float offset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14, context.getResources().getDisplayMetrics());
                 Bitmap combinedBitmap;
                 Bitmap image;
-                if(item.Type.equals("Альбом")) {
+                if(item.Type.equals("Collection")) {
                     ArrayList<Bitmap> photos = new ArrayList<>();
                     List<Photo> photoList = db.getPhotos(item.Id);
                     for (Photo photo :
                             photoList) {
-                        outputFile = new File(photo.Path+"_copy");
-                        encFile = new File(photo.Path);
+                        outputFile = new File(photo.Image +"_copy");
+                        encFile = new File(photo.Image);
                         MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
                         image = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(outputFile));
                         image = ImageService.scaleDown(image, ImageService.dpToPx(context, 150), true);
@@ -225,13 +215,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 e.printStackTrace();
             }
         }
-        if (item.Type.equals("Папка"))
+        if (item.Type.equals("Folder"))
             holder.icoImg.setImageResource(R.drawable.ic_folder);
-        else if (item.Type.equals("Паспорт"))
+        else if (item.Type.equals("Passport"))
             holder.icoImg.setImageResource(R.drawable.ic_personalcard);
         else if (item.Type.equals("Template"))
             holder.icoImg.setImageResource(R.drawable.ic_user_template);
-        else if (item.Type.equals("Карта"))
+        else if (item.Type.equals("CreditCard"))
             holder.icoImg.setImageResource(R.drawable.ic_card);
         else if (item.Type.equals("Изображение")) {
             holder.imageView.setVisibility(View.VISIBLE);
@@ -268,7 +258,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 ((IItemAdapterActivity) context).setIsTitleClicked(true);
                 return true;
         });
-        if (item.Type.equals("Папка")) {
+        if (item.Type.equals("Folder")) {
             Blurry.delete(holder.folderContentBack);
             holder.folderContentBack.post(() -> {
                 Blurry.with(context)

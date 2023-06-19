@@ -1,25 +1,32 @@
 package com.example.mydocsapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NavUtils;
-import androidx.core.content.ContextCompat;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.mydocsapp.api.MainApi;
-import com.example.mydocsapp.api.User;
-import com.example.mydocsapp.api.UserPostCallback;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
+
+import com.example.mydocsapp.api.MainApiService;
+import com.example.mydocsapp.apputils.ImageService;
+import com.example.mydocsapp.models.User;
+import com.example.mydocsapp.api.ResponseCallback;
 import com.example.mydocsapp.services.AppService;
+import com.example.mydocsapp.services.CryptoService;
 import com.example.mydocsapp.services.DBHelper;
+import com.google.gson.Gson;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -31,6 +38,61 @@ public class SignInActivity extends AppCompatActivity {
         db = new DBHelper(this, AppService.getUserId(this));
         findViewById(R.id.sign_up_btn).setOnClickListener(v->signupBtnClick(v));
         findViewById(R.id.cancel_btn).setOnClickListener(v->cancelBtnClick(v));
+        EditText editTextPassword = findViewById(R.id.editTextPassword);
+        EditText editTextPasswordConfirm = findViewById(R.id.editTextPasswordConfirm);
+        EditText editTextEmail = findViewById(R.id.editTextEmail);
+        editTextPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                editTextPassword.setError(null);
+            }
+        });
+        editTextPasswordConfirm.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                editTextPasswordConfirm.setError(null);
+            }
+        });
+        editTextEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String email = editable.toString().trim();
+                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    editTextEmail.setError(getString(R.string.invalid_email));
+                } else
+                    editTextPassword.setError(null);
+            }
+        });
     }
     public void cancelBtnClick(View view) {
         overridePendingTransition(0, 0);
@@ -40,33 +102,78 @@ public class SignInActivity extends AppCompatActivity {
     public void signupBtnClick(View view) {
         signInMethod();
     }
-    private void changeButtonBack(View view, int backSetId, int duration){
-        view.setBackground(ContextCompat.getDrawable(this,backSetId));
-        TransitionDrawable transition = (TransitionDrawable) view.getBackground();
-        transition.startTransition(duration);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                transition.startTransition(duration);
-                transition.reverseTransition(duration);
-                signInMethod();
-            }
-        }, duration);
-    }
     private void signInMethod() {
-        String email = ((TextView)findViewById(R.id.editTextEmail)).getText().toString();
-        String password = ((TextView)findViewById(R.id.editTextPassword)).getText().toString();
-        String passwordConfirm = ((TextView)findViewById(R.id.editTextPasswordConfirm)).getText().toString();
-        if(email.isEmpty() | password.isEmpty()){
-            Toast.makeText(SignInActivity.this, R.string.error_not_all_fields_filled, Toast.LENGTH_SHORT).show();
+        String email = ((EditText)findViewById(R.id.editTextEmail)).getText().toString();
+        String password = ((EditText)findViewById(R.id.editTextPassword)).getText().toString();
+        String passwordConfirm = ((EditText)findViewById(R.id.editTextPasswordConfirm)).getText().toString();
+
+        if(email.isEmpty()){
+            ((EditText)findViewById(R.id.editTextEmail)).setError(getString(R.string.error_not_all_fields_filled));
+            return;
+        }
+        if(password.isEmpty()){
+            ((EditText)findViewById(R.id.editTextPassword)).setError(getString(R.string.error_not_all_fields_filled));
+            return;
+        }
+        else if(password.length()<8){
+            ((EditText)findViewById(R.id.editTextPassword)).setError(getString(R.string.password_short));
+            return;
+        }
+        if(passwordConfirm.isEmpty()){
+            ((EditText)findViewById(R.id.editTextPasswordConfirm)).setError(getString(R.string.error_not_all_fields_filled));
             return;
         }
         if(!passwordConfirm.equals(password)){
-            Toast.makeText(SignInActivity.this, R.string.error_dont_match_passwords, Toast.LENGTH_SHORT).show();
+            ((EditText)findViewById(R.id.editTextPassword)).setError(getString(R.string.error_dont_match_passwords));
+            ((EditText)findViewById(R.id.editTextPasswordConfirm)).setError(getString(R.string.error_dont_match_passwords));
             return;
         }
-        //fromAPI(login, password);
-        fromDB(email, password);
+        fromAPI(email, password);
+        //fromDB(email, password);
+    }
+    private void fromAPI(String email, String password) {
+        MainApiService mainApiService = new MainApiService(this);
+        long datetimeMillis = new Date().getTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String formattedDateTime = dateFormat.format(new Date(datetimeMillis));
+        User user = new User(0, email, email, password, null, null, formattedDateTime);
+        user.Photo = ImageService.getPhoto(user.Photo);
+        mainApiService.CreateUser(user, new ResponseCallback() {
+            @Override
+            public void onSuccess(String encryptedData) {
+                String decryptedData;
+//                try {
+                    decryptedData = CryptoService.Decrypt(encryptedData);
+                    User user = new Gson().fromJson(decryptedData, User.class);
+                    user.Photo = null; //TODO: convert to file
+                    Boolean result = db.insertUser(user);
+                    Toast.makeText(SignInActivity.this, R.string.result_successful_user_adding, Toast.LENGTH_SHORT).show();
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(SignInActivity.this);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.remove("email").commit();
+                    editor.remove("Id").commit();
+                    editor.putString("email", email);
+                    editor.apply();
+                    AppService.setUserId(user.Id,SignInActivity.this);
+                    AppService.setHideMode(false);
+                    Intent intent = new Intent(SignInActivity.this, MainContentActivity.class);
+                    startActivity(intent);
+                    overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
+//                }
+//                catch (Exception e){
+//                    Toast.makeText(SignInActivity.this, "Some error", Toast.LENGTH_SHORT).show();
+//                }
+            }
+            @Override
+            public void onConflict() {
+                Toast.makeText(SignInActivity.this, R.string.error_email_in_use, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e("Sign in error", errorMessage);
+            }
+        });
     }
     private void fromDB(String email, String password) {
         User user = db.getUserByEmail(email);
@@ -74,7 +181,10 @@ public class SignInActivity extends AppCompatActivity {
             Toast.makeText(SignInActivity.this, R.string.error_email_in_use, Toast.LENGTH_SHORT).show();
             return;
         }
-        db.insertUser(new User(0,email,email,password,"None","None",null));
+        long datetimeMillis = new Date().getTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String formattedDateTime = dateFormat.format(new Date(datetimeMillis));
+        db.insertUser(new User(0,email,email,password,null,null,formattedDateTime));
         Toast msg = Toast.makeText(SignInActivity.this, R.string.result_successful_user_adding, Toast.LENGTH_SHORT);
         msg.show();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -90,23 +200,5 @@ public class SignInActivity extends AppCompatActivity {
         Intent intent = new Intent(SignInActivity.this, MainContentActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
-    }
-    private void fromAPI(String email, String password) {
-        MainApi.CreateUser(new User(0, email, email, password,"None","None",null), new UserPostCallback() {
-            @Override
-            public void onResult(User result) {
-                if(result == null) {
-                    Toast msg = Toast.makeText(SignInActivity.this, R.string.error_adding_error, Toast.LENGTH_SHORT);
-                    msg.show();
-                }
-                else{
-                    Toast msg = Toast.makeText(SignInActivity.this, R.string.result_successful_user_adding, Toast.LENGTH_SHORT);
-                    msg.show();
-                }
-            }
-            @Override
-            public void onError(Throwable e) {
-            }
-        });
     }
 }

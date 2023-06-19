@@ -1,5 +1,7 @@
 package com.example.mydocsapp;
 
+import static com.example.mydocsapp.services.AppService.NULL_UUID;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -49,7 +51,7 @@ public class Template1Fragment extends Fragment implements Template1FragmentList
             @Override
             public void onItemClick(View view, int position) {
                 Template item = adapter.getTemplate(position);
-                if(item.Id==0)
+                if(item.Id.equals(NULL_UUID))
                     return;
                 if (isSelectMode) {
                     if (item.isSelected == false) {

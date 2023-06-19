@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#2C2C2C"
+    android:id="@+id/parent_panel"
     tools:context=".SyncActivity">
 
     <RelativeLayout
@@ -49,11 +50,11 @@
         app:layout_constraintTop_toBottomOf="@id/top_panel">
 
         <LinearLayout
-            android:layout_marginTop="10dp"
             android:id="@+id/constraintLayout2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="25dp"
+            android:layout_marginTop="10dp"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -69,9 +70,9 @@
 
             <LinearLayout
                 android:id="@+id/download_btn"
-                android:layout_marginLeft="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp">
 
                 <ImageView
@@ -80,13 +81,13 @@
                     android:src="@drawable/ic_cloud_download" />
 
                 <Button
-                    android:paddingHorizontal="10dp"
-                    android:background="#0000"
-                    android:textAllCaps="false"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/download_from_the_server"
                     android:layout_gravity="center"
+                    android:background="#0000"
+                    android:paddingHorizontal="10dp"
+                    android:text="@string/download_from_the_server"
+                    android:textAllCaps="false"
                     android:textColor="@color/white"
                     android:textSize="20dp"
                     android:textStyle="bold" />
@@ -94,9 +95,9 @@
 
             <LinearLayout
                 android:id="@+id/upload_btn"
-                android:layout_marginLeft="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp">
 
                 <ImageView
@@ -106,13 +107,13 @@
 
 
                 <Button
-                    android:paddingHorizontal="10dp"
-                    android:background="#0000"
-                    android:textAllCaps="false"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="#0000"
+                    android:paddingHorizontal="10dp"
                     android:text="@string/upload_to_the_server"
                     android:textAlignment="textStart"
+                    android:textAllCaps="false"
                     android:textColor="@color/white"
                     android:textSize="20dp"
                     android:textStyle="bold" />
@@ -120,4 +121,32 @@
 
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:id="@+id/progressBarPanel"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:background="@color/black20"
+        android:translationZ="10dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/top_panel">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/yellow" />
+
+        <TextView
+            android:id="@+id/progressTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="5dp"
+            android:text="@string/loading"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

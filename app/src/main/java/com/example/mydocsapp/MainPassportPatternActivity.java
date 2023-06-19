@@ -1,5 +1,7 @@
 package com.example.mydocsapp;
 
+import static com.example.mydocsapp.services.AppService.NULL_UUID;
+
 import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -22,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.core.app.NavUtils;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -52,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class MainPassportPatternActivity extends AppCompatActivity implements Changedable {
     DBHelper db;
@@ -59,7 +61,6 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
     PassportStateViewModel model;
     private IFragmentDataSaver listenerForF1;
     private IFragmentDataSaver listenerForF2;
-    public static final int SELECT_USER_PHOTO = 1;
     private Item CurrentItem;
     private Boolean isChanged = false;
     private boolean isCreateMode = false;
@@ -75,6 +76,7 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         getExtraData(getIntent());
         db = new DBHelper(this, AppService.getUserId(this));
         setDataFromDb();
+
         model = new ViewModelProvider(this).get(PassportStateViewModel.class);
         model.getState().observe(this, item -> {
             this.Passport = item;
@@ -86,8 +88,10 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         setTopPatternPanelData();
     }
     private void setWindowData() {
+        listenerForF1 = new PassportFirstFragment();
+        listenerForF2 = new PassportSecondFragment();
         viewPager2 = findViewById(R.id.frame_container);
-        viewPager2.setAdapter(new MyFragmentAdapter(getSupportFragmentManager(), getLifecycle(), this));
+        viewPager2.setAdapter(new MyFragmentAdapter(2,getSupportFragmentManager(), getLifecycle(), listenerForF1,listenerForF2));
         viewPager2.registerOnPageChangeCallback(
                 new ViewPager2.OnPageChangeCallback()
                 {
@@ -207,7 +211,7 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         if (item != null) {
             this.Passport = db.getPassportById(item.Id);
         } else
-            this.Passport = new Passport(0,"","","","","","","M","","",null,null,null);
+            this.Passport = new Passport(NULL_UUID,"","","","","","","M","","",null,null,null,null);
     }
     public void copyTextClick(View view) {
         listenerForF1.copyTextClick(view);
@@ -256,52 +260,46 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         }
     }
     private void savePassportMethod() {
-        if(viewPager2.getCurrentItem()==0) {
-            viewPager2.setCurrentItem(0);
-            viewPager2.setCurrentItem(1);
-        }
-        else{
-            viewPager2.setCurrentItem(1);
-            viewPager2.setCurrentItem(0);
-        }
+        if (!listenerForF1.IsValidData())
+            return;
         listenerForF1.SaveData();
         Item item;
         if (isCreateMode) {
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS", Locale.US);
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.US);
             String time = df.format(new Date());
-            item = new Item(0, "Паспорт" + db.selectLastItemId(), "Паспорт", null, 0, 0, 0, time, 0, 0);
-            db.insertItem(item);
-            int ItemId = db.selectLastItemId();
+            item = new Item(NULL_UUID, getString(R.string.passport) + db.selectLastItemId(), "Passport", null, 0, 0, 0, time, NULL_UUID, 0, "");
+
+            UUID ItemId = db.insertItem(item, true);
             this.Passport.Id = ItemId;
             db.insertPassport(this.Passport);
             List<Bitmap> bitmaps = listenerForF1.getPhotos();
-            Passport.FacePhoto = savePhoto(bitmaps.get(0),ItemId,null,"ProfileImage");
+            Passport.FacePhoto = savePhoto(bitmaps.get(0),ItemId,null,"FacePhoto");
             bitmaps = listenerForF2.getPhotos();
-            Passport.PhotoPage1 = savePhoto(bitmaps.get(0),ItemId,null,"Page1");
-            Passport.PhotoPage2 = savePhoto(bitmaps.get(1),ItemId,null,"Page2");
-            db.updatePassport(ItemId, this.Passport);
+            Passport.PhotoPage1 = savePhoto(bitmaps.get(0),ItemId,null,"PhotoPage1");
+            Passport.PhotoPage2 = savePhoto(bitmaps.get(1),ItemId,null,"PhotoPage2");
+            db.updatePassport(ItemId, this.Passport, false);
             item.Image = this.Passport.FacePhoto;
-            db.updateItem(ItemId, item);
+            db.updateItem(ItemId, item,false);
         } else {
             List<Bitmap> bitmaps = listenerForF1.getPhotos();
-            Passport.FacePhoto = savePhoto(bitmaps.get(0),CurrentItem.Id,Passport.FacePhoto,"ProfileImage");
+            Passport.FacePhoto = savePhoto(bitmaps.get(0),CurrentItem.Id,Passport.FacePhoto,"FacePhoto");
             bitmaps = listenerForF2.getPhotos();
-            Passport.PhotoPage1 = savePhoto(bitmaps.get(0),CurrentItem.Id,Passport.PhotoPage1,"Page1");
-            Passport.PhotoPage2 = savePhoto(bitmaps.get(1),CurrentItem.Id,Passport.PhotoPage2,"Page2");
+            Passport.PhotoPage1 = savePhoto(bitmaps.get(0),CurrentItem.Id,Passport.PhotoPage1,"PhotoPage1");
+            Passport.PhotoPage2 = savePhoto(bitmaps.get(1),CurrentItem.Id,Passport.PhotoPage2,"PhotoPage2");
             CurrentItem.Image = this.Passport.FacePhoto;
-            db.updatePassport(CurrentItem.Id, this.Passport);
-            db.updateItem(CurrentItem.Id, CurrentItem);
+            db.updatePassport(CurrentItem.Id, this.Passport, false);
+            db.updateItem(CurrentItem.Id, CurrentItem,false);
         }
     }
 
-    private String savePhoto(Bitmap photo, int ItemId, String passportField, String name) {
+    private String savePhoto(Bitmap photo, UUID ItemId, String passportField, String name) {
         if (photo != null) {
             File rootDir = getApplicationContext().getFilesDir();
-            String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME +"/"+ AppService.getUserId(this)+ "/Item" + ItemId + "/";
+            String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME +"/"+ AppService.getUserId(this)+ "/Item" + ItemId.toString() + "/Passport/";
             File dir = new File(imgPath);
             if (!dir.exists())
                 dir.mkdirs();
-            String imgName = name + ItemId + System.currentTimeMillis();
+            String imgName = name;
             File imgFile = new File(dir, imgName);
             if (passportField != null) {
                 File filePath = new File(passportField);
@@ -344,12 +342,6 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
         NavUtils.navigateUpFromSameTask(this);
         super.onBackPressed();
     }
-    void setListenerForF1(IFragmentDataSaver fragment) {
-        listenerForF1 = fragment;
-    }
-    void setListenerForF2(IFragmentDataSaver fragment2) {
-        listenerForF2 = fragment2;
-    }
     @Override
     public void setIsChanged(Boolean value) {
         isChanged = value;
@@ -360,23 +352,22 @@ public class MainPassportPatternActivity extends AppCompatActivity implements Ch
     }
     public static class MyFragmentAdapter extends FragmentStateAdapter {
         private static int NUM_ITEMS = 2;
-        MainPassportPatternActivity activity;
-        PassportFirstFragment f1 = new PassportFirstFragment();
-        PassportSecondFragment f2 = new PassportSecondFragment();
-        public MyFragmentAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, MainPassportPatternActivity activity) {
+        IFragmentDataSaver f1;
+        IFragmentDataSaver f2;
+        public MyFragmentAdapter(int count, @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, IFragmentDataSaver _f1, IFragmentDataSaver _f2) {
             super(fragmentManager, lifecycle);
-            this.activity = activity;
+            this.NUM_ITEMS = count;
+            this.f1 = _f1;
+            this.f2 = _f2;
         }
         @NonNull
         @Override
         public Fragment createFragment(int position) {
             switch (position) {
                 case 0:
-                    activity.setListenerForF1(f1);
-                    return f1;
+                    return (Fragment) f1;
                 case 1:
-                    activity.setListenerForF2(f2);
-                    return f2;
+                    return (Fragment) f2;
                 default:
                     return null;
             }
