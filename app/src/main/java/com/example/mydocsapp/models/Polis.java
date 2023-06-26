@@ -1,15 +1,16 @@
 package com.example.mydocsapp.models;
 
+import com.example.mydocsapp.interfaces.DatabaseObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.UUID;
 
-public class Polis {
+public class Polis implements DatabaseObject {
     public UUID Id;
     public String Number;
     public String FIO;
-    public char Gender;
+    public String Gender;
     public String BirthDate;
     @SerializedName("PhotoPage164")
     @Expose
@@ -20,7 +21,7 @@ public class Polis {
     public String ValidUntil;
     public String UpdateTime;
 
-    public Polis(UUID id, String number, String FIO, char gender, String birthDate, String photoPage1, String photoPage2, String validUntil, String updateTime) {
+    public Polis(UUID id, String number, String FIO, String gender, String birthDate, String photoPage1, String photoPage2, String validUntil, String updateTime) {
         Id = id;
         Number = number;
         this.FIO = FIO;

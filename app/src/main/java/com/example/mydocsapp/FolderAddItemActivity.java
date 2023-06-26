@@ -59,7 +59,6 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
                 public void onItemClick(View view, int position) {
                     Item item = (Item) view.getTag();
                         int newItemId = items.indexOf(item);
-                        Log.e("select", item.isSelected + "");
                         if (item.isSelected == 0) {
                             item.isSelected = 1;
                             selectedItemsNum++;
@@ -68,9 +67,10 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
                             selectedItemsNum--;
                         }
                         view.setTag(item);
-                    items.set(newItemId, item);
+                        items.set(newItemId, item);
+                         adapter.onItemChanged(item);
                         ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
-                        reFillContentPanel(recyclerFolderView, items);
+                        //reFillContentPanel(recyclerFolderView, items);
                     }
                 @Override
                 public void onLongItemClick(View view, int position) {}}));
@@ -81,7 +81,7 @@ public class FolderAddItemActivity extends AppCompatActivity implements IItemAda
         List<Item> newItems = db.getItemsByFolderIdForAdding(CurrentItem.Id,AppService.isHideMode()?1:0);
         for (Item item :
                 newItems) {
-            if(item.FolderId == CurrentItem.Id){
+            if(item.FolderId.equals(CurrentItem.Id) ){
                 item.isSelected = 1;
                 selectedItemsNum++;
                 ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);

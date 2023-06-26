@@ -98,7 +98,6 @@ public class DBHelper extends SQLiteOpenHelper {
         File file = new File(image);
         File directory = new File(file.getAbsolutePath());
         deleteDirectory(directory);
-
     }
     public void deleteDirectory(File directory){
         if (directory.exists()) {
@@ -196,7 +195,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @SuppressLint("Range")
     public int selectLastItemId() {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("SELECT rowid from TemplateDocumentData order by ROWID DESC limit 1", null);
+        Cursor cursor = db.rawQuery("SELECT rowid from Item order by ROWID DESC limit 1", null);
         int id;
         if (cursor.moveToFirst()) {
             id = cursor.getInt(cursor.getColumnIndex("rowid"));
@@ -207,7 +206,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public List<Item> getItemsByFolder(UUID id, int hideMode) {
         SQLiteDatabase db = open();
-        Cursor cursor = db.rawQuery("select * from Item where UserId=? order by Priority desc, rowid asc", new String[]{UserId + ""});
+        Cursor cursor = db.rawQuery("select * from Item where UpdateTime IS NOT NULL and FolderId=? and UserId=? order by Priority desc, rowid asc", new String[]{id+"", UserId + ""});
         return getItemsFromCursor(cursor);
     }
 
@@ -253,8 +252,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public Boolean deleteItem(UUID id) {
         Item item = getItemById(id);
-        updateItem(item.Id, item, true);
+        if(item==null)
+            return true;
         deletePhotoFile(item.Image);
+        updateItem(item.Id, item, true);
         deletePassport(id);
         deleteCreditCard(id);
         deleteINN(id);
@@ -265,19 +266,23 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    private void deleteCreditCard(UUID id) {
+    public void deleteCreditCard(UUID id) {
         CreditCard object = getCreditCardById(id);
         if (object != null) {
-            updateCreditCard(object.Id, object, true);
             deletePhotoFile(object.PhotoPage1);
+            updateCreditCard(object.Id, object, true);
         }
+    }
+    public void deleteCreditCardConfirm(UUID id) {
+        SQLiteDatabase db = open();
+        db.delete("CreditCard", "Id=?", new String[]{"" + id.toString()});
     }
 
     private void deleteINN(UUID id) {
         Inn object = getInnById(id);
         if (object != null) {
-            updateInn(object.Id, object, true);
             deletePhotoFile(object.PhotoPage1);
+            updateInn(object.Id, object, true);
         }
     }
 
@@ -303,7 +308,7 @@ public class DBHelper extends SQLiteOpenHelper {
             snils = new Snils(UUID.fromString(cur.getString(0)),
                     cur.getString(1),
                     cur.getString(2),
-                    cur.getString(3).charAt(0),
+                    cur.getString(3),
                     cur.getString(4),
                     cur.getString(5),
                     cur.getString(6),
@@ -317,11 +322,15 @@ public class DBHelper extends SQLiteOpenHelper {
     public void deleteSnils(UUID id) {
         Snils object = getSnilsById(id);
         if (object != null) {
-            updateSnils(object.Id, object, true);
             deletePhotoFile(object.PhotoPage1);
+            updateSnils(object.Id, object, true);
         }
     }
 
+    public void deleteSnilsConfirm(UUID id) {
+        SQLiteDatabase db = open();
+        db.delete("SNILS", "Id=?", new String[]{"" + id.toString()});
+    }
     public Snils getSnilsById(UUID objectId) {
         SQLiteDatabase db = open();
         Cursor cursor = db.rawQuery("SELECT * FROM SNILS WHERE Id=?", new String[]{objectId.toString()});
@@ -362,8 +371,6 @@ public class DBHelper extends SQLiteOpenHelper {
         long result = db.insert("SNILS", null, cv);
         return result > 0 ? snils.Id : NULL_UUID;
     }
-
-
     // Inn table
     private List<Inn> getInnsFromCursor(Cursor cur) {
         List<Inn> inns = new ArrayList<>();
@@ -372,7 +379,7 @@ public class DBHelper extends SQLiteOpenHelper {
             inn = new Inn(UUID.fromString(cur.getString(0)),
                     cur.getString(1),
                     cur.getString(2),
-                    cur.getString(3).charAt(0),
+                    cur.getString(3),
                     cur.getString(4),
                     cur.getString(5),
                     cur.getString(6),
@@ -386,9 +393,19 @@ public class DBHelper extends SQLiteOpenHelper {
     public void deleteInn(UUID id) {
         Inn object = getInnById(id);
         if (object != null) {
-            updateInn(object.Id, object, true);
             deletePhotoFile(object.PhotoPage1);
+            object.BirthDate = null;
+            object.PhotoPage1 = null;
+            object.RegistrationDate = null;
+            object.FIO = null;
+            object.Number = null;
+            object.UpdateTime = null;
+            updateInn(object.Id, object, true);
         }
+    }
+    public void deleteInnConfirm(UUID id) {
+        SQLiteDatabase db = open();
+        db.delete("INN", "Id=?", new String[]{"" + id.toString()});
     }
 
     public Inn getInnById(UUID objectId) {
@@ -412,7 +429,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("RegistrationDate", inn.RegistrationDate);
         cv.put("PhotoPage1", inn.PhotoPage1);
         cv.put("UpdateTime", inn.UpdateTime);
-        long result = db.update("Inn", cv, "id=?", new String[]{"" + id.toString()});
+        long result = db.update("INN", cv, "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
             return false;
         else {
@@ -432,7 +449,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("RegistrationDate", inn.RegistrationDate);
         cv.put("PhotoPage1", inn.PhotoPage1);
         cv.put("UpdateTime", getCurrentTime());
-        long result = db.insert("Inn", null, cv);
+        long result = db.insert("INN", null, cv);
         if (result <= 0)
             return NULL_UUID;
         else {
@@ -473,10 +490,10 @@ public class DBHelper extends SQLiteOpenHelper {
     public void deletePassport(UUID id) {
         Passport object = getPassportById(id);
         if (object != null) {
-            updatePassport(object.Id, object, true);
             deletePhotoFile(object.FacePhoto);
             deletePhotoFile(object.PhotoPage1);
             deletePhotoFile(object.PhotoPage2);
+            updatePassport(object.Id, object, true);
         }
     }
     public void deletePassportConfirm(UUID id) {
@@ -552,6 +569,20 @@ public class DBHelper extends SQLiteOpenHelper {
         return getUserFromCursor(cursor);
     }
 
+    public String getUserUpdateTime() {
+        User user = getUserById(UserId);
+        return user.UpdateTime;
+    }
+    public Boolean setUserUpdateTime() {
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        cv.put("UpdateTime", getCurrentTime());
+        long result = db.update("User", cv, "id=?", new String[]{"" + UserId});
+        if (result <= 0)
+            return false;
+        else
+            return true;
+    }
     public User getUserFromCursor(Cursor cur) {
         User user;
         if (cur.getCount() == 0)
@@ -587,7 +618,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("Login", user.Login);
         cv.put("Password", user.Password);
         cv.put("Photo", user.Photo);
-        cv.put("PinCode", user.PinCode);
+        cv.put("AccessCode", user.AccessCode);
         long result = db.update("User", cv, "id=?", new String[]{"" + id});
         if (result <= 0)
             return false;
@@ -616,7 +647,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put("Login", user.Login);
         cv.put("Password", user.Password);
         cv.put("Photo", user.Photo);
-        cv.put("PinCode", user.PinCode);
+        cv.put("AccessCode", user.AccessCode);
         cv.put("UpdateTime", user.UpdateTime);
         long result = db.insert("User", null, cv);
         if (result <= 0)
@@ -659,8 +690,22 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("select * from Photo where CollectionId=?", new String[]{"" + id.toString()});
         return getPhotosFromCursor(cursor);
     }
+    public Photo getPhoto(UUID id) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from Photo where Id=?", new String[]{"" + id.toString()});
+        return cursor.getCount()==0?null:getPhotosFromCursor(cursor).get(0);
+    }
 
     public Boolean deletePhoto(UUID id) {
+        Photo photo = getPhoto(id);
+        if(photo==null)
+            return false;
+        deletePhotoFile(photo.Image);
+        photo.setValuesNull();
+        updatePhoto(photo.Id, photo, true);
+        return true;
+    }
+    public Boolean deletePhotoConfirm(UUID id) {
         SQLiteDatabase db = open();
         long result = db.delete("Photo", "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
@@ -675,16 +720,16 @@ public class DBHelper extends SQLiteOpenHelper {
         for (Photo photo :
                 photos) {
             deletePhotoFile(photo.Image);
-            photo.Image = null;
-            photo.UpdateTime = null;
-            updatePhoto(photo.Id, photo);
+            photo.setValuesNull();
+            updatePhoto(photo.Id, photo, true);
         }
         return true;
     }
 
-    public Boolean updatePhoto(UUID id, Photo photo) {
+    public Boolean updatePhoto(UUID id, Photo photo, boolean isDelete) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        photo.UpdateTime = isDelete?null:getCurrentTime();
         cv.put("Image", photo.Image);
         cv.put("CollectionId", photo.CollectionId.toString());
         cv.put("UpdateTime", photo.UpdateTime);
@@ -696,8 +741,8 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public Boolean insertPhoto(Photo photo) {
-        UUID id = UUID.randomUUID();
+    public Boolean insertPhoto(Photo photo, boolean isNew) {
+        UUID id = isNew?UUID.randomUUID():photo.Id;
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
         cv.put("Id", id.toString());
@@ -787,7 +832,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     UUID.fromString(cur.getString(0)),
                     cur.getString(1),
                     cur.getString(2),
-                    cur.getString(3).charAt(0),
+                    cur.getString(3),
                     cur.getString(4),
                     cur.getString(5),
                     cur.getString(6),
@@ -801,10 +846,15 @@ public class DBHelper extends SQLiteOpenHelper {
     public void deletePolis(UUID id) {
         Polis object = getPolisById(id);
         if (object != null) {
-            updatePolis(object.Id, object, true);
             deletePhotoFile(object.PhotoPage1);
             deletePhotoFile(object.PhotoPage2);
+            object.setValuesNull();
+            updatePolis(object.Id, object, true);
         }
+    }
+    public void deletePolisConfirm(UUID id) {
+        SQLiteDatabase db = open();
+        db.delete("Polis", "Id=?", new String[]{"" + id.toString()});
     }
 
     public Polis getPolisById(UUID objectId) {
@@ -939,8 +989,8 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public UUID insertTemplate(Template template) {
-        UUID id = UUID.randomUUID();
+    public UUID insertTemplate(Template template, boolean isNew) {
+        UUID id = isNew?UUID.randomUUID():template.Id;
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
         cv.put("Id", id.toString());
@@ -971,8 +1021,9 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
     public Boolean deleteTemplate(UUID id) {
-        SQLiteDatabase db = open();
         Template template = getTemplateById(id);
+        if(template==null)
+            return true;
         updateTemplate(id,template,true);
         List<TemplateDocument> templateDocuments = getTemplateDocumentByTemplate(id);
         for (TemplateDocument templateDocument:
@@ -981,32 +1032,37 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         for (TemplateDocument templateDocument:
              templateDocuments) {
-            deleteTemplateObject(templateDocument.Id);
+            deleteTemplateObjectByDoc(templateDocument.Id);
         }
         return true;
     }
 
-    public Boolean deleteTemplateObject(UUID id) {
+    public Boolean deleteTemplateObjectByDoc(UUID id) {
         List<TemplateObject> templateObjects = getTemplateObjectsByTemplateId(id);
         for (TemplateObject templateObj :
                 templateObjects) {
-            templateObj.Title = null;
-            templateObj.Type = "";
-            templateObj.Position = 0;
-            updateTemplateObject(templateObj.Id, templateObj);
+            templateObj.setValuesNull();
+            updateTemplateObject(templateObj.Id, templateObj, true);
         }
         return true;
     }
-    public Boolean updateTemplateObject(UUID id, TemplateObject templateObject) {
+    public Boolean deleteTemplateObject(UUID id) {
+        open().delete("TemplateObject", "Id=?", new String[]{"" + id});
+        return true;
+    }
+    public Boolean updateTemplateObject(UUID id, TemplateObject templateObject, boolean isDelete) {
+        if(isDelete)
+            templateObject.setValuesNull();
+        else
+            templateObject.UpdateTime = getCurrentTime();
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
-        cv.put("Id", id.toString());
         cv.put("Position", templateObject.Position);
         cv.put("Type", templateObject.Type);
         cv.put("Title", templateObject.Title);
         cv.put("TemplateId", templateObject.TemplateId.toString());
-        cv.put("UpdateTime", (String)  null);
-        long result = db.update("Template", cv, "id=?", new String[]{"" + id.toString()});
+        cv.put("UpdateTime", templateObject.UpdateTime);
+        long result = db.update("TemplateObject", cv, "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
             return false;
         else {
@@ -1067,10 +1123,10 @@ public class DBHelper extends SQLiteOpenHelper {
     public Boolean deleteTemplateDocument(UUID id) {
         SQLiteDatabase db = open();
         TemplateDocument templateDocument = getTemplateDocumentById(id);
-        templateDocument.UpdateTime = null;
+        if(templateDocument==null)
+            return false;
+        templateDocument.setValuesNull();
         ContentValues cv = new ContentValues();
-        cv.put("Id", templateDocument.Id.toString());
-        cv.put("TemplateId", templateDocument.TemplateId.toString());
         cv.put("UpdateTime", templateDocument.UpdateTime);
         db.update("TemplateDocument", cv, "id=?", new String[]{"" + id.toString()});
 
@@ -1105,6 +1161,23 @@ public class DBHelper extends SQLiteOpenHelper {
             return templateDocument.Id;
         }
     }
+    public UUID updateTemplateDocument(UUID id, TemplateDocument templateDocument, boolean isDelete) {
+        SQLiteDatabase db = open();
+        ContentValues cv = new ContentValues();
+        if(isDelete)
+            templateDocument.setValuesNull();
+        else
+            templateDocument.UpdateTime  = getCurrentTime();
+        cv.put("Id", templateDocument.Id.toString());
+        cv.put("TemplateId", templateDocument.TemplateId.toString());
+        cv.put("UpdateTime", templateDocument.UpdateTime);
+        long result = db.update("TemplateDocument", cv, "id=?", new String[]{"" + id.toString()});
+        if (result <= 0)
+            return NULL_UUID;
+        else {
+            return templateDocument.Id;
+        }
+    }
 
     //TemplateDocumentData
     private List<TemplateDocumentData> getTemplateDocumentDataFromCursor(Cursor cur) {
@@ -1115,7 +1188,8 @@ public class DBHelper extends SQLiteOpenHelper {
                     UUID.fromString(cur.getString(0)),
                     cur.getString(1),
                     UUID.fromString(cur.getString(2)),
-                    UUID.fromString(cur.getString(3)));
+                    UUID.fromString(cur.getString(3)),
+                    cur.getString(4));
             templateDocumentDataList.add(templateDocumentData);
         }
         return templateDocumentDataList;
@@ -1145,13 +1219,37 @@ public class DBHelper extends SQLiteOpenHelper {
         List<TemplateDocumentData> templateDocumentDataList = getTemplateDocumentDataFromCursor(cursor);
         return templateDocumentDataList;
     }
+    public TemplateDocumentData getTemplateDocumentDataById(UUID id) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from TemplateDocumentData where Id=?", new String[]{"" + id.toString()});
+        List<TemplateDocumentData> templateDocumentDataList = getTemplateDocumentDataFromCursor(cursor);
+        return templateDocumentDataList.size()==0?null:templateDocumentDataList.get(0);
+    }
 
-    public Boolean updateTemplateDocumentData(UUID id, TemplateDocumentData templateDocumentData) {
+    public Boolean deleteTemplateDocumentDataConfirm(UUID id) {
+        SQLiteDatabase db = open();
+        TemplateDocumentData templateDocumentData = getTemplateDocumentDataById(id);
+        if(templateDocumentData!=null)
+            if(getTemplateObjectsById(templateDocumentData.TemplateObjectId).Type.equals("Photo"))
+                deletePhotoFile(templateDocumentData.Value);
+        long result = db.delete("TemplateDocumentData", "id=?", new String[]{"" + id.toString()});
+        if (result <= 0)
+            return false;
+        else {
+            return true;
+        }
+    }
+    public Boolean updateTemplateDocumentData(UUID id, TemplateDocumentData templateDocumentData, boolean isDelete) {
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
+        if(isDelete)
+            templateDocumentData.setValuesNull();
+        else
+            templateDocumentData.UpdateTime = getCurrentTime();
         cv.put("Value", templateDocumentData.Value);
         cv.put("TemplateObjectId", templateDocumentData.TemplateObjectId.toString());
         cv.put("TemplateDocumentId", templateDocumentData.TemplateDocumentId.toString());
+        cv.put("UpdateTime", templateDocumentData.UpdateTime);
         long result = db.update("TemplateDocumentData", cv, "id=?", new String[]{"" + id.toString()});
         if (result <= 0)
             return false;
@@ -1161,7 +1259,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    public UUID insertTemplateDocumentData(TemplateDocumentData templateDocumentData) {
+    public UUID insertTemplateDocumentData(TemplateDocumentData templateDocumentData, boolean isNew) {
         UUID id = UUID.randomUUID();
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
@@ -1188,7 +1286,8 @@ public class DBHelper extends SQLiteOpenHelper {
                     cur.getInt(1),
                     cur.getString(2),
                     cur.getString(3),
-                    UUID.fromString(cur.getString(4)));
+                    UUID.fromString(cur.getString(4)),
+                    cur.getString(5));
             templateObjects.add(templateObject);
         }
         return templateObjects;
@@ -1199,9 +1298,14 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("select * from TemplateObject where TemplateId=?", new String[]{"" + templateId.toString()});
         return getTemplateObjectsFromCursor(cursor);
     }
+    public TemplateObject getTemplateObjectsById(UUID Id) {
+        SQLiteDatabase db = open();
+        Cursor cursor = db.rawQuery("select * from TemplateObject where Id=?", new String[]{"" + Id.toString()});
+        return cursor.getCount()==0?null:getTemplateObjectsFromCursor(cursor).get(0);
+    }
 
-    public UUID insertTemplateObject(TemplateObject templateObject) {
-        UUID id = UUID.randomUUID();
+    public UUID insertTemplateObject(TemplateObject templateObject, boolean isNew) {
+        UUID id = isNew ? UUID.randomUUID():templateObject.TemplateId;
         SQLiteDatabase db = open();
         ContentValues cv = new ContentValues();
         cv.put("Id", id.toString());
@@ -1217,4 +1321,5 @@ public class DBHelper extends SQLiteOpenHelper {
             return id;
         }
     }
+
 }

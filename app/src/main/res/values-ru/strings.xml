@@ -41,7 +41,7 @@
     <string name="delete_string">Удалить</string>
     <string name="document_string">Документ</string>
     <string name="image_string">Фото</string>
-    <string name="card_string">CreditCard</string>
+    <string name="card_string">Карта</string>
     <string name="folder">Папка</string>
     <string name="selected_string">Выбрано: </string>
     <string name="enter_a_name">Введите название</string>
@@ -111,4 +111,11 @@
     <string name="invalid_email">Некореектный Email</string>
     <string name="password_short">Пароль слишком короткий</string>
     <string name="loading">"Загрузка: "</string>
+    <string name="invalid_date">Некорректная дата</string>
+    <string name="registration_date">Дата регистрации</string>
+    <string name="number">Номер</string>
+    <string name="snils">СНИЛС</string>
+    <string name="error_user_password">Неверный пароль</string>
+    <string name="error_login_short">Логин слишком короткий</string>
+    <string name="set_pincode_first">Установите сначала PIN-код в настройках</string>
 </resources>

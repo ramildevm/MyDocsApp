@@ -11,7 +11,6 @@ public class ImageCollectionService {
 
     public void add(Bitmap bitmap){
         bitmapList.add(bitmap);
-        Log.e("dededed","service");
     }
     public Bitmap get(int id){
         return bitmapList.get(id);

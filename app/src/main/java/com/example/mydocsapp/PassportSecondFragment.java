@@ -11,14 +11,12 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -39,12 +37,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PassportSecondFragment extends Fragment implements IFragmentDataSaver {
-
     private static final int BITMAP_IMAGE = 0;
     private static final int DB_IMAGE = 1;
     FragmentPassportSecondBinding binding;
@@ -70,7 +66,7 @@ public class PassportSecondFragment extends Fragment implements IFragmentDataSav
         });
         model = new ViewModelProvider(requireActivity()).get(PassportStateViewModel.class);
         loadData();
-        Item item = ((MainPassportPatternActivity) getActivity()).getCurrentItem();
+        Item item = ((MainDocumentPatternActivity) getActivity()).getCurrentItem();
         registerForARPage1 = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == RESULT_OK) {
                 CropImage.ActivityResult cropImageResult = CropImage.getActivityResult(result.getData());

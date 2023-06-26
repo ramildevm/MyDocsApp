@@ -4,15 +4,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class PassportStateViewModel extends ViewModel {
+import com.example.mydocsapp.interfaces.StateViewModel;
+
+public class PassportStateViewModel extends ViewModel  implements StateViewModel {
     private MutableLiveData<Passport> state = new MutableLiveData<>();
     public PassportStateViewModel(){
-
     }
     public LiveData<Passport> getState(){
         return state;
     }
-    public void setState(Passport _state){
-        state.setValue(_state);
+
+    @Override
+    public void setState(Object _state) {
+        state.setValue((Passport)_state);
     }
 }

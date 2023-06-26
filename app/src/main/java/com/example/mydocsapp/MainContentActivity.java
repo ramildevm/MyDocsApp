@@ -66,15 +66,16 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     public static final int RECYCLER_ADAPTER_EVENT_MOVE = 2;
     private static final int RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE = 3;
     public static final String APPLICATION_NAME = "MyDocs";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_content);
         registerForARFolder = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                    CurrentFolderItemsSet = itemsService.getFolderItemsFromDb(itemsService.getCurrentItem().Id);
-                    reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
-                    itemsService.setInitialData();
-                    reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
+            CurrentFolderItemsSet = itemsService.getFolderItemsFromDb(itemsService.getCurrentItem().Id);
+            reFillContentPanel(recyclerFolderView, CurrentFolderItemsSet);
+            itemsService.setInitialData();
+            reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
         });
         db = new DBHelper(this, AppService.getUserId(this));
         setCurrentUserFromDB();
@@ -99,21 +100,20 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
 
     private void setWindowParams() {
         TextView topTxt = findViewById(R.id.login_txt);
-        if(AppService.isHideMode()){
+        if (AppService.isHideMode()) {
             topTxt.setText(R.string.hidden_files);
-            ((TextView)findViewById(R.id.bottom_hide_return_txt)).setText(R.string.return_string);
-            ((ImageView)findViewById(R.id.bottom_hide_return_btn)).setImageResource(R.drawable.return_btn);
-            ImageView BtnMaimMenu = ((ImageView)findViewById(R.id.menubar_main_list));
+            ((TextView) findViewById(R.id.bottom_hide_return_txt)).setText(R.string.return_string);
+            ((ImageView) findViewById(R.id.bottom_hide_return_btn)).setImageResource(R.drawable.return_btn);
+            ImageView BtnMaimMenu = ((ImageView) findViewById(R.id.menubar_main_list));
             BtnMaimMenu.setImageResource(R.drawable.left_arrow_white);
             BtnMaimMenu.setScaleX(1.3f);
             BtnMaimMenu.setScaleY(1.3f);
-            ((Button)findViewById(R.id.flow_button)).setBackgroundResource(R.drawable.ic_create_new_folder);
-            findViewById(R.id.flow_button).setOnClickListener(v->{
+            ((Button) findViewById(R.id.flow_button)).setBackgroundResource(R.drawable.ic_create_new_folder);
+            findViewById(R.id.flow_button).setOnClickListener(v -> {
                 makeRenameDialogMethod(itemsService.getCurrentItemsSet(), "Make");
                 makeRenameDialog.show();
             });
-        }
-        else{
+        } else {
             topTxt.setText((CurrentUser.Login));
         }
     }
@@ -121,9 +121,10 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     private void setCurrentUserFromDB() {
         CurrentUser = db.getUserById(AppService.getUserId(this));
         CurrentUser.Id = AppService.getUserId(this);
-        if(CurrentUser.Id==0)
+        if (CurrentUser.Id == 0)
             CurrentUser.Login = getString(R.string.guest_mode);
     }
+
     private void setCurrentUserFromAPI() {
         CurrentUser = db.getUserById(1);
         CurrentUser.Id = 0;
@@ -132,9 +133,10 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
     @Override
     protected void onResume() {
         itemsService.setInitialData();
-        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE,itemsService.getCurrentItemsSet());
+        reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getCurrentItemsSet());
         super.onResume();
     }
+
     private void setOnClickListeners() {
         recyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
@@ -157,16 +159,15 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                             int unpinCount = 0;
                             for (Item i :
                                     selectedItemsSet) {
-                                if(i.Priority==1)
+                                if (i.Priority == 1)
                                     unpinCount++;
                             }
-                            ((TextView)findViewById(R.id.bottom_pin_txt)).setText(unpinCount==selectedItemsSet.size()&unpinCount!=0?R.string.unpin_string:R.string.pin_string);
+                            ((TextView) findViewById(R.id.bottom_pin_txt)).setText(unpinCount == selectedItemsSet.size() & unpinCount != 0 ? R.string.unpin_string : R.string.pin_string);
                             view.setTag(item);
                             itemsService.setItem(position, item);
                             adapter.onItemChanged(item);
-                            ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
-                        }
-                        else {
+                            ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
+                        } else {
                             itemsService.setCurrentItem(item);
                             if (isTitleClicked) {
                                 makeRenameDialogMethod(itemsService.getCurrentItemsSet(), "Rename");
@@ -198,15 +199,22 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                                         makeRenameDialogMethod(CurrentFolderItemsSet, "FRename");
                                                         makeRenameDialog.show();
                                                     } else if (itemsService.getCurrentItem().Type.equals("Passport")) {
-                                                        goPassportItemClick(itemsService.getCurrentItem());
+                                                        goPassportItemClick(itemsService.getCurrentItem(), "Passport");
+                                                    }else if (itemsService.getCurrentItem().Type.equals("SNILS")) {
+                                                        goPassportItemClick(itemsService.getCurrentItem(), "SNILS");
+                                                    }else if (itemsService.getCurrentItem().Type.equals("INN")) {
+                                                        goPassportItemClick(itemsService.getCurrentItem(), "INN");
+                                                    }else if (itemsService.getCurrentItem().Type.equals("Polis")) {
+                                                        goPassportItemClick(itemsService.getCurrentItem(), "Polis");
                                                     } else if (itemsService.getCurrentItem().Type.equals("CreditCard")) {
                                                         goCreditCardItemClick(itemsService.getCurrentItem());
-                                                    }else if (itemsService.getCurrentItem().Type.equals("Collection")) {
+                                                    } else if (itemsService.getCurrentItem().Type.equals("Collection")) {
                                                         goImageItemClick(itemsService.getCurrentItem());
-                                                    }else if (itemsService.getCurrentItem().Type.equals("Template")) {
+                                                    } else if (itemsService.getCurrentItem().Type.equals("Template")) {
                                                         goTemplateItemClick(itemsService.getCurrentItem());
                                                     }
                                                 }
+
                                                 @Override
                                                 public void onLongItemClick(View view, int position) {
                                                 }
@@ -225,18 +233,24 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                                     });
                                     dialog.getWindow().setWindowAnimations(R.style.PauseDialogAnimation);
                                     dialog.show();
-                                } else if (item.Type.equals("Passport")) {
-                                    goPassportItemClick(item);
-                                } else if (item.Type.equals("CreditCard")) {
+                                } else if (item.Type.equals("Passport"))
+                                    goPassportItemClick(item, "Passport");
+                                else if (item.Type.equals("SNILS"))
+                                    goPassportItemClick(item, "SNILS");
+                                else if (item.Type.equals("INN"))
+                                    goPassportItemClick(item, "INN");
+                                else if (item.Type.equals("Polis"))
+                                    goPassportItemClick(item, "Polis");
+                                else if (item.Type.equals("CreditCard"))
                                     goCreditCardItemClick(item);
-                                }else if (item.Type.equals("Collection")) {
+                                else if (item.Type.equals("Collection"))
                                     goImageItemClick(item);
-                                }else if (item.Type.equals("Template")) {
+                                else if (item.Type.equals("Template"))
                                     goTemplateItemClick(item);
-                                }
                             }
                         }
                     }
+
                     @Override
                     public void onLongItemClick(View view, int position) {
                         if (!isSortMode) {
@@ -245,17 +259,17 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
                             selectedItemsSet.add(item);
                             if (findViewById(R.id.container).getAlpha() == 0.5f)
                                 return;
-                            if(item.Priority==1)
-                                ((TextView)findViewById(R.id.bottom_pin_txt)).setText(R.string.unpin_string);
+                            if (item.Priority == 1)
+                                ((TextView) findViewById(R.id.bottom_pin_txt)).setText(R.string.unpin_string);
                             else
-                                ((TextView)findViewById(R.id.bottom_pin_txt)).setText(R.string.pin_string);
+                                ((TextView) findViewById(R.id.bottom_pin_txt)).setText(R.string.pin_string);
                             MotionLayout ml = findViewById(R.id.motion_layout);
                             ml.setTransition(R.id.transGoSelect);
                             ml.transitionToEnd();
                             isSelectMode = true;
                             item.isSelected = 1;
                             selectedItemsNum = 1;
-                            ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + +selectedItemsNum);
+                            ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + +selectedItemsNum);
                             itemsService.setItem(position, item);
                             view.setTag(item);
                             reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
@@ -266,12 +280,14 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         Button flowBtn = findViewById(R.id.flow_button);
         flowBtn.setOnClickListener(view -> openAddMenuClick(view));
     }
+
     private void goCreditCardItemClick(Item item) {
         Intent intent = new Intent(MainContentActivity.this, CardPatternActivity.class);
         intent.putExtra("item", item);
         startActivity(intent);
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
+
     private void goTemplateItemClick(Item item) {
         Intent intent = new Intent(MainContentActivity.this, TemplateActivity.class);
         TemplateDocument templateDocument = db.getTemplateDocumentById(item.Id);
@@ -283,20 +299,24 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
         }
     }
+
     private void goImageItemClick(Item item) {
         Intent intent = new Intent(MainContentActivity.this, ImageCollectionActivity.class);
-        intent.putExtra("userId",CurrentUser.Id);
-        intent.putExtra("mode",SESSION_MODE_OPEN);
-        intent.putExtra("item",item);
-        startActivity(intent);
-        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
-    }
-    private void goPassportItemClick(Item item) {
-        Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
+        intent.putExtra("userId", CurrentUser.Id);
+        intent.putExtra("mode", SESSION_MODE_OPEN);
         intent.putExtra("item", item);
         startActivity(intent);
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
+
+    private void goPassportItemClick(Item item, String type) {
+        Intent intent = new Intent(MainContentActivity.this, MainDocumentPatternActivity.class);
+        intent.putExtra("item", item);
+        intent.putExtra("type", type);
+        startActivity(intent);
+        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
+    }
+
     private void makeRenameDialogMethod(ArrayList<Item> items, String mode) {
         makeRenameDialog = new Dialog(MainContentActivity.this);
         makeRenameDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -322,11 +342,11 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             if (mode.equals("Make")) {
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.US);
                 String time = df.format(new Date());
-                db.insertItem(new Item(NULL_UUID, editText.getText().toString(), "Folder", null, 0, AppService.isHideMode()?1:0, 0, time, NULL_UUID, 0,""), true);
+                db.insertItem(new Item(NULL_UUID, editText.getText().toString(), "Folder", null, 0, AppService.isHideMode() ? 1 : 0, 0, time, NULL_UUID, 0, ""), true);
             } else {
                 Item item = itemsService.getCurrentItem();
                 item.Title = editText.getText().toString();
-                db.updateItem(item.Id, item,false);
+                db.updateItem(item.Id, item, false);
             }
             if (mode.equals("Rename") | mode.equals("Make")) {
                 itemsService.setInitialData();
@@ -345,6 +365,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             makeRenameDialog.dismiss();
         });
     }
+
     private void setViewsTagOff() {
         if (findViewById(R.id.checkTranitionState).getAlpha() == 0.0) {
             findViewById(R.id.flow_button).setTag("off");
@@ -353,17 +374,21 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             (findViewById(R.id.flow_button)).setEnabled(true);
         }
     }
+
     public void goAccountClick(View view) {
         startActivity(new Intent(MainContentActivity.this, MainMenuActivity.class));
         overridePendingTransition(R.anim.slide_in_left, R.anim.alpha_out);
     }
+
     public void goPatternClick(View view) {
-        Intent intent = new Intent(MainContentActivity.this, MainPassportPatternActivity.class);
+        Intent intent = new Intent(MainContentActivity.this, MainDocumentPatternActivity.class);
         itemsService.setCurrentItem(null);
         intent.putExtra("item", itemsService.getCurrentItem());
+        intent.putExtra("type", "");
         startActivity(intent);
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
+
     public void openSortMenuClick(View view) {
         setViewsTagOff();
         MotionLayout ml = findViewById(R.id.motion_layout);
@@ -381,6 +406,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             (findViewById(R.id.flow_button)).setEnabled(true);
         }
     }
+
     public void openAddMenuClick(View view) {
         setViewsTagOff();
         MotionLayout ml = findViewById(R.id.motion_layout);
@@ -395,26 +421,30 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             (findViewById(R.id.menubar_options)).setEnabled(true);
         }
     }
+
     public void menuMakeFolderClick(View view) {
         makeRenameDialogMethod(itemsService.getCurrentItemsSet(), "Make");
         makeRenameDialog.show();
     }
+
     public void menuMakeCardClick(View view) {
         Intent intent = new Intent(MainContentActivity.this, CardPatternActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
     }
+
     public void menuMakeImageClick(View view) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Intent intent = new Intent(this,ImageCollectionActivity.class);
-            intent.putExtra("userId",CurrentUser.Id);
-            intent.putExtra("mode",SESSION_MODE_CREATE);
+            Intent intent = new Intent(this, ImageCollectionActivity.class);
+            intent.putExtra("userId", CurrentUser.Id);
+            intent.putExtra("mode", SESSION_MODE_CREATE);
             startActivity(intent);
             overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
         }
     }
+
     public void sortFolderClick(View view) {
         if (itemsService.isFoldersAvailable)
             view.setAlpha(0.5f);
@@ -425,6 +455,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         itemsService.isFoldersAvailable = !itemsService.isFoldersAvailable;
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getSortedCurrentItemsSet());
     }
+
     public void sortCardClick(View view) {
         if (itemsService.isCardsAvailable)
             view.setAlpha(0.5f);
@@ -435,6 +466,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         itemsService.isCardsAvailable = !itemsService.isCardsAvailable;
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getSortedCurrentItemsSet());
     }
+
     public void sortImageClick(View view) {
         if (itemsService.isImagesAvailable)
             view.setAlpha(0.5f);
@@ -445,6 +477,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         itemsService.isImagesAvailable = !itemsService.isImagesAvailable;
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getSortedCurrentItemsSet());
     }
+
     public void sortDocClick(View view) {
         if (itemsService.isDocsAvailable)
             view.setAlpha(0.5f);
@@ -455,11 +488,13 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         itemsService.isDocsAvailable = !itemsService.isDocsAvailable;
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_ITEMS_CHANGE, itemsService.getSortedCurrentItemsSet());
     }
+
     void reFillContentPanel(RecyclerView _recyclerView, ArrayList<Item> _items) {
         _recyclerView.removeAllViews();
         adapter = new ItemAdapter(this, _items, isSelectMode);
         _recyclerView.setAdapter(adapter);
     }
+
     void reFillContentPanel(int mode, ArrayList<Item> _items) {
         adapter.setSelectMode(isSelectMode);
         switch (mode) {
@@ -484,44 +519,46 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         int unpinCount = 0;
         for (Item i :
                 selectedItemsSet) {
-            if(i.Priority==1)
+            if (i.Priority == 1)
                 unpinCount++;
         }
         for (Item x : selectedItemsSet) {
             if (x.isSelected == 1) {
-                x.Priority = (unpinCount==selectedItemsSet.size()&unpinCount!=0)?0:1;
+                x.Priority = (unpinCount == selectedItemsSet.size() & unpinCount != 0) ? 0 : 1;
                 x.isSelected = 0;
                 selectedItemsNum--;
-                db.updateItem(x.Id, x,false);
+                db.updateItem(x.Id, x, false);
             }
         }
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_MOVE, (ArrayList<Item>) db.getItemsByFolder0());
-        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
+        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
         topSelectBackClick(new View(this));
     }
+
     public void bottomHideClick(View view) {
         for (Item x : selectedItemsSet) {
-            if(x.Type.equals("Folder")){
+            if (x.Type.equals("Folder")) {
                 List<Item> itemList = itemsService.getFolderItemsFromDb(x.Id);
                 for (Item item : itemList) {
-                    item.IsHidden = item.IsHidden==1?0:1;
-                    db.updateItem(item.Id, item,false);
+                    item.IsHidden = item.IsHidden == 1 ? 0 : 1;
+                    db.updateItem(item.Id, item, false);
                 }
             }
             if (x.isSelected == 1) {
-                x.IsHidden = x.IsHidden==1?0:1;
+                x.IsHidden = x.IsHidden == 1 ? 0 : 1;
                 x.isSelected = 0;
                 selectedItemsNum--;
-                db.updateItem(x.Id, x,false);
+                db.updateItem(x.Id, x, false);
             }
         }
         for (Item delItem :
                 selectedItemsSet) {
             adapter.onItemDelete(delItem);
         }
-        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
+        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
         topSelectBackClick(new View(this));
     }
+
     public void bottomDeleteClick(View view) {
         for (Item x : itemsService.getCurrentItemsSet()) {
             if (x.isSelected == 1) {
@@ -534,8 +571,9 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             adapter.onItemDelete(delItem);
         }
         itemsService.setInitialData();
-        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
+        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
     }
+
     public void topSelectAllClick(View view) {
         selectedItemsNum = 0;
         for (Item x :
@@ -545,9 +583,10 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             itemsService.setItem(newItemId, x);
             selectedItemsNum++;
         }
-        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " "  + selectedItemsNum);
+        ((TextView) findViewById(R.id.top_select_picked_txt)).setText(getString(R.string.selected_string) + " " + selectedItemsNum);
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
     }
+
     public void topSelectBackClick(View view) {
         MotionLayout ml = findViewById(R.id.motion_layout);
         ml.setTransition(R.id.transGoSelect);
@@ -557,6 +596,7 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
         itemsService.setInitialData();
         reFillContentPanel(RECYCLER_ADAPTER_EVENT_CHANGE, itemsService.getCurrentItemsSet());
     }
+
     @Override
     public void onBackPressed() {
         itemsService.setInitialData();
@@ -571,17 +611,18 @@ public class MainContentActivity extends AppCompatActivity implements IItemAdapt
             topSelectBackClick(new View(this));
         } else if (isSortMode) {
             openSortMenuClick(findViewById(R.id.menubar_options));
-        } else
-        {
+        } else {
             startActivity(new Intent(MainContentActivity.this, MainMenuActivity.class));
             overridePendingTransition(R.anim.slide_in_left, R.anim.alpha_out);
         }
     }
+
     @Override
     protected void onRestart() {
         super.onRestart();
         reFillContentPanel(recyclerView, itemsService.getCurrentItemsSet());
     }
+
     @Override
     public void setIsTitleClicked(boolean value) {
         this.isTitleClicked = value;

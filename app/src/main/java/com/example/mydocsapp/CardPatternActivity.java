@@ -74,7 +74,6 @@ public class CardPatternActivity extends AppCompatActivity {
         LoadData();
         setOnClickEvents();
         registerForARImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-            Log.d("RequestCode",result.getResultCode()+"");
             if (result.getResultCode() == RESULT_OK) {
                 CropImage.ActivityResult cropImageResult = CropImage.getActivityResult(result.getData());
                 if (result.getData() != null) {

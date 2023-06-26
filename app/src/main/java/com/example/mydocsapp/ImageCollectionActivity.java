@@ -5,11 +5,14 @@ import static com.example.mydocsapp.services.AppService.NULL_UUID;
 import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -89,9 +92,8 @@ public class ImageCollectionActivity extends AppCompatActivity {
                         try {
                             // convert selected image to bitmap
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                            String filePath = createPhoto(bitmap, i);
-                            if(i==0)
-                                CurrentItem.Image=filePath;
+                            createPhoto(bitmap);
+                            CurrentItem.Image="null_path";
                             // add bitmap to array
                             imagesService.add(bitmap);
                         } catch (IOException e) {
@@ -116,7 +118,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
                         Uri uri = clipData.getItemAt(i).getUri();
                         try {
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                            createPhoto(bitmap, i);
+                            createPhoto(bitmap);
                             imagesService.add(bitmap);
                             imageAdapter.notifyItemInserted(imagesService.getSize());
                         } catch (IOException e) {
@@ -182,13 +184,13 @@ public class ImageCollectionActivity extends AppCompatActivity {
     private void fillPhotoArray(UUID itemId) {
         photoList = (ArrayList<Photo>) db.getPhotos(itemId);
     }
-    private String createPhoto(Bitmap bitmap, int index) {
+    private String createPhoto(Bitmap bitmap) {
         File rootDir = getApplicationContext().getFilesDir();
         String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME +"/"+ AppService.getUserId(this)+ "/Item" + CurrentItem.Id.toString() + "/Image/";
         File dir = new File(imgPath);
         if (!dir.exists())
             dir.mkdirs();
-        String imgName = "Image" + index+"_" + System.currentTimeMillis();
+        String imgName = "Image" + CurrentItem.Id.toString();
         File imgFile = new File(dir, imgName);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -200,7 +202,7 @@ public class ImageCollectionActivity extends AppCompatActivity {
         }
         String filePath = imgFile.getAbsolutePath();
         Photo photo = new Photo(NULL_UUID,filePath,CurrentItem.Id,null);
-        db.insertPhoto(photo);
+        db.insertPhoto(photo, true);
         return filePath;
     }
     private Item createItem(int count) {
@@ -305,7 +307,34 @@ public class ImageCollectionActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         registerForARImageChange.launch(intent);
     }
-    public void menuSaveAsClick(View view) { }
+    public void menuSaveAsClick(View view) {
+        Photo photo = photoList.get(imagesService.getCurrentImage());
+        String fileName = "photo"+ photo.Id.toString()+".png";
+        File imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File outputFile = new File(imagesDir, fileName);
+        if (!imagesDir.exists()) {
+            imagesDir.mkdirs();
+        }
+        File outputCopyPath = new File(photo.Image +"_copy");
+        File filePath = new File(photo.Image);
+        try {
+            MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(filePath), new FileOutputStream(outputFile));
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (outputCopyPath.exists()) {
+            Bitmap bitmap = BitmapFactory.decodeFile(outputCopyPath.getAbsolutePath());
+            try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                Toast.makeText(this, R.string.image_saved,Toast.LENGTH_SHORT).show();
+                fos.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+        }
+    }
+
     public void menuOptionsBtnClick(View v) {
         if (v.getTag().equals("off")) {
             MotionLayout ml = findViewById(R.id.motion_layout);

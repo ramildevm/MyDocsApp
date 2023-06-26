@@ -296,12 +296,26 @@ public class TemplateActivity extends AppCompatActivity {
             binding.rightMenuSaveBtn.setOnClickListener(v -> loadCreateDocument());
             binding.rightMenuDeleteBtn.setOnClickListener(v -> deleteTemplateBtnClick());
         }
-        binding.passportTopBtn.setOnClickListener(v -> {startActivity(new Intent(this,MainPassportPatternActivity.class));
+        binding.passportTopBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MainDocumentPatternActivity.class);
+            intent.putExtra("type","Passport");
+            startActivity(intent);
             overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);});
-        binding.INNTopBtn.setOnClickListener(v -> {startActivity(new Intent(this,INNPatternActivity.class));
+        binding.SNILSTopBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MainDocumentPatternActivity.class);
+            intent.putExtra("type","SNILS");
+            startActivity(intent);
             overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);});
-        binding.policyTopBtn.setOnClickListener(v -> {startActivity(new Intent(this,PolicyPatternActivity.class));
-        overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);});
+        binding.INNTopBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MainDocumentPatternActivity.class);
+            intent.putExtra("type","INN");
+            startActivity(intent);
+            overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);});
+        binding.policyTopBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MainDocumentPatternActivity.class);
+            intent.putExtra("type","Polis");
+            startActivity(intent);
+            overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);});
         binding.menubarOptions.setOnClickListener(v->menuOptionsBtnClick(v));
         binding.rightMenuSaveAsBtn.setOnClickListener(v->saveAsBtnClick(v));
     }
@@ -350,15 +364,15 @@ public class TemplateActivity extends AppCompatActivity {
                 if (templateObject.Type.equals("EditText") || templateObject.Type.equals("NumberText")) {
                     EditText editText = (EditText) view;
                     tempData.Value = editText.getText().toString();
-                    db.updateTemplateDocumentData(tempData.Id, tempData);
+                    db.updateTemplateDocumentData(tempData.Id, tempData,false);
                 } else if (templateObject.Type.equals("CheckBox")) {
                     CheckBox checkBox = (CheckBox) view;
                     tempData.Value = checkBox.isChecked() ? "true" : "false";
-                    db.updateTemplateDocumentData(tempData.Id, tempData);
+                    db.updateTemplateDocumentData(tempData.Id, tempData,false);
                 }else if (templateObject.Type.equals("Photo")) {
                     Item item = db.getItemById(templateDoc.Id);
                     tempData.Value = savePhoto(view, tempData, item);
-                    db.updateTemplateDocumentData(tempData.Id, tempData);
+                    db.updateTemplateDocumentData(tempData.Id, tempData,false);
                 }
             }
         }
@@ -378,17 +392,17 @@ public class TemplateActivity extends AppCompatActivity {
                 continue;
             if (templateObject.Type.equals("EditText") || templateObject.Type.equals("NumberText")) {
                 EditText editText = (EditText) view;
-                db.insertTemplateDocumentData(new TemplateDocumentData(NULL_UUID, editText.getText().toString(), templateObject.Id, id));
+                db.insertTemplateDocumentData(new TemplateDocumentData(NULL_UUID, editText.getText().toString(), templateObject.Id, id, null), true);
             } else if (templateObject.Type.equals("CheckBox")) {
                 CheckBox checkBox = (CheckBox) view;
                 String value = checkBox.isChecked() ? "true" : "false";
-                db.insertTemplateDocumentData(new TemplateDocumentData(NULL_UUID, value, templateObject.Id, id));
+                db.insertTemplateDocumentData(new TemplateDocumentData(NULL_UUID, value, templateObject.Id, id, null), true);
             }else if (templateObject.Type.equals("Photo")) {
-                TemplateDocumentData tempData = new TemplateDocumentData(NULL_UUID, null, templateObject.Id, id);
-                db.insertTemplateDocumentData(tempData);
+                TemplateDocumentData tempData = new TemplateDocumentData(NULL_UUID, null, templateObject.Id, id, null);
+                db.insertTemplateDocumentData(tempData, true);
                 tempData.Id = db.selectLastTemplateDocumentDataId();
                 tempData.Value = savePhoto(view, tempData, item);
-                db.updateTemplateDocumentData(tempData.Id, tempData);
+                db.updateTemplateDocumentData(tempData.Id, tempData,false);
             }
         }
     }
@@ -428,11 +442,11 @@ public class TemplateActivity extends AppCompatActivity {
         String time = df.format(new Date());
         Template temp = new Template(NULL_UUID, template.Name, "Downloaded", time,null ,userId);
 
-        UUID id = db.insertTemplate(temp);
+        UUID id = db.insertTemplate(temp, true);
         for (TemplateObject templateObject :
                 templateObjects) {
             templateObject.TemplateId = id;
-            db.insertTemplateObject(templateObject);
+            db.insertTemplateObject(templateObject, true);
         }
         startActivity(new Intent(this, MainTemplateActivity.class));
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
@@ -441,12 +455,12 @@ public class TemplateActivity extends AppCompatActivity {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.US);
         String time = df.format(new Date());
         Template template = new Template(NULL_UUID, name, "New", time,null, userId);
-        db.insertTemplate(template);
+        db.insertTemplate(template, true);
         UUID id = db.selectLastTemplateId();
         for (TemplateObject templateObject :
                 templateObjects) {
             templateObject.TemplateId = id;
-            db.insertTemplateObject(templateObject);
+            db.insertTemplateObject(templateObject, true);
         }
         startActivity(new Intent(this, MainTemplateActivity.class));
         overridePendingTransition(R.anim.alpha_in, R.anim.alpha_out);
@@ -538,19 +552,19 @@ public class TemplateActivity extends AppCompatActivity {
                 TemplateObject templateObject;
                 switch (mode) {
                     case DIALOG_EDITTEXT:
-                        templateObject = new TemplateObject(NULL_UUID, templateObjects.size(), "EditText", editText.getText().toString(), NULL_UUID);
+                        templateObject = new TemplateObject(NULL_UUID, templateObjects.size(), "EditText", editText.getText().toString(), NULL_UUID, null);
                         makeEditText(templateObject);
                         break;
                     case DIALOG_NUMBER_TEXT:
-                        templateObject = new TemplateObject(NULL_UUID, templateObjects.size(), "NumberText", editText.getText().toString(), NULL_UUID);
+                        templateObject = new TemplateObject(NULL_UUID, templateObjects.size(), "NumberText", editText.getText().toString(), NULL_UUID, null);
                         makeEditText(templateObject);
                         break;
                     case DIALOG_CHECKBOX:
-                        templateObject = new TemplateObject(NULL_UUID, templateObjects.size(), "CheckBox", editText.getText().toString(), NULL_UUID);
+                        templateObject = new TemplateObject(NULL_UUID, templateObjects.size(), "CheckBox", editText.getText().toString(), NULL_UUID, null);
                         makeCheckBox(templateObject);
                         break;
                     case DIALOG_IMAGE:
-                        templateObject = new TemplateObject(NULL_UUID, templateObjects.size(), "Photo", editText.getText().toString(), NULL_UUID);
+                        templateObject = new TemplateObject(NULL_UUID, templateObjects.size(), "Photo", editText.getText().toString(), NULL_UUID, null);
                         makePhoto(templateObject);
                         break;
                     case DIALOG_TEMPLATE_NAME:

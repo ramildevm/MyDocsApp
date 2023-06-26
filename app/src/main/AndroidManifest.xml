@@ -49,19 +49,7 @@
             android:exported="false"
             android:parentActivityName="com.example.mydocsapp.MainContentActivity" />
         <activity
-            android:name="com.example.mydocsapp.SnilsPatternActivity"
-            android:exported="false"
-            android:parentActivityName="com.example.mydocsapp.MainContentActivity" />
-        <activity
-            android:name="com.example.mydocsapp.PolicyPatternActivity"
-            android:exported="false"
-            android:parentActivityName="com.example.mydocsapp.MainContentActivity" />
-        <activity
-            android:name="com.example.mydocsapp.INNPatternActivity"
-            android:exported="false"
-            android:parentActivityName="com.example.mydocsapp.MainContentActivity" />
-        <activity
-            android:name="com.example.mydocsapp.MainPassportPatternActivity"
+            android:name="com.example.mydocsapp.MainDocumentPatternActivity"
             android:exported="false"
             android:parentActivityName="com.example.mydocsapp.MainContentActivity"
             android:windowSoftInputMode="adjustResize" />

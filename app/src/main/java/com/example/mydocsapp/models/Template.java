@@ -3,9 +3,11 @@ package com.example.mydocsapp.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.mydocsapp.interfaces.DatabaseObject;
+
 import java.util.UUID;
 
-public class Template implements Parcelable {
+public class Template implements Parcelable, DatabaseObject {
     public UUID Id;
     public String Name;
     public String Status;
@@ -60,5 +62,10 @@ public class Template implements Parcelable {
         parcel.writeInt(UserId);
         parcel.writeByte((byte) (isSelected ? 1 : 0));
         parcel.writeString(UpdateTime);
+    }
+
+    @Override
+    public void setValuesNull() {
+        Name = Status = Date =UpdateTime = null;
     }
 }

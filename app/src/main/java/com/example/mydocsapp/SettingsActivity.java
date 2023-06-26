@@ -69,7 +69,7 @@ public class SettingsActivity extends AppCompatActivity {
         builder.setView(layout);
         AlertDialog dialog = builder.create();
         layout.findViewById(R.id.buttonConfirm).setOnClickListener(v->{
-            if(pinCodeTxt.getText().toString().length()>=4) {
+            if(pinCodeTxt.getText().toString().length()>4) {
                 onConfirmPinCodeClick(pinCodeTxt.getText().toString());
                 dialog.dismiss();
             }
@@ -79,7 +79,7 @@ public class SettingsActivity extends AppCompatActivity {
         layout.findViewById(R.id.buttonRemoveBack).setOnClickListener(v->{
             int id =AppService.getUserId(this);
             User user = db.getUserById(id);
-            user.PinCode = null;
+            user.AccessCode = null;
             db.updateUser(id,user);
             Toast.makeText(this,R.string.pin_code_deleted,Toast.LENGTH_LONG).show();
             dialog.dismiss();
@@ -106,12 +106,12 @@ public class SettingsActivity extends AppCompatActivity {
         Toast.makeText(this,R.string.pin_code_created,Toast.LENGTH_LONG).show();
         int id =AppService.getUserId(this);
         User user = db.getUserById(id);
-        user.PinCode = pinCode;
+        user.AccessCode = pinCode;
         db.updateUser(id,user);
     }
     private void onNumberClick(View v, TextView pinCodeTxt, TextInputLayout textInputLayout) {
         textInputLayout.setError(null);
-        if(pinCodeTxt.getText().toString().length()<4) {
+        if(pinCodeTxt.getText().toString().length()<30) {
             String text = pinCodeTxt.getText().toString();
             pinCodeTxt.setText(text+((Button) v).getText());
         }
@@ -121,10 +121,23 @@ public class SettingsActivity extends AppCompatActivity {
         makeSettingsDialog(text);
     }
     private void onPrivacyPolicyBtnClick() {
-        makeSettingsDialog(getString(R.string.privacy_policy_dialog_text));
+        String text = "";
+        text +="За исключением случаев, указанных иначе, вся документация и программное обеспечение, включенные в пакет Inno Setup, защищены авторским правом Рахимова Рамиля.\n\n";
+        text +="Авторское право (C 1997-2023 Рахимов Рамиль. Все права защищены.\n";
+        text +="Часть авторского права (C 2000-2023 Дарчук Александр. Все права защищены.\n\n";
+        text +="Это программное обеспечение предоставляется 'как есть', без каких-либо явных или подразумеваемых гарантий. В никаком случае автор не несет ответственности за любые убытки, возникшие в результате использования данного программного обеспечения.\n\n";
+        text +="Разрешается любому лицу использовать это программное обеспечение для любых целей, включая коммерческие приложения, а также изменять и распространять его при соблюдении следующих условий:\n";
+        text +="1. Все распространения файлов исходного кода должны сохранять все текущие авторские уведомления и этот список условий без изменений.\n";
+        text +="2. Все распространения в двоичной форме должны сохранять все указания на авторское право и веб-адреса, которые в настоящее время находятся на своих местах (например, в окнах 'О программе'.\n";
+        text +="3. Происхождение этого программного обеспечения не должно быть искажено; вы не должны утверждать, что вы написали исходное программное обеспечение. Если вы используете это программное обеспечение для распространения продукта, будет признательно, но не обязательно, включить ссылку на исходное программное обеспечение в документации продукта.\n";
+        text +="4. Измененные версии в исходной или двоичной форме должны быть явно помечены как таковые и не должны искажаться как оригинальное программное обеспечение.\n\n";
+        text +="Рахимов Рамиль\n";
+        text +="MDA-2023 AT mydocsapp.publicrelations@gmail.com\n";
+        text +="mydocsapp.publicrelations@gmail.com";
+        makeSettingsDialog(text);
     }
     private void onHelpBtnClick() {
-        String link = "http:/vk.com/ebooii";
+        String link = "https://vk.com/doc155887480_66397O6";
         makeSettingsDialog(getString(R.string.help_dialog_text) + link);
     }
     private void makeSettingsDialog(String text) {

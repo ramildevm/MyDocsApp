@@ -1,6 +1,7 @@
 package com.example.mydocsapp.api;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.mydocsapp.models.CreditCard;
 import com.example.mydocsapp.models.EncryptedResponse;
@@ -288,5 +289,14 @@ public class MainApiService {
                 callback.onError("An error occurred while adding the data. " + t.getMessage() + "\n" + t.getLocalizedMessage());
             }
         });
+    }
+
+    public void UpdateUser(User user, ResponseCallback callback) {
+        String json = new Gson().toJson(user);
+        String text = CryptoService.Encrypt(json);
+        EncryptedResponse encryptedResponse = new EncryptedResponse();
+        encryptedResponse.setEncryptedData(text);
+        Call<EncryptedResponse> call = apiService.updateUser(user.Id, encryptedResponse);
+        executeEncryptedRequest(call, callback);
     }
 }

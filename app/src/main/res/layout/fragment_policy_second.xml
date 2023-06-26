@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".PolicySecondFragment">
+
+    <ImageView
+        android:id="@+id/first_policy_photo"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="@drawable/view_round_white"
+        android:layout_marginRight="35dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginTop="10dp"
+        android:tag="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/load_page1_photo_btn"
+        />
+    <Button
+        android:id="@+id/load_page1_photo_btn"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="20dp"
+        android:text="@string/load_image"
+        android:textAllCaps="false"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/first_policy_photo"
+        app:layout_constraintEnd_toEndOf="@id/first_policy_photo"
+        app:layout_constraintTop_toBottomOf="@id/first_policy_photo"
+        app:layout_constraintBottom_toTopOf="@+id/second_policy_photo"
+        />
+
+    <ImageView
+        android:id="@+id/second_policy_photo"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/view_round_white"
+        android:tag="0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/load_page1_photo_btn"
+        app:layout_constraintBottom_toTopOf="@+id/load_page2_photo_btn"
+        />
+    <Button
+        android:id="@+id/load_page2_photo_btn"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="20dp"
+        android:text="@string/load_image"
+        android:textAllCaps="false"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/second_policy_photo"
+        app:layout_constraintEnd_toEndOf="@id/second_policy_photo"
+        app:layout_constraintTop_toBottomOf="@id/second_policy_photo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

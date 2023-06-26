@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +24,6 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
@@ -48,17 +46,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.crypto.NoSuchPaddingException;
 
 
 public class PassportFirstFragment extends Fragment implements IFragmentDataSaver {
@@ -92,10 +83,12 @@ public class PassportFirstFragment extends Fragment implements IFragmentDataSave
         boolean flag = true;
         if (!ValidationService.isValidDateFormat(dateBirth,"dd-MM-yyyy") & !dateBirth.isEmpty()){
             binding.editTextDateBirth.setError(getString(R.string.invalid_date));
+            binding.copy6.setVisibility(View.INVISIBLE);
             flag =  false;
         }
         if (!ValidationService.isValidDateFormat(dateIssue,"dd-MM-yyyy") & !dateIssue.isEmpty()){
             binding.editTextDateIssue.setError(getString(R.string.invalid_date));
+            binding.copy2.setVisibility(View.INVISIBLE);
             flag =  false;
         }
         return flag;
@@ -132,7 +125,6 @@ public class PassportFirstFragment extends Fragment implements IFragmentDataSave
             }
         });
         loadData();
-
         binding.loadProfilePhotoBtn.setOnClickListener(v -> {
             if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = CropImage.activity()
@@ -146,7 +138,7 @@ public class PassportFirstFragment extends Fragment implements IFragmentDataSave
             if (model.getState().getValue().FacePhoto == null)
                 return;
             Intent intent = new Intent(getActivity(), ImageActivity.class);
-            Item item = ((MainPassportPatternActivity) getActivity()).getCurrentItem();
+            Item item = ((MainDocumentPatternActivity) getActivity()).getCurrentItem();
             intent.putExtra("text", item.Title);
             String fileName = model.getState().getValue().FacePhoto;
             intent.putExtra("item", item);

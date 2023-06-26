@@ -1,15 +1,16 @@
 package com.example.mydocsapp.models;
 
+import com.example.mydocsapp.interfaces.DatabaseObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.UUID;
 
-public class Snils {
+public class Snils implements DatabaseObject {
     public UUID Id;
     public String Number;
     public String FIO;
-    public char Gender;
+    public String Gender;
     public String BirthDate;
     public String BirthPlace;
     public String RegistrationDate;
@@ -18,7 +19,7 @@ public class Snils {
     public String PhotoPage1;
     public String UpdateTime;
 
-    public Snils(UUID id, String number, String FIO, char gender, String birthDate, String birthPlace, String registrationDate, String photoPage1, String updateTime) {
+    public Snils(UUID id, String number, String FIO, String gender, String birthDate, String birthPlace, String registrationDate, String photoPage1, String updateTime) {
         Id = id;
         Number = number;
         this.FIO = FIO;

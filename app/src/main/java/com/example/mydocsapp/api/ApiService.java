@@ -16,10 +16,8 @@ public interface ApiService {
     Call<EncryptedResponse> getEncryptedUserByEmailAndPassword(@Query("email") String email, @Query("password") String password);
     @POST("api/users")
     Call<EncryptedResponse> postEncryptedUser(@Body EncryptedResponse encryptedResponse);
-    @DELETE("api/users/{id}")
-    Call<Void> deleteUser(@Path("id") int id);
     @PUT("api/users/{id}")
-    Call<EncryptedResponse> updateUser(@Path("id") int id);
+    Call<EncryptedResponse> updateUser(@Path("id") int id, @Body EncryptedResponse encryptedResponse);
     @GET("api/items")
     Call<EncryptedResponse> getEncryptedItems(@Query("userId") int userId, @Query("updateTimeString") String updateTimeString);
     @POST("api/items")

@@ -98,7 +98,7 @@
     <string name="upload_to_the_server">Upload to the server</string>
     <string name="select_language">Select a language</string>
     <string name="help_dialog_text">"You can read the user manual at the link "</string>
-    <string name="privacy_policy_dialog_text" >Rrivacy policy is not avaible yet</string>
+    <string name="privacy_policy_dialog_text">Rrivacy policy is not avaible yet</string>
     <string name="pin_code_created">PIN code created</string>
     <string name="pin_code_short">PIN code is too short</string>
     <string name="password_short">Password is too short</string>
@@ -106,10 +106,16 @@
     <string name="pin_code_deleted">PIN code deleted</string>
     <string name="long_about_text">empty</string>
     <string name="pdf_document_created">Pdf document was saved to Downloads</string>
-    <string name="image_saved">Image saved</string>
     <string name="album">Album</string>
     <string name="old_password">Old password</string>
     <string name="invalid_email">Invalid Email</string>
     <string name="loading">"Loading: "</string>
     <string name="invalid_date">Invalid date</string>
+    <string name="registration_date">Registration date</string>
+    <string name="number">Number</string>
+    <string name="snils">SNILS</string>
+    <string name="error_user_password">Incorrect password</string>
+    <string name="error_login_short">Login is too short</string>
+    <string name="set_pincode_first">Set PIN-code in settings first</string>
+    <string name="image_saved">Image saved</string>
 </resources>

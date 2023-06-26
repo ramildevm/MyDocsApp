@@ -2,12 +2,15 @@ package com.example.mydocsapp;
 
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Pair;
@@ -26,6 +29,7 @@ import androidx.appcompat.widget.AppCompatTextView;
 
 import com.example.mydocsapp.api.MainApiService;
 import com.example.mydocsapp.api.ResponseCallback;
+import com.example.mydocsapp.apputils.ImageService;
 import com.example.mydocsapp.models.User;
 import com.example.mydocsapp.services.AppService;
 import com.example.mydocsapp.services.CryptoService;
@@ -33,6 +37,7 @@ import com.example.mydocsapp.services.DBHelper;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.io.IOException;
 
 public class LoginActivity extends AppCompatActivity {
@@ -51,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
             int id = user.Id;
             AppService.setUserId(id, this);
             AppService.setHideMode(false);
-            String pinCode = user.PinCode;
+            String pinCode = user.AccessCode;
             if(pinCode == null) {
                 Intent intent = new Intent(LoginActivity.this, MainContentActivity.class);
                 startActivity(intent);
@@ -138,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
     }
     private void onNumberClick(View v, TextView pinCodeTxt, TextInputLayout textInputLayout) {
         textInputLayout.setError(null);
-        if(pinCodeTxt.getText().toString().length()<4) {
+        if(pinCodeTxt.getText().toString().length()<30) {
             String text = pinCodeTxt.getText().toString();
             pinCodeTxt.setText(text+((Button) v).getText());
         }
@@ -146,14 +151,11 @@ public class LoginActivity extends AppCompatActivity {
     private void loginMethod() {
         String email = ((TextView) findViewById(R.id.editTextEmail)).getText().toString();
         String password = ((TextView) findViewById(R.id.editTextPassword)).getText().toString();
-        email = "e@mail.ru";
-        password = "12345678"; //TODO: delete
         if (email.isEmpty() | password.isEmpty()) {
             Toast msg = Toast.makeText(LoginActivity.this, R.string.error_not_all_fields_filled, Toast.LENGTH_SHORT);
             msg.show();
             return;
         }
-        //fromDB(email, password);
         fromAPI(email, password);
     }
 
@@ -180,7 +182,7 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove("email").commit();
         editor.remove("Id").commit();
-        editor.putString("email", user.Login);
+        editor.putString("email", user.Email);
         editor.apply();
         AppService.setUserId(user.Id, this);
         String pinCode = preferences.getString(user.Id+"", "");
@@ -239,6 +241,12 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     decryptedData = CryptoService.Decrypt(encryptedData);
                     User user = new Gson().fromJson(decryptedData, User.class);
+                    File rootDir = getApplicationContext().getFilesDir();
+                    String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/" + user.Id+"/UserPhotoFolder/";
+                    File dir = new File(imgPath);
+                    if (!dir.exists())
+                        dir.mkdirs();
+                    user.Photo = ImageService.getPhotoFile(user.Photo, imgPath+"UserPhoto"+"_file");
                     if(db.getUserById(user.Id)==null)
                         db.insertUser(user);
                     db.updateUserDate(user.Id, user.UpdateTime);
@@ -246,7 +254,7 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.remove("email").commit();
                     editor.remove("Id").commit();
-                    editor.putString("email", user.Login);
+                    editor.putString("email", user.Email);
                     editor.apply();
                     AppService.setUserId(user.Id, LoginActivity.this);
                     String pinCode = preferences.getString(user.Id+"", "");

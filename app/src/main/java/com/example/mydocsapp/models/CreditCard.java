@@ -1,11 +1,12 @@
 package com.example.mydocsapp.models;
 
+import com.example.mydocsapp.interfaces.DatabaseObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.UUID;
 
-public class CreditCard
+public class CreditCard implements DatabaseObject
 {
     public UUID Id;
     public String Number;

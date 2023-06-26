@@ -10,13 +10,15 @@ import android.graphics.drawable.Drawable;
 import android.graphics.pdf.PdfDocument;
 import android.os.Build;
 import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.example.mydocsapp.models.Inn;
 import com.example.mydocsapp.models.Passport;
+import com.example.mydocsapp.models.Polis;
+import com.example.mydocsapp.models.Snils;
 import com.example.mydocsapp.models.TemplateObject;
 import com.example.mydocsapp.services.AppService;
 import com.example.mydocsapp.services.ValidationService;
@@ -31,11 +33,23 @@ import java.util.Map;
 public class PDFMaker {
     private static final int CREATE_MODE_PASSPORT = 1;
     private static final int CREATE_MODE_TEMPLATE = 3;
+    private static final int CREATE_MODE_SNILS = 5;
+    private static final int CREATE_MODE_INN = 7;
+    private static final int CREATE_MODE_POLIS = 9;
     private static final int PDF_WIDTH = 595*2;
     private static final int PDF_HEIGHT = 842*2;
 
     public static Boolean createPassportPDF(Passport passport, int id) {
         return createPDF(CREATE_MODE_PASSPORT, passport, null, id);
+    }
+    public static boolean createSnilsPDF(Snils snils, int userId) {
+        return createPDF(CREATE_MODE_SNILS, snils, null, userId);
+    }
+    public static boolean createInnPDF(Inn inn, int userId) {
+        return createPDF(CREATE_MODE_INN, inn, null, userId);
+    }
+    public static boolean createPolisPDF(Polis polis, int userId) {
+        return createPDF(CREATE_MODE_POLIS, polis, null, userId);
     }
     public static Boolean createTemplatePDF(List<TemplateObject> templateObjects, Map<TemplateObject, View> templateViews, int id) {
         return createPDF(CREATE_MODE_TEMPLATE, templateViews, templateObjects, id);
@@ -61,6 +75,21 @@ public class PDFMaker {
                 Passport passport = (Passport) object;
                 fileName = "/passport" + id + "_" +passport.Id + ".pdf";
                 makePassport(pdfDocument, pageInfo, page1, canvas1, paint, boldPaint, x, y, passport);
+                break;
+            case CREATE_MODE_SNILS:
+                Snils snils = (Snils) object;
+                fileName = "/snils" + id + "_" +snils.Id + ".pdf";
+                makeSnils(pdfDocument, pageInfo, page1, canvas1, paint, boldPaint, x, y, snils);
+                break;
+            case CREATE_MODE_INN:
+                Inn inn = (Inn) object;
+                fileName = "/inn" + id + "_" +inn.Id + ".pdf";
+                makeInn(pdfDocument, pageInfo, page1, canvas1, paint, boldPaint, x, y, inn);
+                break;
+            case CREATE_MODE_POLIS:
+                Polis Polis = (Polis) object;
+                fileName = "/Polis" + id + "_" +Polis.Id + ".pdf";
+                makePolis(pdfDocument, pageInfo, page1, canvas1, paint, boldPaint, x, y, Polis);
                 break;
             case CREATE_MODE_TEMPLATE:
                 Map<TemplateObject, View> templateViews = (Map<TemplateObject, View>) object;
@@ -88,6 +117,81 @@ public class PDFMaker {
         }
         pdfDocument.close();
         return result;
+    }
+
+    private static void makeInn(PdfDocument pdfDocument, PdfDocument.PageInfo pageInfo, PdfDocument.Page page1, Canvas canvas1, Paint paint, Paint boldPaint, float x, float y, Inn inn) {
+        Bitmap photo;
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "Номер: ", inn.Number);
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "ФИО: ", inn.FIO);
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "Дата рождения: ", inn.BirthDate);
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "Пол: ", inn.Gender);
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "Место рождения: ", inn.BirthPlace);
+        getYMakeText(canvas1, paint, boldPaint, x, y, "Дата регистрации: ", inn.RegistrationDate);
+        pdfDocument.finishPage(page1);
+
+        PdfDocument.Page page2 = pdfDocument.startPage(pageInfo);
+        Canvas canvas2 = page2.getCanvas();
+        x = y = 100;
+        photo = addPhoto(inn.PhotoPage1,1000,1000);
+        if(photo!=null) {
+            canvas2.drawBitmap(photo, x, y, null);
+            int imageHeight = photo.getHeight();
+            y += imageHeight + 40;
+        }
+        if(!ValidationService.isNullOrEmpty(inn.PhotoPage1))
+            pdfDocument.finishPage(page2);
+    }
+
+    private static void makePolis(PdfDocument pdfDocument, PdfDocument.PageInfo pageInfo, PdfDocument.Page page1, Canvas canvas1, Paint paint, Paint boldPaint, float x, float y, Polis polis) {
+        Bitmap photo;
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "Номер: ", polis.Number);
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "ФИО: ", polis.FIO);
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "Дата рождения: ", polis.BirthDate);
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "Пол: ", polis.Gender);
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "Годен до: ", polis.ValidUntil);
+        pdfDocument.finishPage(page1);
+
+        PdfDocument.Page page2 = pdfDocument.startPage(pageInfo);
+        Canvas canvas2 = page2.getCanvas();
+        x = y = 100;
+        photo = addPhoto(polis.PhotoPage1,1000,1000);
+        if(photo!=null) {
+            canvas2.drawBitmap(photo, x, y, null);
+        }
+        if(!ValidationService.isNullOrEmpty(polis.PhotoPage1))
+            pdfDocument.finishPage(page2);
+        PdfDocument.Page page3 = pdfDocument.startPage(pageInfo);
+        Canvas canvas3 = page3.getCanvas();
+        x = y = 100;
+        photo = addPhoto(polis.PhotoPage2,1000,1000);
+        if(photo!=null) {
+            canvas3.drawBitmap(photo, x, y, null);
+        }
+        if(!ValidationService.isNullOrEmpty(polis.PhotoPage2))
+            pdfDocument.finishPage(page3);
+    }
+
+    private static void makeSnils(PdfDocument pdfDocument, PdfDocument.PageInfo pageInfo, PdfDocument.Page page1, Canvas canvas1, Paint paint, Paint boldPaint, float x, float y, Snils snils) {
+        Bitmap photo;
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "Номер: ", snils.Number);
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "ФИО: ", snils.FIO);
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "Дата рождения: ", snils.BirthDate);
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "Пол: ", snils.Gender);
+        y = getYMakeText(canvas1, paint, boldPaint, x, y, "Место рождения: ", snils.BirthPlace);
+        getYMakeText(canvas1, paint, boldPaint, x, y, "Дата регистрации: ", snils.RegistrationDate);
+        pdfDocument.finishPage(page1);
+
+        PdfDocument.Page page2 = pdfDocument.startPage(pageInfo);
+        Canvas canvas2 = page2.getCanvas();
+        x = y = 100;
+        photo = addPhoto(snils.PhotoPage1,1000,1000);
+        if(photo!=null) {
+            canvas2.drawBitmap(photo, x, y, null);
+            int imageHeight = photo.getHeight();
+            y += imageHeight + 40;
+        }
+        if(!ValidationService.isNullOrEmpty(snils.PhotoPage1))
+            pdfDocument.finishPage(page2);
     }
 
     private static void makeTemplate(PdfDocument pdfDocument, PdfDocument.PageInfo pageInfo, PdfDocument.Page page1, Canvas canvas1, Paint paint, Paint boldPaint, float x, float y, Map<TemplateObject, View> templateViews, List<TemplateObject> templateObjects) {
@@ -155,21 +259,23 @@ public class PDFMaker {
 
         PdfDocument.Page page2 = pdfDocument.startPage(pageInfo);
         Canvas canvas2 = page2.getCanvas();
-        x = y = 100;
-        photo = addPhoto(passport.PhotoPage1,500,500);
+        x = y = 50;
+        photo = addPhoto(passport.PhotoPage1,1000,1000);
         if(photo!=null) {
-            canvas2.drawText("Лицевая сторона: ", x, y, paint);
-            canvas2.drawBitmap(photo, x, y +40, null);
+            canvas2.drawBitmap(photo, x, y, null);
             int imageHeight = photo.getHeight();
-            y += imageHeight + 40;
         }
-        photo = addPhoto(passport.PhotoPage2,500,500);
-        if(photo!=null) {
-            canvas2.drawText("Обратная сторона: ", x, y, paint);
-            canvas2.drawBitmap(photo, x, y +40, null);
-        }
-        if(!ValidationService.isNullOrEmpty(passport.PhotoPage1) & !ValidationService.isNullOrEmpty(passport.PhotoPage2))
+        if(!ValidationService.isNullOrEmpty(passport.PhotoPage1) )
             pdfDocument.finishPage(page2);
+        PdfDocument.Page page3 = pdfDocument.startPage(pageInfo);
+        Canvas canvas3 = page3.getCanvas();
+        x = y = 100;
+        photo = addPhoto(passport.PhotoPage2,1000,1000);
+        if(photo!=null) {
+            canvas3.drawBitmap(photo, x, y, null);
+        }
+        if(!ValidationService.isNullOrEmpty(passport.PhotoPage2) )
+            pdfDocument.finishPage(page3);
     }
 
     private static float getYMakeText(Canvas canvas1, Paint paint, Paint boldPaint, float x, float y, String s, String seriaNomer) {
@@ -220,4 +326,5 @@ public class PDFMaker {
         canvas.drawBitmap(originalBitmap, (squareSize - originalWidth) / 2, (squareSize - originalHeight) / 2, null);
         return resizedBitmap;
     }
+
 }

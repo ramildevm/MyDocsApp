@@ -65,6 +65,20 @@
                 android:textSize="20dp"
                 android:textStyle="bold" />
             <Button
+                android:id="@+id/SNILS_top_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:background="@drawable/rounded_transparent"
+                android:drawableLeft="@drawable/ic_document"
+                android:drawablePadding="4dp"
+                android:gravity="left|center_vertical"
+                android:text="@string/snils"
+                android:textAllCaps="false"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+
+            <Button
                 android:id="@+id/INN_top_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -3,12 +3,13 @@ package com.example.mydocsapp.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.mydocsapp.interfaces.DatabaseObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.UUID;
 
-public class Item implements Parcelable {
+public class Item implements Parcelable, DatabaseObject {
     public UUID Id;
     public String Title;
     public String Type;

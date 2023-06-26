@@ -2,13 +2,16 @@ package com.example.mydocsapp.models;
 
 import androidx.annotation.Nullable;
 
+import com.example.mydocsapp.interfaces.DatabaseObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.UUID;
 
-public class Passport {
+public class Passport implements DatabaseObject {
     public UUID Id;
+    @SerializedName("SerialNumber")
+    @Expose
     public String SeriaNomer;
     public String DivisionCode;
     public String GiveDate;

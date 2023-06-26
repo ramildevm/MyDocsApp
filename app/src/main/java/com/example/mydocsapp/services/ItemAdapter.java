@@ -6,13 +6,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -116,7 +117,22 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             }
             else if (item.Type.equals("Passport")){
                 holder.gridFolder.setVisibility(View.INVISIBLE);
-                Glide.with(context).load(R.drawable.passport_image).transform(new RoundedCorners(radius)).into(holder.imageView);
+                Glide.with(context).load(R.drawable.passport_image_item).transform(new RoundedCorners(radius)).into(holder.imageView);
+                holder.imageView.setVisibility(View.VISIBLE);
+            }
+            else if (item.Type.equals("SNILS")){
+                holder.gridFolder.setVisibility(View.INVISIBLE);
+                Glide.with(context).load(R.drawable.snils_image).transform(new RoundedCorners(radius)).into(holder.imageView);
+                holder.imageView.setVisibility(View.VISIBLE);
+            }
+            else if (item.Type.equals("INN")){
+                holder.gridFolder.setVisibility(View.INVISIBLE);
+                Glide.with(context).load(R.drawable.inn_image).transform(new RoundedCorners(radius)).into(holder.imageView);
+                holder.imageView.setVisibility(View.VISIBLE);
+            }
+            else if (item.Type.equals("Polis")){
+                holder.gridFolder.setVisibility(View.INVISIBLE);
+                Glide.with(context).load(R.drawable.policy_image).transform(new RoundedCorners(radius)).into(holder.imageView);
                 holder.imageView.setVisibility(View.VISIBLE);
             }
             else if (item.Type.equals("CreditCard")){
@@ -126,7 +142,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             }
             else{
                 holder.gridFolder.setVisibility(View.INVISIBLE);
-                Glide.with(context).load(R.drawable.passport_image).transform(new RoundedCorners(radius)).into(holder.imageView);
+                Glide.with(context).load(R.drawable.document_image).transform(new RoundedCorners(radius)).into(holder.imageView);
                 holder.imageView.setVisibility(View.VISIBLE);
             }
         }
@@ -139,10 +155,15 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 Bitmap combinedBitmap;
                 Bitmap image;
                 if(item.Type.equals("Collection")) {
+                    holder.imageView.setVisibility(View.VISIBLE);
+                    holder.gridFolder.setVisibility(View.INVISIBLE);
+                    holder.gridFolder.setAdapter(new FolderItemAdapter(context,new ArrayList<>()));
                     ArrayList<Bitmap> photos = new ArrayList<>();
                     List<Photo> photoList = db.getPhotos(item.Id);
                     for (Photo photo :
                             photoList) {
+                        if(photo.Image==null)
+                            continue;
                         outputFile = new File(photo.Image +"_copy");
                         encFile = new File(photo.Image);
                         MyEncrypter.decryptToFile(AppService.getMy_key(), AppService.getMy_spec_key(), new FileInputStream(encFile), new FileOutputStream(outputFile));
@@ -223,12 +244,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             holder.icoImg.setImageResource(R.drawable.ic_user_template);
         else if (item.Type.equals("CreditCard"))
             holder.icoImg.setImageResource(R.drawable.ic_card);
-        else if (item.Type.equals("Изображение")) {
-            holder.imageView.setVisibility(View.VISIBLE);
-            holder.gridFolder.setVisibility(View.INVISIBLE);
-            holder.icoImg.setImageResource(R.drawable.ic_image);
-        }
-        else if (item.Type.equals("Альбом")) {
+        else if (item.Type.equals("Collection")) {
             holder.imageView.setVisibility(View.VISIBLE);
             holder.gridFolder.setVisibility(View.INVISIBLE);
             holder.icoImg.setImageResource(R.drawable.ic_image_collection);
@@ -333,7 +349,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         int position;
         Item oldItem = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            oldItem = items.stream().filter(item1 -> item1.Id == item.Id).findFirst().get();
+            oldItem = items.stream().filter(item1 -> item1.Id.equals(item.Id)).findFirst().get();
         }
         newItem = oldItem;
         position = items.indexOf(oldItem);
@@ -351,7 +367,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         final ImageView selectBtn;
         final ImageView pinBtn;
         final ImageView icoImg;
-        final TextView titleView;
+        final Button titleView;
         final ConstraintLayout itemPanel;
         final GridView gridFolder;
         final ConstraintLayout folderContentBack;

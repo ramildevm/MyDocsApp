@@ -20,6 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="Введите PIN-код"
+        android:inputType="textVisiblePassword"
         android:textAlignment="center"
         android:maxLength="30"
         android:textSize="20sp"

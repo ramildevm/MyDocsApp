@@ -1,11 +1,12 @@
 package com.example.mydocsapp.models;
 
+import com.example.mydocsapp.interfaces.DatabaseObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.UUID;
 
-public class Photo {
+public class Photo implements DatabaseObject {
     public UUID Id;
     @SerializedName("Image64")
     @Expose
@@ -18,5 +19,10 @@ public class Photo {
         Image = path;
         CollectionId = collectionId;
         UpdateTime = updateTime;
+    }
+
+    @Override
+    public void setValuesNull() {
+        Image = UpdateTime = null;
     }
 }
