@@ -233,6 +233,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void fromAPI(String email, String password) {
+        password = CryptoService.encryptString(this,BuildConfig.ENCRYPTION_KEY_2, password);
         MainApiService mainApiService = new MainApiService(this);
         mainApiService.GetUser(email, password, new ResponseCallback() {
             @Override

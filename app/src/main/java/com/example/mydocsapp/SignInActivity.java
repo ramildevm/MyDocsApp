@@ -24,6 +24,7 @@ import com.example.mydocsapp.services.CryptoService;
 import com.example.mydocsapp.services.DBHelper;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -138,15 +139,21 @@ public class SignInActivity extends AppCompatActivity {
         String formattedDateTime = dateFormat.format(new Date(datetimeMillis));
         User user = new User(0, email, email, password, null, null, formattedDateTime);
         user.Photo = ImageService.getPhoto(user.Photo);
+        user.Password = CryptoService.encryptString(this,BuildConfig.ENCRYPTION_KEY_2,user.Password);
         mainApiService.CreateUser(user, new ResponseCallback() {
             @Override
             public void onSuccess(String encryptedData) {
                 String decryptedData;
-//                try {
+                try {
                     decryptedData = CryptoService.Decrypt(encryptedData);
                     User user = new Gson().fromJson(decryptedData, User.class);
-                    user.Photo = null; //TODO: convert to file
-                    Boolean result = db.insertUser(user);
+                    File rootDir = getApplicationContext().getFilesDir();
+                    String imgPath = rootDir.getAbsolutePath() + "/" + MainContentActivity.APPLICATION_NAME + "/" + user.Id+"/UserPhotoFolder/";
+                    File dir = new File(imgPath);
+                    if (!dir.exists())
+                        dir.mkdirs();
+                    user.Photo = ImageService.getPhotoFile(user.Photo, imgPath+"UserPhoto"+"_file");
+                    db.insertUser(user);
                     Toast.makeText(SignInActivity.this, R.string.result_successful_user_adding, Toast.LENGTH_SHORT).show();
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(SignInActivity.this);
                     SharedPreferences.Editor editor = preferences.edit();
@@ -159,10 +166,10 @@ public class SignInActivity extends AppCompatActivity {
                     Intent intent = new Intent(SignInActivity.this, MainContentActivity.class);
                     startActivity(intent);
                     overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out);
-//                }
-//                catch (Exception e){
-//                    Toast.makeText(SignInActivity.this, "Some error", Toast.LENGTH_SHORT).show();
-//                }
+                }
+                catch (Exception e){
+                    Toast.makeText(SignInActivity.this, "Some error", Toast.LENGTH_SHORT).show();
+                }
             }
             @Override
             public void onConflict() {

@@ -104,12 +104,14 @@ public class AccountSettingsActivity extends AppCompatActivity {
         user.Photo = ImageService.getPhoto(User.Photo);
         user.Email = email;
         user.Login = login;
-        if(!password.isEmpty())
+        if(!password.isEmpty()) {
+            password = CryptoService.encryptString(this, BuildConfig.ENCRYPTION_KEY_2, password);
             user.Password = password;
+        }
         mainApiService.UpdateUser(user, new ResponseCallback() {
             @Override
             public void onSuccess(String encryptedData) {
-                String decryptedData = null;
+                String decryptedData;
                 try {
                     decryptedData = CryptoService.Decrypt(encryptedData);
                     User user = new Gson().fromJson(decryptedData, User.class);
