@@ -7,7 +7,7 @@
 
 ● Клиент:
   - мобильное приложение MyDocs под Android на языке Java;
-  - десктоп приложение MyDocsApp пол Windows на языке C# (https://github.com/sasha132100/MyDocsApp).
+  - десктоп приложение MyDocsApp пол Windows на языке C#.
     
 ● Сервер: RESTful Web Api сервер на ASP.Net. (https://github.com/ramildevm/WebApiMyDocs)
 
