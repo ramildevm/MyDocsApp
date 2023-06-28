@@ -9,7 +9,7 @@
   - мобильное приложение MyDocs под Android на языке Java;
   - десктоп приложение MyDocsApp пол Windows на языке C# (https://github.com/sasha132100/MyDocsApp).
     
-● Сервер: RESTful Web Api сервер на ASP.Net. 
+● Сервер: RESTful Web Api сервер на ASP.Net. (https://github.com/ramildevm/WebApiMyDocs)
 
 ● База данных: MS SQL Server. 
 
