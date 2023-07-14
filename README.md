@@ -3,15 +3,16 @@
 Приложение имеет серверную часть для реализации функционала синхронизации между устройствами.
 <h2>Структура ИС</h2>
 
-![СтруктураИсДиплом](https://github.com/ramildevm/MyDocsApp/assets/58982208/4ad5ca7b-e621-48d0-9e6d-36a0ccc3a495)
+![СтруктураИсДиплом](https://github.com/ramildevm/MyDocsApp/assets/58982208/c8eeb849-b8a6-4499-ae72-46707370ec3f)
 
 ● Клиент:
+
   - мобильное приложение MyDocs под Android на языке Java;
   - десктоп приложение MyDocsApp пол Windows на языке C# (https://github.com/sasha132100/DiplomWPFnetFramework).
     
 ● Сервер: RESTful Web Api сервер на ASP.Net. (https://github.com/ramildevm/WebApiMyDocs)
 
-● База данных: MS SQL Server. 
+● База данных: MS SQL Server, MongoDB. 
 
 <h2>USE CASE диаграмма приложения</h2>
 
